@@ -11,6 +11,7 @@ import java.util.GregorianCalendar;
 import java.util.List;
 
 import javax.annotation.processing.Messager;
+import javax.security.auth.login.LoginException;
 
 import org.dreambot.api.methods.Calculations;
 import org.dreambot.api.methods.magic.Normal;
@@ -30,10 +31,9 @@ import org.dreambot.api.wrappers.interactive.GameObject;
 import org.dreambot.api.wrappers.interactive.Player;
 import org.dreambot.api.wrappers.widgets.WidgetChild;
 import org.dreambot.api.wrappers.widgets.message.Message;
-import org.telegram.telegrambots.ApiContextInitializer;
-import org.telegram.telegrambots.meta.TelegramBotsApi;
-import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
-import org.telegram.telegrambots.meta.exceptions.TelegramApiRequestException;
+
+import net.dv8tion.jda.api.AccountType;
+import net.dv8tion.jda.api.JDABuilder;
 
 /**
  * TODO:
@@ -70,7 +70,7 @@ public class MainLooper extends AbstractScript implements AdvancedMessageListene
 	private String infoText;
 	private boolean pause;
 	private boolean fullLoopStop;
-	private TelegramChat messenger;
+	private Discord messenger;
 	private boolean autoReact;
 	private boolean hopperTest;
 	private boolean nextModule;
@@ -201,14 +201,17 @@ public class MainLooper extends AbstractScript implements AdvancedMessageListene
 		
 		
 		
-		ApiContextInitializer.init();
-        TelegramBotsApi botsApi = new TelegramBotsApi();  
+		JDABuilder builder = new JDABuilder(AccountType.BOT);
+        String token = "NjY0NTQ1NTcwMTUyNTEzNTQ3.XhZZfA.t42nR6nQJex7A9VsK9aBCT4zNZ4";
+        Discord discord = new Discord();
+        discord.setScript(this);
+        this.messenger = discord;
+        
+        builder.setToken(token);
+        builder.addEventListeners(new Discord());
         try {
-			botsApi.registerBot(new TelegramChat(this));
-		} catch (TelegramApiRequestException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		} 
+			builder.build();
+		} catch (LoginException e) {e.printStackTrace();}
         
         this.nextModule = true;
         this.scriptPause = false;
@@ -740,11 +743,11 @@ public class MainLooper extends AbstractScript implements AdvancedMessageListene
 		return autoReact;
 	}
 	
-	public void setMessenger(TelegramChat chat) {
+	public void setMessenger(Discord chat) {
 		this.messenger = chat;
 	}
 	
-	public TelegramChat getMessenger() {
+	public Discord getMessenger() {
 		return this.messenger;
 	}
 	

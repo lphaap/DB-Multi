@@ -1,12 +1,12 @@
 import org.dreambot.api.wrappers.widgets.message.Message;
 
 public class ChatResponder {
-	private TelegramChat telegram;
+	private Discord discord;
 	private MainLooper script;
-	private Main
 	
-	public ChatResponder(MainLooper script, TelegramChat telegram) {
-		this.telegram = telegram;
+	
+	public ChatResponder(MainLooper script, Discord discord) {
+		this.discord = discord;
 		this.script = script;
 	}
 	

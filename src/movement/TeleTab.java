@@ -1,11 +1,11 @@
 package movement;
 import org.dreambot.api.methods.map.Tile;
 
-import init.MainLooper;
+import init.ClientThread;
 
 public class TeleTab extends TeleportItem{
 
-	public TeleTab(MainLooper script, Tile location, Tile bank, String locationname, String itemName) {
+	public TeleTab(ClientThread script, Tile location, Tile bank, String locationname, String itemName) {
 		super(script, location, bank, locationname, "Break", itemName);
 		
 	}

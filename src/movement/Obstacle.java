@@ -2,16 +2,16 @@ package movement;
 import org.dreambot.api.wrappers.interactive.GameObject;
 import org.dreambot.api.wrappers.interactive.NPC;
 
-import init.MainLooper;
+import init.ClientThread;
 
 public class Obstacle {
 	private String nameBefore;
 	private String nameAfter;
 	private String interactBefore;
 	private String interactAfter;
-	private MainLooper script;
+	private ClientThread script;
 	
-	public Obstacle(MainLooper script, String nameBefore, String nameAfter, String interactBefore, String interactAfter) {
+	public Obstacle(ClientThread script, String nameBefore, String nameAfter, String interactBefore, String interactAfter) {
 		this.nameBefore = nameBefore;
 		this.nameAfter = nameAfter;
 		this.interactBefore = interactBefore;
@@ -19,7 +19,7 @@ public class Obstacle {
 		this.script = script;
 	}
 	
-	public Obstacle(MainLooper script, String nameBefore,  String interactBefore) {
+	public Obstacle(ClientThread script, String nameBefore,  String interactBefore) {
 		this.nameBefore = nameBefore;
 		this.nameAfter = nameBefore;
 		this.interactBefore = interactBefore;

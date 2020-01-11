@@ -1,14 +1,14 @@
 package chat;
 import org.dreambot.api.wrappers.widgets.message.Message;
 
-import init.MainLooper;
+import init.ClientThread;
 
 public class ChatResponder {
 	private Discord discord;
-	private MainLooper script;
+	private ClientThread script;
 	
 	
-	public ChatResponder(MainLooper script, Discord discord) {
+	public ChatResponder(ClientThread script, Discord discord) {
 		this.discord = discord;
 		this.script = script;
 	}

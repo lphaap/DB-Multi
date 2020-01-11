@@ -1,12 +1,12 @@
 package movement;
 import org.dreambot.api.methods.map.Tile;
 
-import init.MainLooper;
+import init.ClientThread;
 
 public class TeleAmulet extends TeleportItem{
 	private int actionNumber;
 	
-	public TeleAmulet(MainLooper script, Tile location, Tile bank, String locationname, String itemName, int actionNumber) {
+	public TeleAmulet(ClientThread script, Tile location, Tile bank, String locationname, String itemName, int actionNumber) {
 		super(script, location, bank, locationname, "Rub", itemName);
 		this.actionNumber = actionNumber;
 	}

@@ -16,8 +16,8 @@ import org.dreambot.api.wrappers.items.Item;
 
 import scripts.ScriptModule;
 
-public class LocationPrinter extends ScriptModule{
-	private MainLooper script;
+public class ScriptTester extends ScriptModule{
+	private ClientThread script;
 	private Random random = new Random();
 	
 	
@@ -135,7 +135,7 @@ public class LocationPrinter extends ScriptModule{
 	
 	
 	
-	public LocationPrinter(MainLooper script) {
+	public ScriptTester(ClientThread script) {
 		this.script = script;
 	}
 

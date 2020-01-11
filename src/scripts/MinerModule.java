@@ -11,12 +11,12 @@ import org.dreambot.api.wrappers.interactive.Entity;
 import org.dreambot.api.wrappers.interactive.GameObject;
 import org.dreambot.api.wrappers.interactive.Player;
 
-import init.MainLooper;
+import init.ClientThread;
 import movement.Location;
 import movement.Locations;
 
 public class MinerModule extends ScriptModule{
-	private MainLooper script;
+	private ClientThread script;
 	private Location location;
 	private int oreID;
 	private int delay;
@@ -31,7 +31,7 @@ public class MinerModule extends ScriptModule{
 	private boolean error;
 
 	
-	public MinerModule(MainLooper script, Locations location, MinerModule.Ore ore, int limit) {
+	public MinerModule(ClientThread script, Locations location, MinerModule.Ore ore, int limit) {
 		this.script = script;
 		this.limit = limit; 
 		this.ore = ore;

@@ -8,13 +8,13 @@ import org.dreambot.api.wrappers.interactive.NPC;
 import org.dreambot.api.wrappers.items.GroundItem;
 import org.dreambot.api.wrappers.items.Item;
 
-import init.MainLooper;
+import init.ClientThread;
 import movement.Location;
 import movement.Locations;
 
 public class CombatModule extends ScriptModule {
 	private Random random = new Random();
-	private MainLooper script;
+	private ClientThread script;
 	private String monsterName;
 	private Skill skillToTrain;
 	private String food;
@@ -33,7 +33,7 @@ public class CombatModule extends ScriptModule {
 	private boolean error;
 	private Training skill;
 	
-	public CombatModule(MainLooper script, CombatModule.Monster monster, CombatModule.Food food, int limit, Boolean pickUp, Training skill) {
+	public CombatModule(ClientThread script, CombatModule.Monster monster, CombatModule.Food food, int limit, Boolean pickUp, Training skill) {
 		eatAt = random.nextInt(6) + 10;
 		this.limit = limit;
 		this.script = script;

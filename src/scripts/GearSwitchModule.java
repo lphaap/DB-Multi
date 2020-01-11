@@ -6,16 +6,16 @@ import org.dreambot.api.methods.skills.Skill;
 import org.dreambot.api.methods.tabs.Tab;
 import org.dreambot.api.wrappers.items.Item;
 
-import init.MainLooper;
+import init.ClientThread;
 
 public class GearSwitchModule extends ScriptModule {
 	private ArrayList<String> gear;
 	private ArrayList<Boolean> found;
-	private MainLooper script;
+	private ClientThread script;
 	private Random random = new Random();
 	private boolean repeat;
 	
-	public GearSwitchModule(MainLooper script, ArrayList<String> gear) {
+	public GearSwitchModule(ClientThread script, ArrayList<String> gear) {
 		this.gear = gear;
 		this.script = script;
 		this.found = new ArrayList<Boolean>();

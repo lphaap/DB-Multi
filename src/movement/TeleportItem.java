@@ -3,18 +3,18 @@ import java.util.Random;
 
 import org.dreambot.api.methods.map.Tile;
 
-import init.MainLooper;
+import init.ClientThread;
 
 public abstract class TeleportItem {
 	protected String locationName;
 	protected String itemName;
 	protected String action;
 	protected Tile xy;
-	protected MainLooper script;
+	protected ClientThread script;
 	protected Random random;
 	protected Tile bankTile;
 	
-	public TeleportItem(MainLooper script, Tile location, Tile bank, String locationname, String action, String itemName) {
+	public TeleportItem(ClientThread script, Tile location, Tile bank, String locationname, String action, String itemName) {
 		this.xy = location;
 		this.locationName = locationName;
 		this.action = action;

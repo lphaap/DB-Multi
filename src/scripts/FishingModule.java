@@ -5,7 +5,7 @@ import org.dreambot.api.methods.skills.Skill;
 import org.dreambot.api.wrappers.interactive.GameObject;
 import org.dreambot.api.wrappers.interactive.NPC;
 
-import init.MainLooper;
+import init.ClientThread;
 import movement.Location;
 import movement.Locations;
 
@@ -16,7 +16,7 @@ public class FishingModule extends ScriptModule {
 	private Location location;
 	private Random random;
 	private int limit;
-	private MainLooper script;
+	private ClientThread script;
 	private int delay;
 	private boolean bankTheFish;
 	private String interactWith;
@@ -33,7 +33,7 @@ public class FishingModule extends ScriptModule {
 	
 	
 	
-	public FishingModule(MainLooper script, FishingModule.Fish fish, int limit, boolean bank) {
+	public FishingModule(ClientThread script, FishingModule.Fish fish, int limit, boolean bank) {
 		this.limit = limit;
 		this.script = script;
 		this.bankTheFish = bank;

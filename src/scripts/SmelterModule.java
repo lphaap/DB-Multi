@@ -8,12 +8,12 @@ import org.dreambot.api.methods.widget.Widget;
 import org.dreambot.api.wrappers.interactive.GameObject;
 import org.dreambot.api.wrappers.widgets.WidgetChild;
 
-import init.MainLooper;
+import init.ClientThread;
 import movement.Location;
 import movement.Locations;
 
 public class SmelterModule extends ScriptModule {
-	private MainLooper script;
+	private ClientThread script;
 	private int actionsCompleted;
 	private Location location;
 	private OreToBar bar;
@@ -23,7 +23,7 @@ public class SmelterModule extends ScriptModule {
 	private Locations locationEnum;
 	private Bars barEnum;
 	
-	public SmelterModule(Locations location, SmelterModule.Bars b, MainLooper script) {
+	public SmelterModule(Locations location, SmelterModule.Bars b, ClientThread script) {
 		this.location = new Location(script, location);
 		this.bar = new OreToBar(b);
 		this.random = new Random();

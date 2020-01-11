@@ -14,12 +14,12 @@ import org.dreambot.api.wrappers.interactive.NPC;
 import org.dreambot.api.wrappers.items.Item;
 import org.dreambot.api.wrappers.widgets.WidgetChild;
 
-import init.MainLooper;
+import init.ClientThread;
 import movement.Location;
 import movement.Locations;
 
-public class MageTrainer extends ScriptModule{
-	private MainLooper script;
+public class MageTrainerModule extends ScriptModule{
+	private ClientThread script;
 	private Random random = new Random();
 	private int delay;
 	private int limit;
@@ -40,7 +40,7 @@ public class MageTrainer extends ScriptModule{
 	private Rectangle itemArea;
 	
 	
-	public MageTrainer(MainLooper script, int limit, Spell curse, MageTrainer.alchemyItem item) {
+	public MageTrainerModule(ClientThread script, int limit, Spell curse, MageTrainerModule.alchemyItem item) {
 		this.script = script;
 		this.limit = limit;
 		this.alchemy = Normal.HIGH_LEVEL_ALCHEMY;

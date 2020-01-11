@@ -2,7 +2,7 @@ package chat;
 import org.dreambot.api.methods.skills.Skill;
 import org.dreambot.api.wrappers.items.Item;
 
-import init.MainLooper;
+import init.ClientThread;
 import net.dv8tion.jda.api.entities.Invite.Channel;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -10,7 +10,7 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
 public class Discord extends ListenerAdapter{
 
-	private MainLooper script;
+	private ClientThread script;
 	private MessageChannel channel;
 	private boolean connected;
 
@@ -160,7 +160,7 @@ public class Discord extends ListenerAdapter{
 		channel.sendMessage(msg).queue();
 	}
 	
-	public void setScript(MainLooper script) {
+	public void setScript(ClientThread script) {
 		this.script = script;
 	}
 

@@ -8,12 +8,12 @@ import org.dreambot.api.methods.widget.Widget;
 import org.dreambot.api.wrappers.interactive.GameObject;
 import org.dreambot.api.wrappers.widgets.WidgetChild;
 
-import init.MainLooper;
+import init.ClientThread;
 import movement.Location;
 import movement.Locations;
 
 public class SmithingModule extends ScriptModule {
-	private MainLooper script;
+	private ClientThread script;
 	private Random random;
 	private int delay;
 	private Location location;
@@ -32,7 +32,7 @@ public class SmithingModule extends ScriptModule {
 	private boolean error;
 	
 	
-	public SmithingModule(SmithingModule.SmithingType type, SmithingModule.SmithingMaterial material, Locations location, MainLooper script) {
+	public SmithingModule(SmithingModule.SmithingType type, SmithingModule.SmithingMaterial material, Locations location, ClientThread script) {
 		this.type = type;
 		this.barText = getTextFromMaterial(material);
 		this.script = script;

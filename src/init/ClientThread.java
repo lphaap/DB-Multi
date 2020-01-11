@@ -56,7 +56,7 @@ import scripts.SmelterModule.Bars;
 
 
 @ScriptManifest(author = "TheSoulles", name = "Multi Bot", version = 2.1, description = "Multi Bot", category = Category.MISC)
-public class MainLooper extends AbstractScript implements AdvancedMessageListener{
+public class ClientThread extends AbstractScript implements AdvancedMessageListener{
 	
 	private int sleep;
 	private ScriptModule currentAction;

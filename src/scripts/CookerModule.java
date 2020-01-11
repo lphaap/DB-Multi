@@ -4,12 +4,12 @@ import java.util.Random;
 import org.dreambot.api.methods.skills.Skill;
 import org.dreambot.api.wrappers.interactive.GameObject;
 
-import init.MainLooper;
+import init.ClientThread;
 import movement.Location;
 import movement.Locations;
 
 public class CookerModule extends ScriptModule {
-	private MainLooper script;
+	private ClientThread script;
 	private Random random;
 	private Location location;
 	private int delay;
@@ -20,7 +20,7 @@ public class CookerModule extends ScriptModule {
 	private Locations locationEnum;
 	
 	
-	public CookerModule(MainLooper script, Locations location, Cook food) {
+	public CookerModule(ClientThread script, Locations location, Cook food) {
 		this.script = script;
 		random = new Random();
 		this.location = new Location(script, location);

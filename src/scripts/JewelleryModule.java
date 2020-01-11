@@ -6,14 +6,14 @@ import org.dreambot.api.methods.skills.Skill;
 import org.dreambot.api.wrappers.interactive.GameObject;
 import org.dreambot.api.wrappers.widgets.WidgetChild;
 
-import init.MainLooper;
+import init.ClientThread;
 import movement.Location;
 import movement.Locations;
 
 
 
 public class JewelleryModule extends ScriptModule {
-	private MainLooper script;
+	private ClientThread script;
 	private int actionsCompleted;
 	private Location location;
 	private Random random;
@@ -33,7 +33,7 @@ public class JewelleryModule extends ScriptModule {
 	private WidgetChild widget;
 	private boolean error;
 
-	public JewelleryModule(MainLooper script, Locations location,
+	public JewelleryModule(ClientThread script, Locations location,
 							JewelleryModule.JewelleryMaterial material, JewelleryModule.JewelleryType type) {
 		this.locationEnum = location;
 		this.materialEnum = material;

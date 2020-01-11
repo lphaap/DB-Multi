@@ -5,10 +5,10 @@ import java.util.Random;
 import org.dreambot.api.methods.map.Area;
 import org.dreambot.api.methods.map.Tile;
 
-import init.MainLooper;
+import init.ClientThread;
 
 public class Teleporter {
-	private MainLooper script;
+	private ClientThread script;
 	private Tile target;
 	private Tile teleport;
 	private Tile bank;
@@ -17,7 +17,7 @@ public class Teleporter {
 	private ArrayList<TeleportItem> teleLocations;
 	private Random random = new Random();
 	
-	public Teleporter(MainLooper script, Area target) {
+	public Teleporter(ClientThread script, Area target) {
 		this.script = script;
 		this.target = target.getNearestTile(script.getLocalPlayer());
 		

@@ -4,7 +4,7 @@ import java.util.Random;
 import org.dreambot.api.methods.map.Area;
 import org.dreambot.api.methods.map.Tile;
 
-import init.MainLooper;
+import init.ClientThread;
 
 public class Location {
 	private Area phase1;
@@ -14,7 +14,7 @@ public class Location {
 	private Area rePhase3; 
 	private String obs1Action;
 	private String obs2Action;
-	private MainLooper script;
+	private ClientThread script;
 	private Random random;
 	private boolean phase2Complete;
 	private boolean phase3Complete;
@@ -29,7 +29,7 @@ public class Location {
 	 * @.pre script != null && l != null
 	 * @.post RESULT == new Location
 	 */
-	public Location(MainLooper script, Locations l) {
+	public Location(ClientThread script, Locations l) {
 		this.random = new Random();
 		this.script = script;
 		

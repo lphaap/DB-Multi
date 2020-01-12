@@ -321,10 +321,7 @@ public class ClientThread extends AbstractScript implements AdvancedMessageListe
 			sleep(Calculations.random(2000, 3000));
 			getTabs().open(Tab.INVENTORY);
 			getMouse().move();
-			randomCD = Calculations.random(30000,60000);
-			
-
-			
+			randomCD = Calculations.random(30000,60000);	
 		}
 		if(test < 4) {
 			getMouse().moveMouseOutsideScreen();

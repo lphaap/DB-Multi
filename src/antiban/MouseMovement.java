@@ -21,6 +21,7 @@ public class MouseMovement implements Runnable, KillableThread {
 		while(!killThread) {
 			RandomProvider.sleep(5000, 5000);
 			while(controller.requestMouseAccess()) {RandomProvider.sleep(10);}
+			controller.getGraphicHandler().setInfo("Random: Moving Mouse On Screen");
 			client.getMouse().move(new Point(RandomProvider.randomInt(100)+100,RandomProvider.randomInt(100)+100));
 			controller.returnMouseAccess();
 		}

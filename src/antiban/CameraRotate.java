@@ -23,11 +23,13 @@ public class CameraRotate implements Runnable, KillableThread {
 			int random = RandomProvider.randomInt(2);
 			if(random == 0) {
 				while(controller.requestKeyboardAccess()) {RandomProvider.sleep(10);}
+				controller.getGraphicHandler().setInfo("Random: Rotating Camera");
 				client.getCamera().keyboardRotateToTile(client.getLocalPlayer().getTile().getArea(6).getRandomTile());
 				controller.returnKeyboardAccess();
 			}
 			else{
 				while(controller.requestMouseAccess()) {RandomProvider.sleep(10);}
+				controller.getGraphicHandler().setInfo("Random: Rotating Camera");
 				client.getCamera().mouseRotateToTile(client.getLocalPlayer().getTile().getArea(6).getRandomTile());
 				controller.returnMouseAccess();
 			}

@@ -58,6 +58,10 @@ import scripts.SmelterModule.Bars;
 @ScriptManifest(author = "TheSoulles", name = "Multi Bot", version = 2.1, description = "Multi Bot", category = Category.MISC)
 public class ClientThread extends AbstractScript implements AdvancedMessageListener{
 	
+	private GraphicHandler graphics = new GraphicHandler();
+	private ThreadController controller;
+	
+	
 	private int sleep;
 	private ScriptModule currentAction;
 	private ArrayList<ScriptModule> activeModules = new ArrayList<ScriptModule>();;
@@ -448,21 +452,8 @@ public class ClientThread extends AbstractScript implements AdvancedMessageListe
 		
 	}
 	
-	public void onPaint(Graphics g) {
-		if(!pause) {
-			g.setColor(Color.YELLOW);
-			g.setFont(fontInfo);
-			g.drawString(this.infoText,5,334);
-			g.setColor(Color.RED);
-			g.drawString(this.timerText, 5, 314);
-			g.setColor(Color.MAGENTA);
-			g.drawString(this.pauseTimerText, 5, 294);
-		}
-		else {
-			g.setColor(Color.MAGENTA);
-			g.setFont(fontInfo);
-			g.drawString(this.pauseText, 5, 20);
-		}
+	public void onPaint(Graphics g) {	
+		graphics.handleGraphics(g);
 	}
 	
 	public void setInfoText(String text) {

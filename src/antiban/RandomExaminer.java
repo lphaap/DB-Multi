@@ -22,6 +22,7 @@ public class RandomExaminer implements Runnable, KillableThread {
 			RandomProvider.sleep(5000, 5000);
 			//TODO:
 			while(controller.requestMouseAccess()) {RandomProvider.sleep(10);}
+			controller.getGraphicHandler().setInfo("Random: Examining random target");
 			client.getMouse().move(new Point(RandomProvider.randomInt(100)+100,RandomProvider.randomInt(100)+100));
 			controller.returnMouseAccess();
 		}

@@ -12,9 +12,11 @@ public class ThreadController {
 	private ArrayList<KillableThread> threads = new ArrayList<KillableThread>();
 	private ArrayList<ScriptModule> modules = new ArrayList<ScriptModule>();
 	private ScriptModule currentModule;
+	private GraphicHandler graphic;
 	
-	public ThreadController(ClientThread client) {
+	public ThreadController(ClientThread client, GraphicHandler graphic) {
 		this.client = client;
+		this.graphic = graphic;
 	}
 	
 	
@@ -49,5 +51,9 @@ public class ThreadController {
 	
 	public ScriptModule getCurrentTask() {
 		return this.currentModule;
+	}
+	
+	public GraphicHandler getGraphicHandler() {
+		return this.graphic;
 	}
 }

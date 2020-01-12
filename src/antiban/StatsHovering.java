@@ -25,7 +25,7 @@ public class StatsHovering implements KillableThread, Runnable {
 			while(controller.requestKeyboardAccess()) {RandomProvider.sleep(10);}
 			while(controller.requestMouseAccess()) {RandomProvider.sleep(10);}
 				
-
+			controller.getGraphicHandler().setInfo("Random: Hovering XP");
 			client.getTabs().open(Tab.STATS);
 			client.getSkills().hoverSkill(controller.getCurrentTask().getSkillToHover());
 			RandomProvider.sleep(2000, 3000);

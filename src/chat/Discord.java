@@ -2,7 +2,9 @@ package chat;
 import org.dreambot.api.methods.skills.Skill;
 import org.dreambot.api.wrappers.items.Item;
 
-import init.ClientThread;
+import antiban.RandomProvider;
+import client.ClientThread;
+import client.ThreadController;
 import net.dv8tion.jda.api.entities.Invite.Channel;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -11,9 +13,16 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 public class Discord extends ListenerAdapter{
 
 	private ClientThread script;
+	private ThreadController controller;
 	private MessageChannel channel;
 	private boolean connected;
 
+	public Discord(ClientThread client, ThreadController controller) {
+		this.script = client;
+		this.controller = controller;
+		
+	}
+	
 	@Override
 	public void onMessageReceived(MessageReceivedEvent event) {
 		 if (true) {
@@ -26,89 +35,57 @@ public class Discord extends ListenerAdapter{
 		        	
 		        }
 		        if(connected) {
-			        if(text.startsWith("!send")) {
-			        	//message.setText("Send msg: " + text.substring(6));
-			        	
-			        	script.getKeyboard().type(text.substring(6));
+			        if(text.startsWith("!send")) {	   
+			        	controller.getMsgHandler().sendMsgInGame(text.substring(6));
 			        }
 			        else if(text.startsWith("!kill")) {
 			        	channel.sendMessage("Killing client").queue();
-			        	script.stop();
-			        	System.exit(0);
+			        	controller.killClient();
 			        }
 			        else if(text.startsWith("!next")) {
 			        	channel.sendMessage("Swapping Module").queue();
 
-			        	script.nextModule();
+			        	//TODO:
 			        }
 			        else if(text.startsWith("!stop")) {
 			        	channel.sendMessage("Stopping Script").queue();
-			        	
-			        	script.stop();
+			        	controller.killBot();
 			        }
 			        else if(text.startsWith("!hop")) {
 			        	channel.sendMessage("Hopping Worlds").queue();
 			        	
-			        	script.hop();
+			        	//TODO:
 			        }
 			        else if(text.startsWith("!current")) {
-			        	channel.sendMessage(script.getCurrentAction()).queue();
+			        	channel.sendMessage(controller.getCurrentActionPrint()).queue();
 			        	
 			        }
 			        else if(text.startsWith("!timeScript")) {
-			        	channel.sendMessage(script.getTimer()).queue();
+			        	channel.sendMessage(controller.getGraphicHandler().getScriptTimer()).queue();
 			        	
 			        }
 			        else if(text.startsWith("!timePause")) {
-			        	channel.sendMessage(script.getPauseTimer()).queue();
+			        	channel.sendMessage(controller.getGraphicHandler().getPauseTimer()).queue();
 			        	
 			        }
 			        else if(text.startsWith("!autoreact")) {
-			        	channel.sendMessage("Set AutoReact to: " + script.swapAutoReact()).queue();
+			        	channel.sendMessage("Set AutoReact to: " + controller.getMsgHandler().toggleAutoReact()).queue();
 			        	
-			        }
-			        else if(text.startsWith("!react")) {
-			        	channel.sendMessage("Setting react to: " + text.substring(7)).queue();
-			     
-			        	script.setReact(Integer.parseInt(text.substring(7)));
 			        }
 			        else if(text.startsWith("!players")) {
 			        	channel.sendMessage("Players in area: " + script.getPlayerCount()).queue();
-			        	
-			        	script.setReact(Integer.parseInt(text.substring(7)));
 			        }
 			        else if(text.startsWith("!logOut")) {
 			        	channel.sendMessage("Logging Out...").queue();
-			        	
-			        	script.logOut();
+			        	controller.logOutAndPause();
 			        }
 			        else if(text.startsWith("!logIn")) {
 			        	channel.sendMessage("Logging In...").queue();
-			        	
-			        	script.logIn();
-			        }
-			        else if(text.startsWith("!togglePause")) {
-			        	channel.sendMessage("Pausing Script...").queue();
-			        	
-			        	if(script.togglePause()) {
-			        		channel.sendMessage("Script Paused").queue();
-			        	}
-			        	else {
-			        		channel.sendMessage("Script Resumed").queue();
-			        	}
-			        	
+			        	controller.logInAndResume();
 			        }
 			        else if(text.startsWith("!restartModule")) {
 			        	channel.sendMessage("Restarting Current Module").queue();
-			        	
-			        	if(script.getCurrent().setupModule()) {
-			        		channel.sendMessage("Module setUp Completed").queue();
-				        	
-			        	}
-			        	else {
-			        		channel.sendMessage("Module setUp FAILED").queue();
-				        	
-			        	}
+			        	controller.restartModule();
 			        }
 			        else if(text.startsWith("!location")) {
 			        	channel.sendMessage("Cuurent Player Location - X: " + script.getLocalPlayer().getTile().getX() +" Y: " + script.getLocalPlayer().getTile().getY()).queue();
@@ -157,7 +134,9 @@ public class Discord extends ListenerAdapter{
 	}
 	
 	public void sendMessage(String msg) {
-		channel.sendMessage(msg).queue();
+		if(connected) {
+			channel.sendMessage(msg).queue();
+		}
 	}
 	
 	public void setScript(ClientThread script) {

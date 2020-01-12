@@ -2,9 +2,9 @@ package antiban;
 
 import java.awt.Point;
 
-import init.ClientThread;
-import init.KillableThread;
-import init.ThreadController;
+import client.ClientThread;
+import client.KillableThread;
+import client.ThreadController;
 
 public class MouseMovement implements Runnable, KillableThread {
 	protected ClientThread client;

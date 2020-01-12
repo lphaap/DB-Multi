@@ -18,6 +18,24 @@ public class RandomProvider {
 		 return re;
 	 }
 	 
+	 public static int randomInt(int min, int max) {
+		 int re = 0;
+		 try {
+			 
+			re = SecureRandom.getInstanceStrong().nextInt(max-min) + min;
+			
+		} catch (NoSuchAlgorithmException e) {e.printStackTrace();}
+		 
+		 return re;
+	 }
+	 
+	 public static int randomIntSplit(int split) {
+		 int re = 0;
+		 re = randomInt(split) + randomInt(split);
+			
+		 return re;
+	 }
+	 
 	 /*
 	  * Sleep from minTime -> maxTime
 	  */

@@ -1,28 +1,38 @@
 package scripts;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Random;
 
 import org.dreambot.api.methods.skills.Skill;
 import org.dreambot.api.methods.tabs.Tab;
 import org.dreambot.api.wrappers.items.Item;
 
-import init.ClientThread;
+import client.ClientThread;
 
 public class GearSwitchModule extends ScriptModule {
-	private ArrayList<String> gear;
+	private ArrayList<String> magic = new ArrayList<String>();
+	private ArrayList<String> melee = new ArrayList<String>();
+	private ArrayList<String> range = new ArrayList<String>();
+	private ArrayList<String> utility = new ArrayList<String>();
+	private ArrayList<String> gear = new ArrayList<String>();
 	private ArrayList<Boolean> found;
 	private ClientThread script;
 	private Random random = new Random();
 	private boolean repeat;
+	private Gear type;
 	
-	public GearSwitchModule(ClientThread script, ArrayList<String> gear) {
-		this.gear = gear;
+	public GearSwitchModule(ClientThread script, Gear type) {
+		this.type = type;
 		this.script = script;
 		this.found = new ArrayList<Boolean>();
 		this.repeat = false;
 		this.moduleName = "GearSwitchModule";
+		setGears();
+		setGearList(type);
 	}
 	
+
+
 	@Override
 	public int onLoop() {
 		
@@ -64,7 +74,7 @@ public class GearSwitchModule extends ScriptModule {
 		script.getBank().depositAllEquipment();
 		script.sleep(random.nextInt(750)+ 1000);
 		
-		//int x = 0;
+		
 		for(String piece : gear) {
 			found.add(false);
 			script.log("" + found.size());
@@ -106,6 +116,80 @@ public class GearSwitchModule extends ScriptModule {
 		return true;
 	}
 	
+	private void setGearList(Gear gear) {
+		switch(gear) {
+		
+			case MAGIC:
+				this.gear = this.magic;
+				break;
+				
+			case UTILITY:
+				this.gear = this.utility;
+				break;
+			
+			case MELEE:
+				this.gear = this.melee;
+				break;
+				
+			case RANGE:
+				this.gear = this.range;
+				break;
+		}
+		
+	}
+	
+	private void setGears() {
+		ArrayList<String> meleeTraining = new ArrayList<String>();
+		meleeTraining.add("Iron full helm");
+		meleeTraining.add("Iron platebody");
+		meleeTraining.add("Iron platelegs");
+		meleeTraining.add("Iron kiteshield");
+		meleeTraining.add("Amulet of glory");
+		meleeTraining.add("Dragon sword");
+		meleeTraining.add("Purple gloves");
+		meleeTraining.add("Team-48 cape");
+		meleeTraining.add("Leather boots");
+		Collections.shuffle(meleeTraining);
+		this.melee = meleeTraining;
+		
+		ArrayList<String> rangeTraining = new ArrayList<String>();
+		rangeTraining.add("Leather cowl");
+		rangeTraining.add("Blue d'hide chaps");
+		rangeTraining.add("Blue d'hide vamb");
+		rangeTraining.add("Leather body");
+		rangeTraining.add("Amulet of glory");
+		rangeTraining.add("Maple shortbow");
+		rangeTraining.add("Iron arrow");
+		rangeTraining.add("Team-48 cape");
+		rangeTraining.add("Leather boots");
+		Collections.shuffle(rangeTraining);
+		this.range = rangeTraining;
+		
+		ArrayList<String> skillTraining = new ArrayList<String>();
+		skillTraining.add("Wizard hat");
+		skillTraining.add("Amulet of glory");
+		skillTraining.add("Granite longsword");
+		skillTraining.add("Purple gloves");
+		skillTraining.add("Team-48 cape");
+		skillTraining.add("Leather boots");
+		skillTraining.add("Brown apron");
+		Collections.shuffle(skillTraining);
+		this.utility = skillTraining;
+		
+		ArrayList<String> mageTraining = new ArrayList<String>();
+		mageTraining.add("Staff of fire");
+		mageTraining.add("Blue d'hide vamb");
+		mageTraining.add("Team-48 cape");
+		mageTraining.add("Leather boots");
+		mageTraining.add("Iron full helm");
+		mageTraining.add("Iron platebody");
+		mageTraining.add("Iron platelegs");
+		mageTraining.add("Iron kiteshield");
+		Collections.shuffle(mageTraining);
+		this.magic = mageTraining;
+		
+	}
+
 	public boolean completeTest() {
 		for(String piece : gear) {
 			script.log(""+gear.indexOf(piece));
@@ -130,5 +214,7 @@ public class GearSwitchModule extends ScriptModule {
 		// TODO Auto-generated method stub
 		
 	}
+	
+	public enum Gear {MELEE, RANGE, MAGIC, UTILITY}
 
 }

@@ -3,9 +3,9 @@ package antiban;
 import org.dreambot.api.methods.Calculations;
 import org.dreambot.api.methods.tabs.Tab;
 
-import init.ClientThread;
-import init.KillableThread;
-import init.ThreadController;
+import client.ClientThread;
+import client.KillableThread;
+import client.ThreadController;
 
 public class StatsHovering implements KillableThread, Runnable {
 	protected ClientThread client;
@@ -27,7 +27,7 @@ public class StatsHovering implements KillableThread, Runnable {
 				
 			controller.getGraphicHandler().setInfo("Random: Hovering XP");
 			client.getTabs().open(Tab.STATS);
-			client.getSkills().hoverSkill(controller.getCurrentTask().getSkillToHover());
+			client.getSkills().hoverSkill(controller.getCurrentSkill());
 			RandomProvider.sleep(2000, 3000);
 			client.getTabs().open(Tab.INVENTORY);
 			client.getMouse().move();

@@ -2,8 +2,8 @@ package antiban;
 
 import java.awt.Point;
 
-import init.ClientThread;
-import init.ThreadController;
+import client.ClientThread;
+import client.ThreadController;
 
 public class MouseOffScreenMovement extends MouseMovement {
 	

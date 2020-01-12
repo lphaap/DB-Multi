@@ -14,7 +14,7 @@ import org.dreambot.api.wrappers.interactive.NPC;
 import org.dreambot.api.wrappers.items.Item;
 import org.dreambot.api.wrappers.widgets.WidgetChild;
 
-import init.ClientThread;
+import client.ClientThread;
 import movement.Location;
 import movement.Locations;
 

@@ -8,7 +8,7 @@ import org.dreambot.api.wrappers.interactive.NPC;
 import org.dreambot.api.wrappers.items.GroundItem;
 import org.dreambot.api.wrappers.items.Item;
 
-import init.ClientThread;
+import client.ClientThread;
 import movement.Location;
 import movement.Locations;
 

@@ -1,7 +1,7 @@
 package movement;
 import org.dreambot.api.methods.map.Tile;
 
-import init.ClientThread;
+import client.ClientThread;
 
 public class TeleTab extends TeleportItem{
 

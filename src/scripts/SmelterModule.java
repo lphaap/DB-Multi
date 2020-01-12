@@ -8,7 +8,7 @@ import org.dreambot.api.methods.widget.Widget;
 import org.dreambot.api.wrappers.interactive.GameObject;
 import org.dreambot.api.wrappers.widgets.WidgetChild;
 
-import init.ClientThread;
+import client.ClientThread;
 import movement.Location;
 import movement.Locations;
 

@@ -4,7 +4,7 @@ import java.util.Random;
 import org.dreambot.api.methods.skills.Skill;
 import org.dreambot.api.wrappers.interactive.GameObject;
 
-import init.ClientThread;
+import client.ClientThread;
 import movement.Location;
 import movement.Locations;
 

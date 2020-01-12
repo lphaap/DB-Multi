@@ -3,7 +3,7 @@ import java.util.Random;
 
 import org.dreambot.api.methods.map.Tile;
 
-import init.ClientThread;
+import client.ClientThread;
 
 public abstract class TeleportItem {
 	protected String locationName;

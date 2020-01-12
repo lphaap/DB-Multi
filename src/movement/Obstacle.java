@@ -2,7 +2,7 @@ package movement;
 import org.dreambot.api.wrappers.interactive.GameObject;
 import org.dreambot.api.wrappers.interactive.NPC;
 
-import init.ClientThread;
+import client.ClientThread;
 
 public class Obstacle {
 	private String nameBefore;

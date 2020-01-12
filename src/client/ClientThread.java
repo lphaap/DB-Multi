@@ -1,4 +1,4 @@
-package init;
+package client;
 import java.awt.AWTException;
 import java.awt.Color;
 import java.awt.Font;
@@ -33,7 +33,9 @@ import org.dreambot.api.wrappers.interactive.Player;
 import org.dreambot.api.wrappers.widgets.WidgetChild;
 import org.dreambot.api.wrappers.widgets.message.Message;
 
+import antiban.RandomProvider;
 import chat.Discord;
+import chat.MsgHandler;
 import movement.Locations;
 import net.dv8tion.jda.api.AccountType;
 import net.dv8tion.jda.api.JDABuilder;
@@ -72,14 +74,6 @@ public class ClientThread extends AbstractScript implements AdvancedMessageListe
 	private int mCurrent;
 	private int mLast;
 	private int randomCD;
-	private int react;
-	private ArrayList<String> msg1 = new ArrayList<String>();
-	private ArrayList<String> msg2 = new ArrayList<String>();
-	private Font fontInfo;
-	private String timerText;
-	private String pauseTimerText;
-	private String pauseText;
-	private String infoText;
 	private boolean pause;
 	private boolean fullLoopStop;
 	private Discord messenger;
@@ -87,6 +81,7 @@ public class ClientThread extends AbstractScript implements AdvancedMessageListe
 	private boolean hopperTest;
 	private boolean nextModule;
 	private boolean scriptPause;
+
 	
 	
 	
@@ -94,83 +89,9 @@ public class ClientThread extends AbstractScript implements AdvancedMessageListe
 	public void onStart() {
 		fullLoopStop = true;    
         
-		
-		msg1.add("Supp m8");
-		msg1.add("Sup m8");
-		msg1.add("Sup dude");
-		msg1.add("Hello friend");
-		msg1.add("Hi");
-		msg1.add("Hello");
-		msg1.add("Sup");
-		msg1.add("Gday");
-		msg1.add("Yello");
-		msg2.add("I'll swap m8");
-		msg2.add("Ill swap");
-		msg2.add("Imma swap");
-		msg2.add("I will swap");
-		msg2.add("I'll hop");
-		msg2.add("Ill Hop m8");
-		msg2.add("Imma swap worlds");
-		msg2.add("Imma hop worlds");
-		msg2.add("Imma hop");
-		msg2.add("Well ill hop");
-		msg2.add("Well ill change");
-		msg2.add("Changing m8");
-		msg2.add("Hopping m8");
-		msg2.add("Bruh.");
-		msg2.add("m8 plox");
-		msg2.add("Alright.. Ill hop");
-		msg2.add("...");
-		msg2.add("....");
-		msg2.add("Wowee ill hop");
-		
 		sleep = 0;
-		react = 0;
 		
-		ArrayList<String> meleeTraining = new ArrayList<String>();
-		meleeTraining.add("Iron full helm");
-		meleeTraining.add("Iron platebody");
-		meleeTraining.add("Iron platelegs");
-		meleeTraining.add("Iron kiteshield");
-		meleeTraining.add("Amulet of glory");
-		meleeTraining.add("Dragon sword");
-		meleeTraining.add("Purple gloves");
-		meleeTraining.add("Team-48 cape");
-		meleeTraining.add("Leather boots");
-		Collections.shuffle(meleeTraining);
 		
-		ArrayList<String> rangeTraining = new ArrayList<String>();
-		rangeTraining.add("Leather cowl");
-		rangeTraining.add("Blue d'hide chaps");
-		rangeTraining.add("Blue d'hide vamb");
-		rangeTraining.add("Leather body");
-		rangeTraining.add("Amulet of glory");
-		rangeTraining.add("Maple shortbow");
-		rangeTraining.add("Iron arrow");
-		rangeTraining.add("Team-48 cape");
-		rangeTraining.add("Leather boots");
-		Collections.shuffle(rangeTraining);
-		
-		ArrayList<String> skillTraining = new ArrayList<String>();
-		skillTraining.add("Wizard hat");
-		skillTraining.add("Amulet of glory");
-		skillTraining.add("Granite longsword");
-		skillTraining.add("Purple gloves");
-		skillTraining.add("Team-48 cape");
-		skillTraining.add("Leather boots");
-		skillTraining.add("Brown apron");
-		Collections.shuffle(skillTraining);
-		
-		ArrayList<String> mageTraining = new ArrayList<String>();
-		mageTraining.add("Staff of fire");
-		mageTraining.add("Blue d'hide vamb");
-		mageTraining.add("Team-48 cape");
-		mageTraining.add("Leather boots");
-		mageTraining.add("Iron full helm");
-		mageTraining.add("Iron platebody");
-		mageTraining.add("Iron platelegs");
-		mageTraining.add("Iron kiteshield");
-		Collections.shuffle(mageTraining);
 		
 		//activeModules.add(new GearSwitchModule(this, rangeTraining));
 		//activeModules.add(new GearSwitchModule(this, meleeTraining));
@@ -206,24 +127,11 @@ public class ClientThread extends AbstractScript implements AdvancedMessageListe
 		mEnd = Calculations.random(180, 280);
 		randomCD = 0;
 		
-		this.fontInfo = new Font("Arial", Font.BOLD, 15);
-		this.timerText = "";
-		this.infoText = "";
-		this.pauseText = "";
+
 		
 		
 		
-		JDABuilder builder = new JDABuilder(AccountType.BOT);
-        String token = "NjY0NTQ1NTcwMTUyNTEzNTQ3.XhZZfA.t42nR6nQJex7A9VsK9aBCT4zNZ4";
-        Discord discord = new Discord();
-        discord.setScript(this);
-        this.messenger = discord;
-        
-        builder.setToken(token);
-        builder.addEventListeners(new Discord());
-        try {
-			builder.build();
-		} catch (LoginException e) {e.printStackTrace();}
+		
         
         this.nextModule = true;
         this.scriptPause = false;
@@ -244,8 +152,8 @@ public class ClientThread extends AbstractScript implements AdvancedMessageListe
 			mLast = today.get(Calendar.MINUTE);
 			mStart++;
 			mPauseStart++;
-			this.pauseTimerText = "Time Until Pause: " + (mPauseEnd - mPauseStart) + " Minutes";
-			this.timerText = "Time Left In Script: " + (mEnd - mStart) + " Minutes";
+			//TODO: this.pauseTimerText = "Time Until Pause: " + (mPauseEnd - mPauseStart) + " Minutes";
+			//TODO: this.timerText = "Time Left In Script: " + (mEnd - mStart) + " Minutes";
 			
 		}
 				
@@ -257,10 +165,7 @@ public class ClientThread extends AbstractScript implements AdvancedMessageListe
 			
 		}
 		
-		if(randomCD <= 0) {
-			randoms();
-		}
-		
+
 		if(this.nextModule) {
 			if(!this.currentAction.setupModule()) {
 				nextModule();
@@ -285,8 +190,8 @@ public class ClientThread extends AbstractScript implements AdvancedMessageListe
 				hour++;
 			}
 			
-			setPauseText("Pause Stop: " + hour + ":" + minsFinal);  
-			this.infoText = "Pause Stop: " + hour + ":" + minsFinal;
+			//TODO: setPauseText("Pause Stop: " + hour + ":" + minsFinal);  
+			//TODO: this.infoText = "Pause Stop: " + hour + ":" + minsFinal;
 			
 			
 			logOut();
@@ -313,101 +218,40 @@ public class ClientThread extends AbstractScript implements AdvancedMessageListe
 		return sleep;
 	}
 	
-	public void randoms() {
-		Calculations.setRandomSeed(Calculations.random(10000));
-		int test = Calculations.random(0, 100);
-		int random = -1;
-		
-		if(test > 96) {
-			this.infoText = "Random: Hovering XP";
-			getTabs().open(Tab.STATS);
-			getSkills().hoverSkill(currentAction.getSkillToHover());
-			sleep(Calculations.random(2000, 3000));
-			getTabs().open(Tab.INVENTORY);
-			getMouse().move();
-			randomCD = Calculations.random(30000,60000);	
-		}
-		if(test < 4) {
-			getMouse().moveMouseOutsideScreen();
-			int delay = Calculations.random(10000, 14000);
-			this.infoText = "Random: Delay " + delay+" ms";
-			sleep(delay);
-			randomCD = Calculations.random(80000,110000);
-			
-		}
-		
-		if(test > 50 && test <= 65) {
-			random = Calculations.random(0,2);
-			if(random == 0) {
-				this.infoText = "Random: Keyboard Rotate Camera";
-				getCamera().keyboardRotateToTile(getLocalPlayer().getTile().getArea(6).getRandomTile());
-			}
-			else{
-				this.infoText = "Random: Mouse Rotate Camera";
-				getCamera().mouseRotateToTile(getLocalPlayer().getTile().getArea(6).getRandomTile());
-			}
-			randomCD = Calculations.random(20000,40000);
-			
-		}
-		
-		if(test <= 90 && test >= 85) {
-			
-			this.infoText = "Random: Mouse outside of the screen";
-			getMouse().moveMouseOutsideScreen();
-			sleep(Calculations.random(4000, 5500));
-			randomCD = Calculations.random(35000,80000);
-		}
+
+	
+	
+	public void onAutoMessage(Message m) {	
 	}
 	
-	
-	public void onAutoMessage(Message arg0) {	
-	}
-	
-	public void onClanMessage(Message arg0) {	
+	public void onClanMessage(Message m) {
+		controller.getMsgHandler().processMessage(MsgHandler.MsgOrigin.CLAN, m);
 	}
 
 	public void onGameMessage(Message m) {	
+		controller.getMsgHandler().processMessage(MsgHandler.MsgOrigin.GAME, m);
 	}
 
 	public void onPlayerMessage(Message m) {
-		if(this.react == 1 && !m.getUsername().equals(getLocalPlayer().getName())) {
-			String msg = m.getUsername() + ": "+ m.getMessage();
-			messenger.sendMessage(msg);
-		}
-		
-		
-		if(this.react == 1 && !m.getUsername().equals(getLocalPlayer().getName()) && this.autoReact) {
-			this.infoText = "AutoReact: Msg found, hopping";
-			messenger.sendMessage("AutoReact: Msg found, hopping");
-			this.react = 0;
-			String text1  = msg1.get(Calculations.random(0,msg1.size()));
-			messenger.sendMessage("AutoReact: Msg sent - " + text1);
-			String text2  = msg2.get(Calculations.random(0,msg2.size()));
-			messenger.sendMessage("AutoReact: Msg sent - " + text2);
-			getKeyboard().type(text1,true,true);
-			sleep(Calculations.random(2000, 3000));
-			getKeyboard().type(text2,true,true);
-			hop();
-		}
+		controller.getMsgHandler().processMessage(MsgHandler.MsgOrigin.PLAYER, m);
 	}
 	
-	public void onPrivateInMessage(Message arg0) {
+	public void onPrivateInMessage(Message m) {
+		controller.getMsgHandler().processMessage(MsgHandler.MsgOrigin.FRIEND, m);
 	}
 
-	public void onPrivateInfoMessage(Message arg0) {
+	public void onPrivateInfoMessage(Message m) {
+		
 	}
 	
-	public void onPrivateOutMessage(Message arg0) {
+	public void onPrivateOutMessage(Message m) {
 	}
 	
-	public void onTradeMessage(Message arg0) {
+	public void onTradeMessage(Message m) {
 	}
 	
-	public void setReact(int mode) {
-		this.react = mode;
-	}
-	
-	public void hop() {
+	//TODO:
+	void hopWorlds() {
 		this.hopperTest = true;
 		World w;
 		if(this.getClient().isMembers()) {
@@ -430,6 +274,7 @@ public class ClientThread extends AbstractScript implements AdvancedMessageListe
 		this.hopperTest = false;
 	}
 	
+	//TODO:
 	public void nextModule() {
 		int current = activeModules.indexOf(this.currentAction);
 		if(current + 1 >= activeModules.size()) {
@@ -452,16 +297,40 @@ public class ClientThread extends AbstractScript implements AdvancedMessageListe
 		
 	}
 	
+	void logOut() {
+		getRandomManager().disableSolver(RandomEvent.LOGIN);
+		while(getPlayers().localPlayer().isInCombat()) {
+			sleep(RandomProvider.randomInt(500, 1000));
+		}
+		sleep(RandomProvider.randomInt(12000, 14000));
+		getTabs().open(Tab.LOGOUT);
+		if(this.getWorldHopper().isWorldHopperOpen()) {
+			this.getWorldHopper().closeWorldHopper();
+		}
+		sleep(RandomProvider.randomInt(300,500));
+		getWidgets().getWidget(182).getChild(12).interact();
+		sleep(RandomProvider.randomInt(300,500));
+		controller.getDiscord().sendMessage("Log Out Completed");
+	}
+	
+	void logIn() {
+		getRandomManager().enableSolver(RandomEvent.LOGIN);
+		while(!this.getClient().isLoggedIn()) {RandomProvider.sleep(10);}
+		controller.getDiscord().sendMessage("Log In Completed");
+	}
+	
+	public WidgetChild getWidget(int parent, int child) {
+		return getWidgets().getWidget(parent).getChild(child);
+	}
+	
+	public int getPlayerCount() {
+		return getPlayers().all().size();
+	}
+	
 	public void onPaint(Graphics g) {	
 		graphics.handleGraphics(g);
 	}
 	
-	public void setInfoText(String text) {
-		this.infoText = text;
-	}
-	public void setPauseText(String text) {
-		this.pauseText = text;
-	}
 
 	
 	public void addDwarvenMine() {
@@ -732,72 +601,6 @@ public class ClientThread extends AbstractScript implements AdvancedMessageListe
 		for (AbstractWebNode webNode : webNodes) {
 			webFinder.addWebNode(webNode);
 		}
-	}
-	
-	public boolean swapAutoReact() {
-		this.autoReact = !autoReact;
-		return autoReact;
-	}
-	
-	public void setMessenger(Discord chat) {
-		this.messenger = chat;
-	}
-	
-	public Discord getMessenger() {
-		return this.messenger;
-	}
-	
-	public String getCurrentAction() {
-		return this.infoText;
-	}
-	
-	public String getTimer() {
-		return this.timerText;
-	}
-	
-	public String getPauseTimer() {
-		return this.pauseTimerText;
-	}
-	
-	public int getPlayerCount() {
-		return getPlayers().all().size();
-	}
-	
-	public void logOut() {
-		this.hopperTest = true;
-		getRandomManager().disableSolver(RandomEvent.LOGIN);
-		while(getPlayers().localPlayer().isInCombat()) {
-			sleep(Calculations.random(500, 1000));
-		}
-		sleep(Calculations.random(12000, 14000));
-		getTabs().open(Tab.LOGOUT);
-		if(this.getWorldHopper().isWorldHopperOpen()) {
-			this.getWorldHopper().closeWorldHopper();
-		}
-		sleep(Calculations.random(300,500));
-		getWidgets().getWidget(182).getChild(12).interact();
-		sleep(Calculations.random(300,500));
-		messenger.sendMessage("Log Out Completed");
-		
-	}
-	
-	public void logIn() {
-		this.hopperTest = false;
-		getRandomManager().enableSolver(RandomEvent.LOGIN);
-		messenger.sendMessage("Log In Completed");
-	}
-	
-	public boolean togglePause() {
-		this.scriptPause = !this.scriptPause;
-		return this.scriptPause;
-	}
-	
-	public ScriptModule getCurrent() {
-		return this.currentAction;
-	}
-	
-	public WidgetChild getWidget(int parent, int child) {
-		return getWidgets().getWidget(parent).getChild(child);
 	}
 	
 	

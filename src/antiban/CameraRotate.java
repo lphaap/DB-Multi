@@ -41,5 +41,10 @@ public class CameraRotate implements Runnable, KillableThread {
 	public void killThread() {
 		this.killThread = true;
 	}
+	
+	@Override
+	public boolean isAlive() {
+		return !(killThread);
+	}
 
 }

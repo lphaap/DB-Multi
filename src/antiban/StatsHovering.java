@@ -7,7 +7,7 @@ import client.ClientThread;
 import client.KillableThread;
 import client.ThreadController;
 
-public class StatsHovering implements KillableThread, Runnable {
+public class StatsHovering implements KillableThread {
 	protected ClientThread client;
 	protected ThreadController controller;
 	protected boolean killThread;
@@ -44,5 +44,10 @@ public class StatsHovering implements KillableThread, Runnable {
 	@Override
 	public void killThread() {
 		this.killThread = true;
+	}
+	
+	@Override
+	public boolean isAlive() {
+		return !(killThread);
 	}
 }

@@ -16,16 +16,19 @@ import net.dv8tion.jda.api.AccountType;
 import net.dv8tion.jda.api.JDABuilder;
 import scripts.ScriptModule;
 
-public class ThreadController implements Runnable{
+public class ThreadController implements KillableThread{
 	private ClientThread client; //-> Will be passed to other classes since it's used so reqularly
+	
+	private boolean killThread;
 	
 	private boolean keyboardInUse;
 	private boolean mouseInUse;
 	
-	private ArrayList<KillableThread> threads = new ArrayList<KillableThread>();
-	private ArrayList<ScriptModule> modules = new ArrayList<ScriptModule>();
-	
+
 	private ScriptModule currentModule;
+	private ArrayList<ScriptModule> modules = new ArrayList<ScriptModule>();
+	private ArrayList<KillableThread> antibanThreads = new ArrayList<KillableThread>();
+	
 	private GraphicHandler graphic;
 	private MsgHandler msgHandler;
 	private Discord discord;
@@ -44,43 +47,66 @@ public class ThreadController implements Runnable{
 		this.pauseTimer = RandomProvider.randomInt(90*60, 125*60); 
 		this.scriptTimer = RandomProvider.randomInt(180*60, 280*60);
 		createDiscordThread();
+		
+		modules.add(null);
+		modules.add(null);
+		
+		currentModule = modules.get(0);
+		currentModule.setupModule();
+		Thread thread = new Thread(currentModule);
+		thread.start();
+		
 	}
 	
 	@Override
 	public void run() {
-		sleep(1000);
-		
-		//--PauseTimer--//
-			this.pauseTimer--;
-			if(pauseTimer <= 0) {
-				pauseBot();
-				pauseTimer = RandomProvider.randomInt(90*60, 125*60);
+		Thread.currentThread().setPriority(Thread.NORM_PRIORITY + 1);
+		while(!this.killThread) {
+			sleep(1000); //Tics every 1 second
+			
+			//--Checks when to change Module--//
+			if(currentModule.isReady()) {
+				currentModule.killThread();
+				nextModule();
 			}
-		//--PauseTimer--//
-		
-		
-		//--ScriptTimer--//
-			this.scriptTimer--;
-			if(scriptTimer <= 0) {
-				killBot();
+			else if(!currentModule.isAlive()) {
+				currentModule.killThread();
+				nextModule();
 			}
-		//--ScriptTimer--//
-		
-		
-		//--If Thread Dosen't release Mouse or Keyboard--//
-			keyboardInUseFor++;
-			mouseInUseFor++;
-			if(keyboardInUseFor >= 100) {
-				System.out.println("Keyboard In Use For Too Long!");
-				this.keyboardInUseFor = 0;
-				//TODO:this.keyboardInUse = false;
-			}
-			if(mouseInUseFor >= 100) {
-				System.out.println("Mouse In Use For Too Long!");
-				this.mouseInUseFor = 0;
-				//TODO:this.mouseInUse = false;
-			}
-		//--If Thread Dosen't release Mouse or Keyboard--//
+			//--Checks when to change Module--//
+			
+			//--PauseTimer--//
+				this.pauseTimer--;
+				if(pauseTimer <= 0) {
+					pauseBot();
+					pauseTimer = RandomProvider.randomInt(90*60, 125*60);
+				}
+			//--PauseTimer--//
+			
+			
+			//--ScriptTimer--//
+				this.scriptTimer--;
+				if(scriptTimer <= 0) {
+					killBot();
+				}
+			//--ScriptTimer--//
+			
+			
+			//--If Thread Dosen't release Mouse or Keyboard--//
+				keyboardInUseFor++;
+				mouseInUseFor++;
+				if(keyboardInUseFor >= 100) {
+					System.out.println("Keyboard In Use For Too Long!");
+					this.keyboardInUseFor = 0;
+					//TODO:this.keyboardInUse = false;
+				}
+				if(mouseInUseFor >= 100) {
+					System.out.println("Mouse In Use For Too Long!");
+					this.mouseInUseFor = 0;
+					//TODO:this.mouseInUse = false;
+				}
+			//--If Thread Dosen't release Mouse or Keyboard--//
+		}
 	}
 	
 	public synchronized boolean requestKeyboardAccess() {
@@ -112,14 +138,6 @@ public class ThreadController implements Runnable{
 	public synchronized void returnMouseAccess() {
 		this.mouseInUseFor = 0;
 		this.mouseInUse = false;
-	}
-	
-	public synchronized void logOutAndPause() {
-		//TODO:
-	}
-	
-	public synchronized void logInAndResume() {
-		//TODO:
 	}
 	
 	public synchronized void restartModule() {
@@ -203,6 +221,8 @@ public class ThreadController implements Runnable{
 		this.returnMouseAccess();
 		
 		this.graphic.togglePause();
+		
+		Thread.currentThread().setPriority(Thread.NORM_PRIORITY);
 	}
 	
 	public void pauseBot() {
@@ -239,21 +259,78 @@ public class ThreadController implements Runnable{
 		this.returnMouseAccess();
 		
 		this.graphic.togglePause();
+		
+		Thread.currentThread().setPriority(Thread.NORM_PRIORITY);
 	}
 	
 	public void killBot() {
-		for(KillableThread t : this.threads) {
+		for(KillableThread t : this.antibanThreads) {
 			t.killThread();
 		}
+		this.currentModule.killThread();
+		this.killThread();
 		client.stop();
 	}
 	
 	public void killClient() {
-		for(KillableThread t : this.threads) {
+		for(KillableThread t : this.antibanThreads) {
 			t.killThread();
 		}
+		this.currentModule.killThread();
+		this.killThread();
 		client.stop();
 		System.exit(0);
+	}
+	
+	//Avoid infinite loop if called from ClientThread().stop();
+	public void killController() {
+		for(KillableThread t : this.antibanThreads) {
+			t.killThread();
+		}
+		this.currentModule.killThread();
+		this.killThread();
+	}
+	
+	public void hopWorlds() {
+		
+		discord.sendMessage("Hopping Worlds..");
+		graphic.setInfo("Hopping Worlds..");
+		
+		Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
+		while(this.requestKeyboardAccess()) {RandomProvider.sleep(10);}
+		while(this.requestMouseAccess()) {RandomProvider.sleep(10);}
+		
+		client.hopWorlds();
+		
+		this.returnKeyboardAccess();
+		this.returnMouseAccess();
+		
+		Thread.currentThread().setPriority(Thread.NORM_PRIORITY);
+	}
+	
+	public void nextModule() {
+		this.currentModule.killThread();
+		this.modules.remove(currentModule);
+		if(this.modules.size() <= 0) {
+			this.killBot();
+		}
+		else {
+			this.currentModule = modules.get(0);
+			this.currentModule.setupModule();
+			Thread t = new Thread(this.currentModule);
+			t.start();
+		}
+	}
+
+	@Override
+	public void killThread() {
+		this.killThread = true;
+		
+	}
+	
+	@Override
+	public boolean isAlive() {
+		return !(killThread);
 	}
 
 

@@ -6,7 +6,7 @@ import client.ClientThread;
 import client.KillableThread;
 import client.ThreadController;
 
-public class MouseMovement implements Runnable, KillableThread {
+public class MouseMovement implements KillableThread {
 	protected ClientThread client;
 	protected ThreadController controller;
 	protected boolean killThread;
@@ -31,6 +31,12 @@ public class MouseMovement implements Runnable, KillableThread {
 	@Override
 	public void killThread() {
 		this.killThread = true;
+	}
+
+	@Override
+	public boolean isAlive() {
+		return !(killThread);
+		
 	}
 	
 	

@@ -6,7 +6,7 @@ import client.ClientThread;
 import client.KillableThread;
 import client.ThreadController;
 
-public class RandomExaminer implements Runnable, KillableThread {
+public class RandomExaminer implements KillableThread {
 	protected ClientThread client;
 	protected ThreadController controller;
 	protected boolean killThread;
@@ -32,6 +32,11 @@ public class RandomExaminer implements Runnable, KillableThread {
 	@Override
 	public void killThread() {
 		this.killThread = true;
+	}
+	
+	@Override
+	public boolean isAlive() {
+		return !(killThread);
 	}
 
 }

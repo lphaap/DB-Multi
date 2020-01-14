@@ -75,13 +75,9 @@ public class Discord extends ListenerAdapter{
 			        else if(text.startsWith("!players")) {
 			        	channel.sendMessage("Players in area: " + script.getPlayerCount()).queue();
 			        }
-			        else if(text.startsWith("!logOut")) {
+			        else if(text.startsWith("!pause")) {
 			        	channel.sendMessage("Logging Out...").queue();
-			        	controller.logOutAndPause();
-			        }
-			        else if(text.startsWith("!logIn")) {
-			        	channel.sendMessage("Logging In...").queue();
-			        	controller.logInAndResume();
+			        	controller.pauseBot();
 			        }
 			        else if(text.startsWith("!restartModule")) {
 			        	channel.sendMessage("Restarting Current Module").queue();

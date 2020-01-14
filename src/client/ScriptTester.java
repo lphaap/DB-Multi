@@ -21,7 +21,7 @@ public class ScriptTester extends ScriptModule{
 	private Random random = new Random();
 	
 	
-	@Override
+	
 	public int onLoop() {
 		script.log("Tile: X: "+script.getLocalPlayer().getX() + ", Y: "+script.getLocalPlayer().getY());
 		script.log("Distance to bank: " + script.getBank().getClosestBankLocation().getCenter());
@@ -139,7 +139,7 @@ public class ScriptTester extends ScriptModule{
 		this.script = script;
 	}
 
-	@Override
+	
 	public int actionsCompleted() {
 		// TODO Auto-generated method stub
 		return 0;
@@ -156,11 +156,34 @@ public class ScriptTester extends ScriptModule{
 		// TODO Auto-generated method stub
 		return Skill.HITPOINTS;
 	}
-
+	
 	@Override
+	public boolean isAlive() {
+		return true;
+	}
+
+	
 	public void errorTest() {
 		// TODO Auto-generated method stub
 		
+	}
+
+	@Override
+	public void killThread() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void run() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public boolean isReady() {
+		// TODO Auto-generated method stub
+		return false;
 	}
 
 }

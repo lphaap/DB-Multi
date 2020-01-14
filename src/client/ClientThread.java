@@ -47,212 +47,51 @@ import scripts.SmelterModule.Bars;
 
 /**
  * TODO:
+ * Fix Movement into threads
+ * Fix All the scripts to use new thread updates to the project
  * Experiment, Catherby fishing - Locations
  * Teleporter
  * P2P improvements Fishing, Smelting 
  * Thieving module
- * 
  * @author Soulless
  */
 
 
 
-@ScriptManifest(author = "TheSoulles", name = "Multi Bot", version = 2.1, description = "Multi Bot", category = Category.MISC)
+@ScriptManifest(author = "Molang", name = "Multi Bot", version = 3.0, description = "Multi Bot", category = Category.MISC)
 public class ClientThread extends AbstractScript implements AdvancedMessageListener{
 	
-	private GraphicHandler graphics = new GraphicHandler();
 	private ThreadController controller;
 	
-	
-	private int sleep;
-	private ScriptModule currentAction;
-	private ArrayList<ScriptModule> activeModules = new ArrayList<ScriptModule>();;
-	private int mEnd;
-	private int mStart;
-	private int mPauseEnd;
-	private int mPauseStart;
-	private int mCurrent;
-	private int mLast;
-	private int randomCD;
-	private boolean pause;
-	private boolean fullLoopStop;
-	private Discord messenger;
-	private boolean autoReact;
-	private boolean hopperTest;
-	private boolean nextModule;
-	private boolean scriptPause;
-
-	
-	
-	
-	
+	//--Called in the begining of the script--//
+	@Override
 	public void onStart() {
-		fullLoopStop = true;    
-        
-		sleep = 0;
-		
-		
-		
-		//activeModules.add(new GearSwitchModule(this, rangeTraining));
-		//activeModules.add(new GearSwitchModule(this, meleeTraining));
-		//activeModules.add(new GearSwitchModule(this, skillTraining));
-		//activeModules.add(new GearSwitchModule(this, mageTraining));
-	
-		//activeModules.add(new MinerModule(this, Locations.MINER_CRAFTING_GUILD_GOLD, MinerModule.Ore.GOLD_ORE,6));
-		//activeModules.add(new SmithingModule(SmithingModule.SmithingType.PLATEBODY, SmithingModule.SmithingMaterial.STEEL, Locations.SMITHING_WEST_VARROCK, this));
-		//activeModules.add(new JewelleryModule(this, Locations.SMELTER_AL_KHARID, 
-		//	 JewelleryModule.JewelleryMaterial.RUBY, JewelleryModule.JewelleryType.NECKLACE));
-		//activeModules.add(new SmelterModule(Locations.SMELTER_AL_KHARID, SmelterModule.Bars.STEEL, this));
-		
-		//activeModules.add(new FishingModule(this, FishingModule.Fish.TROUT_SALMON, 10, true));
-		//activeModules.add(new CookerModule(this, Locations.COOKING_AL_KHARID, CookerModule.Cook.TROUT));
-		//activeModules.add(new CookerModule(this, Locations.COOKING_AL_KHARID, CookerModule.Cook.SALMON));
-		
-		//activeModules.add(new CombatModule(this, CombatModule.Monster.GIANT_FROG, CombatModule.Food.TROUT, 2, true));
-		
-		activeModules.add(new MinerModule(this, Locations.MINER_WEST_VARROCK, MinerModule.Ore.TIN_ORE,7));
-		activeModules.add(new MinerModule(this, Locations.MINER_EAST_VARROCK, MinerModule.Ore.COPPER_ORE,7));
-		activeModules.add(new SmelterModule(Locations.SMELTER_AL_KHARID, SmelterModule.Bars.BRONZE, this));
-		
-		
-		currentAction = activeModules.get(0);
-		
-		//currentAction = new LocationPrinter(this);
-		
-		Calendar today = new GregorianCalendar();
-		mCurrent = today.get(Calendar.MINUTE);
-		mPauseStart = 0;
-		mPauseEnd =  Calculations.random(90, 125);
-		mStart = 0;
-		mEnd = Calculations.random(180, 280);
-		randomCD = 0;
-		
-
-		
-		
-		
-		
-        
-        this.nextModule = true;
-        this.scriptPause = false;
-		
-
 		addDwarvenMine();
 		addExperimentCave();
 		addCanifisFix();
 		
-
+		this.controller = new ThreadController(this);
+		Thread thread = new Thread(controller);
+		thread.start();
 	}
+	//--Called in the begining of the script--//
 	
-	
-	public int onLoop(){
-		Calendar today = new GregorianCalendar();
-		mCurrent = today.get(Calendar.MINUTE);
-		if(mCurrent != mLast) {
-			mLast = today.get(Calendar.MINUTE);
-			mStart++;
-			mPauseStart++;
-			//TODO: this.pauseTimerText = "Time Until Pause: " + (mPauseEnd - mPauseStart) + " Minutes";
-			//TODO: this.timerText = "Time Left In Script: " + (mEnd - mStart) + " Minutes";
-			
-		}
-				
-		if(mStart >= mEnd) {
-			logOut();
-			messenger.sendMessage("Script Ended Normally.");
-			System.exit(0);
-			stop();
-			
-		}
-		
-
-		if(this.nextModule) {
-			if(!this.currentAction.setupModule()) {
-				nextModule();
-				this.sleep = Calculations.random(2000,4000);
-			}
-			else {
-				this.nextModule = false;
-			}
-		}
-		
-		if(mPauseStart >= mPauseEnd) {
-			this.pause = true;
-			getRandomManager().disableSolver(RandomEvent.LOGIN);
-			int pauseMins = Calculations.random(12, 26);
-			int pauseMilSecs = Calculations.random(50000, 72000);
-			int pauseFinal = (pauseMins * pauseMilSecs) / 60000;
-			int hour = today.get(Calendar.HOUR);
-			int mins = today.get(Calendar.MINUTE);
-			int minsFinal = mins + pauseFinal;
-			if(minsFinal > 60) {
-				minsFinal = minsFinal - 60; 
-				hour++;
-			}
-			
-			//TODO: setPauseText("Pause Stop: " + hour + ":" + minsFinal);  
-			//TODO: this.infoText = "Pause Stop: " + hour + ":" + minsFinal;
-			
-			
-			logOut();
-			
-			messenger.sendMessage("Script Paused - Stop: " + hour + ":" + minsFinal);
-			
-			
-			sleep(pauseMilSecs * pauseMins);
-
-			logIn();
-			
-			this.mPauseStart = 0;
-			mPauseEnd =  Calculations.random(90, 125);
-			this.pause = false;
-			sleep(Calculations.random(10000,15000));
-		} 
-			
-		if(!hopperTest && !this.nextModule && !scriptPause) {
-			this.sleep = currentAction.onLoop();
-		}
-		
-		randomCD = randomCD - sleep;
-		
-		return sleep;
+	//--Called when exiting the script--//
+	@Override
+	public void onExit() {
+		controller.killBot();
 	}
+	//--Called when exiting the script--//
+	
+	//--Updates this object with latest ingame info--//
+	@Override
+	public int onLoop() { return(1); }
+	//--Updates this object with latest ingame info--//
 	
 
-	
-	
-	public void onAutoMessage(Message m) {	
-	}
-	
-	public void onClanMessage(Message m) {
-		controller.getMsgHandler().processMessage(MsgHandler.MsgOrigin.CLAN, m);
-	}
-
-	public void onGameMessage(Message m) {	
-		controller.getMsgHandler().processMessage(MsgHandler.MsgOrigin.GAME, m);
-	}
-
-	public void onPlayerMessage(Message m) {
-		controller.getMsgHandler().processMessage(MsgHandler.MsgOrigin.PLAYER, m);
-	}
-	
-	public void onPrivateInMessage(Message m) {
-		controller.getMsgHandler().processMessage(MsgHandler.MsgOrigin.FRIEND, m);
-	}
-
-	public void onPrivateInfoMessage(Message m) {
-		
-	}
-	
-	public void onPrivateOutMessage(Message m) {
-	}
-	
-	public void onTradeMessage(Message m) {
-	}
-	
-	//TODO:
+	//--Usseful methods that fit this class the most--//
 	void hopWorlds() {
-		this.hopperTest = true;
+		
 		World w;
 		if(this.getClient().isMembers()) {
 			w = getWorlds().getRandomWorld(f -> f != null && f.isMembers() && !f.isDeadmanMode() && !f.isPVP() && f.getMinimumLevel() == 0);
@@ -260,42 +99,24 @@ public class ClientThread extends AbstractScript implements AdvancedMessageListe
 		else {
 			w = getWorlds().getRandomWorld(f -> f != null && !f.isMembers() && !f.isDeadmanMode() && !f.isPVP() && f.getMinimumLevel() == 0);
 		}
+		
 		while(getPlayers().localPlayer().isInCombat()) {
-			sleep(Calculations.random(500, 1000));
+			sleep(RandomProvider.randomInt(500, 1000));
 		}
-		sleep(Calculations.random(12000, 14000));
+		sleep(RandomProvider.randomInt(12000, 14000));
+		
 		getWorldHopper().openWorldHopper();
 		getWorldHopper().hopWorld(w);
 		sleep(Calculations.random(3000, 4000));
+		
 		getWorldHopper().closeWorldHopper();
 		sleep(1000);
+		
 		getTabs().open(Tab.INVENTORY);
 		getMouse().move();
-		this.hopperTest = false;
-	}
-	
-	//TODO:
-	public void nextModule() {
-		int current = activeModules.indexOf(this.currentAction);
-		if(current + 1 >= activeModules.size()) {
-			if(this.messenger != null) {
-				messenger.sendMessage("All Modules Completed.");
-				messenger.sendMessage("Script Ended.");
-			}
-			logOut();
-			System.exit(0);
-			stop();
-		}
-		else {
-			this.currentAction = activeModules.get(current + 1);
-			if(this.messenger != null) {
-				messenger.sendMessage("Module Swap - " + this.currentAction.getModuleName());
-				messenger.sendMessage("Time Left In Script: " + (mEnd - mStart) + " Minutes");
-			}
-			this.nextModule = true;
-		}
 		
 	}
+	
 	
 	void logOut() {
 		getRandomManager().disableSolver(RandomEvent.LOGIN);
@@ -326,13 +147,47 @@ public class ClientThread extends AbstractScript implements AdvancedMessageListe
 	public int getPlayerCount() {
 		return getPlayers().all().size();
 	}
+	//--Usseful methods that fit this class the most--//
 	
+	//--Handles drawing graphics to client--//
 	public void onPaint(Graphics g) {	
-		graphics.handleGraphics(g);
+		controller.getGraphicHandler().handleGraphics(g);
 	}
+	//--Handles drawing graphics to client--//
 	
-
+	//--Ingame Msg Listeners--//
+	@Override
+	public void onAutoMessage(Message m) {	
+	}
+	@Override
+	public void onClanMessage(Message m) {
+		controller.getMsgHandler().processMessage(MsgHandler.MsgOrigin.CLAN, m);
+	}
+	@Override
+	public void onGameMessage(Message m) {	
+		controller.getMsgHandler().processMessage(MsgHandler.MsgOrigin.GAME, m);
+	}
+	@Override
+	public void onPlayerMessage(Message m) {
+		controller.getMsgHandler().processMessage(MsgHandler.MsgOrigin.PLAYER, m);
+	}
+	@Override
+	public void onPrivateInMessage(Message m) {
+		controller.getMsgHandler().processMessage(MsgHandler.MsgOrigin.FRIEND, m);
+	}
+	@Override
+	public void onPrivateInfoMessage(Message m) {
+		
+	}
+	@Override
+	public void onPrivateOutMessage(Message m) {
+	}
+	@Override
+	public void onTradeMessage(Message m) {
+	}
+	//--Ingame Msg Listeners--//
 	
+	//--Adding manual location nodes to client--//
 	public void addDwarvenMine() {
 		AbstractWebNode webNode0 = new BasicWebNode(3020, 9852);
 		AbstractWebNode webNode1 = new BasicWebNode(3020, 9846);
@@ -601,6 +456,8 @@ public class ClientThread extends AbstractScript implements AdvancedMessageListe
 		for (AbstractWebNode webNode : webNodes) {
 			webFinder.addWebNode(webNode);
 		}
+		//--Adding manual location nodes to client--//
+		
 	}
 	
 	

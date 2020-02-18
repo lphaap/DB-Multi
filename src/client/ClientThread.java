@@ -36,7 +36,6 @@ import org.dreambot.api.wrappers.widgets.message.Message;
 import antiban.RandomProvider;
 import chat.Discord;
 import chat.MsgHandler;
-import movement.Locations;
 import net.dv8tion.jda.api.AccountType;
 import net.dv8tion.jda.api.JDABuilder;
 import scripts.MinerModule;
@@ -76,12 +75,14 @@ public class ClientThread extends AbstractScript implements AdvancedMessageListe
 	}
 	//--Called in the begining of the script--//
 	
+	
 	//--Called when exiting the script--//
 	@Override
 	public void onExit() {
 		controller.killBot();
 	}
 	//--Called when exiting the script--//
+	
 	
 	//--Updates this object with latest ingame info--//
 	@Override

@@ -264,6 +264,7 @@ public class ThreadController implements KillableThread{
 	}
 	
 	public void killBot() {
+		discord.sendMessage("Killing Bot..");
 		for(KillableThread t : this.antibanThreads) {
 			t.killThread();
 		}
@@ -273,6 +274,7 @@ public class ThreadController implements KillableThread{
 	}
 	
 	public void killClient() {
+		discord.sendMessage("Killing Client..");
 		for(KillableThread t : this.antibanThreads) {
 			t.killThread();
 		}

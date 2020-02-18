@@ -44,8 +44,7 @@ public class Discord extends ListenerAdapter{
 			        }
 			        else if(text.startsWith("!next")) {
 			        	channel.sendMessage("Swapping Module").queue();
-
-			        	//TODO:
+			        	controller.nextModule();
 			        }
 			        else if(text.startsWith("!stop")) {
 			        	channel.sendMessage("Stopping Script").queue();
@@ -53,8 +52,7 @@ public class Discord extends ListenerAdapter{
 			        }
 			        else if(text.startsWith("!hop")) {
 			        	channel.sendMessage("Hopping Worlds").queue();
-			        	
-			        	//TODO:
+			        	controller.hopWorlds();
 			        }
 			        else if(text.startsWith("!current")) {
 			        	channel.sendMessage(controller.getCurrentActionPrint()).queue();

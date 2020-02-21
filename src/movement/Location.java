@@ -22,6 +22,7 @@ public class Location {
 	private boolean rePhase1Complete;
 	private boolean rePhase2Complete;
 	private boolean rePhase3Complete;
+	private boolean teleportInProgress;
 	private Obstacle obstacle2; //Used in phase 2
 	private Obstacle obstacle3; //Used in phase 3
 	private Teleporter teleporter;
@@ -42,9 +43,11 @@ public class Location {
 	 * @.post teleporter.teleport()
 	 */
 	public void teleportToLocation() {
+		this.teleportInProgress = true;
 		if(script.getClient().isMembers()) {
 			teleporter.teleport();
 		}
+		this.teleportInProgress = false;
 	}
 	
 	/**
@@ -156,6 +159,78 @@ public class Location {
 		
 	}
 	
+	public void reTravelToBank(){
+		int runEnergyTest = RandomProvider.randomInt(10) + 1;
+		script.sleep(RandomProvider.randomInt(1000)+2000);
+		while(!script.getBank().isOpen() && !killCurrentAction) {
+			script.getBank().open(script.getBank().getClosestBankLocation());
+			script.sleep(RandomProvider.randomInt(1000)+2000);
+			if(script.getWalking().getRunEnergy() >= runEnergyTest && !script.getWalking().isRunEnabled()) {
+				script.getWalking().toggleRun();
+				script.sleep(RandomProvider.randomInt(1000)+2000);
+				runEnergyTest = RandomProvider.randomInt(10) + 1;
+			}
+		}
+		this.phase1Complete = false;
+		this.rePhase1Complete = true;
+	}
+	
+	public void reTravelPhase2() {
+		int runEnergyTest = RandomProvider.randomInt(10) + 1;
+		if(phase2 != null && rePhase2 != null) {
+			script.sleep(RandomProvider.randomInt(1000)+2000);
+			int failSafe1 = 0;
+			while(!rePhase2.contains(script.getWalking().getDestination()) && !rePhase2.contains(script.getLocalPlayer()) && !killCurrentAction) {
+				script.getWalking().walk(rePhase2.getRandomTile());
+				script.sleep(RandomProvider.randomInt(1000)+2000);
+				if(script.getWalking().getRunEnergy() >= runEnergyTest && !script.getWalking().isRunEnabled()) {
+					script.getWalking().toggleRun();
+					script.sleep(RandomProvider.randomInt(1000)+2000);
+					runEnergyTest = RandomProvider.randomInt(10) + 1;
+				}
+			}
+			script.sleep(RandomProvider.randomInt(1000)+4000);
+			while(!obstacle2.interactAfter() && failSafe1 <= 3 ) {
+				script.sleep(RandomProvider.randomInt(1000)+2000);
+				failSafe1++;
+			}
+			if(failSafe1 >= 5) {
+				script.stop();
+			}
+			this.phase2Complete = false;
+			this.rePhase2Complete = true;
+			
+		}
+	}
+	public void reTravelPhase3() {
+		int runEnergyTest = RandomProvider.randomInt(10) + 1;
+		if(phase3 != null && rePhase3 != null) {
+			script.sleep(RandomProvider.randomInt(1000)+2000);
+			int failSafe2 = 0;
+			while(!rePhase3.contains(script.getWalking().getDestination()) && !rePhase3.contains(script.getLocalPlayer()) && !killCurrentAction) {
+				script.getWalking().walk(rePhase3.getRandomTile());
+				script.sleep(RandomProvider.randomInt(1000)+2000);
+				if(script.getWalking().getRunEnergy() >= runEnergyTest && !script.getWalking().isRunEnabled()) {
+					script.getWalking().toggleRun();
+					script.sleep(RandomProvider.randomInt(1000)+2000);
+					runEnergyTest = RandomProvider.randomInt(10) + 1;
+				}
+			}
+			script.sleep(RandomProvider.randomInt(1000)+4000);
+			while(!obstacle3.interactAfter() && failSafe2 <= 3 ) {
+				script.sleep(RandomProvider.randomInt(1000)+2000);
+				failSafe2++;
+			}
+			if(failSafe2 >= 5) {
+				script.stop();
+				script.log("ERROR: Travel to location failed");
+			}
+			this.phase3Complete = false;
+			this.rePhase3Complete = true;
+		}
+	}
+
+	
 	/* Depcerated
 	public void travel() {
 		int runEnergyTest = random.nextInt(10) + 1;
@@ -246,7 +321,7 @@ public class Location {
 	 * Travels to the closest bank and opens it
 	 * @.pre (Player cannot be in a location that is not mapped / cannot walk in)
 	 * @.post (Player will move to the closest bank)
-	 */
+	 
 	public void travelToBank() {
 
 		int runEnergyTest = random.nextInt(10) + 1;
@@ -306,7 +381,7 @@ public class Location {
 			script.sleep(random.nextInt(1000)+2000);
 		}
 		
-	}
+	}*/
 	
 	/**
 	 * Gets a random tile from target location (phase1)
@@ -352,22 +427,52 @@ public class Location {
 		this.obstacle3 = obstacle;
 	}
 	public boolean isPhase1Done() {
-		return this.phase1Complete;
+		if(this.phase1 != null) {
+			return this.phase1Complete;
+		}
+		else {
+			return true;
+		}
 	}
 	public boolean isPhase2Done() {
-		return this.phase2Complete;
+		if(this.phase2 != null) {
+			return this.phase2Complete;
+		}
+		else {
+			return true;
+		}
 	}
 	public boolean isPhase3Done() {
-		return this.phase3Complete;
+		if(this.phase3 != null) {
+			return this.phase3Complete;
+		}
+		else {
+			return true;
+		}
 	}
-	public boolean isRePhase1Done() {
-		return this.rePhase1Complete;
+	public boolean isReBankingDone() {
+		
+			return this.phase1Complete;
+	
 	}
 	public boolean isRePhase2Done() {
-		return this.rePhase2Complete;
+		if(this.rePhase2 != null) {
+			return this.rePhase2Complete;
+		}
+		else {
+			return true;
+		}
+	}
+	public boolean isTeleportInProgress() {
+		return this.teleportInProgress;
 	}
 	public boolean isRePhase3Done() {
-		return this.rePhase3Complete;
+		if(this.rePhase3 != null) {
+			return this.rePhase3Complete;
+		}
+		else {
+			return true;
+		}
 	}
 	
 	

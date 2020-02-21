@@ -12,6 +12,7 @@ import org.dreambot.api.methods.skills.Skill;
 import antiban.RandomProvider;
 import chat.Discord;
 import chat.MsgHandler;
+import movement.MovementHandler;
 import net.dv8tion.jda.api.AccountType;
 import net.dv8tion.jda.api.JDABuilder;
 import scripts.ScriptModule;
@@ -31,6 +32,7 @@ public class ThreadController implements KillableThread{
 	
 	private GraphicHandler graphic;
 	private MsgHandler msgHandler;
+	private MovementHandler movement;
 	private Discord discord;
 	
 	private int keyboardInUseFor;
@@ -44,6 +46,7 @@ public class ThreadController implements KillableThread{
 		this.client = client;
 		this.graphic = new GraphicHandler();
 		this.msgHandler = new MsgHandler(client, this);
+		this.movement = new MovementHandler(client, this);
 		this.pauseTimer = RandomProvider.randomInt(90*60, 125*60); 
 		this.scriptTimer = RandomProvider.randomInt(180*60, 280*60);
 		createDiscordThread();
@@ -335,7 +338,9 @@ public class ThreadController implements KillableThread{
 		return !(killThread);
 	}
 
-
+	public MovementHandler getMovementHandler() {
+		return this.movement;
+	}
 
 	
 }

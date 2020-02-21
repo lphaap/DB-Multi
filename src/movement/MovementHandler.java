@@ -16,7 +16,7 @@ public class MovementHandler {
 	private Area debugArea;
 
 	
-	public MovementHandler(ThreadController controller, ClientThread client) {
+	public MovementHandler(ClientThread client, ThreadController controller) {
 		this.controller = controller;
 	}
 	
@@ -65,6 +65,58 @@ public class MovementHandler {
 	 * @throws IllegalArgumentException
 	 */
 	public void moveToBank() {
+		while(controller.requestKeyboardAccess());
+		while(controller.requestMouseAccess());
+		
+		new Thread( () -> location.reTravelPhase2()).start();
+		while(!location.isRePhase2Done()) {
+			monitorMovement();
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {e.printStackTrace();}
+		}
+		resetMonitor();
+		
+		new Thread( () -> location.reTravelPhase3()).start();
+		while(!location.isRePhase3Done()) {
+			monitorMovement();
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {e.printStackTrace();}
+		}
+		resetMonitor();
+		
+		new Thread( () -> location.reTravelToBank()).start();
+		while(!location.isReBankingDone()) {
+			monitorMovement();
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {e.printStackTrace();}
+		}
+		resetMonitor();
+		
+		controller.returnKeyboardAccess();
+		controller.returnMouseAccess();
+	}
+	
+	public void teleportToLocation() {
+		while(controller.requestKeyboardAccess());
+		while(controller.requestMouseAccess());
+		
+		new Thread( () -> location.teleportToLocation()).start();
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {e.printStackTrace();}
+		while(location.isTeleportInProgress()) {
+			monitorMovement();
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {e.printStackTrace();}
+		}
+		resetMonitor();
+		
+		controller.returnKeyboardAccess();
+		controller.returnMouseAccess();
 		
 	}
 
@@ -87,6 +139,7 @@ public class MovementHandler {
 			debugAreaCounter++;
 		}
 		debugCounter++;
+		//TODO: What if counter goes too far + something needs to reset location thread killer
 	}
 	
 	private void resetMonitor() {

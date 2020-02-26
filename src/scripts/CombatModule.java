@@ -8,37 +8,46 @@ import org.dreambot.api.wrappers.interactive.NPC;
 import org.dreambot.api.wrappers.items.GroundItem;
 import org.dreambot.api.wrappers.items.Item;
 
+import antiban.RandomProvider;
 import client.ClientThread;
+import client.KillableThread;
+import client.ThreadController;
 import movement.Location;
-import movement.Locations;
+import movement.LocationFactory;
+
 
 public class CombatModule extends ScriptModule {
-	private Random random = new Random();
+	private ThreadController controller;
 	private ClientThread script;
+
+	private ArrayList<String> collect = new ArrayList<String>();
+	
+	private KillableThread healingHandler = new HealingHandler();
+	
 	private String monsterName;
-	private Skill skillToTrain;
 	private String food;
-	private Location location;
-	private int delay;
-	private int eatAt;
-	private Monster monsterEnum;
-	private Food foodEnum;
-	private int actionsCompleted;
-	private int limit;
-	private ArrayList<String> collect;
-	private boolean pickUp;
+	
 	private int heal;
 	private int realHp;
-	private Locations locationEnum;
-	private boolean error;
-	private Training skill;
+	private int delay;
+	private int eatAt;
+	private int limit;
+	private int actionsCompleted;
 	
-	public CombatModule(ClientThread script, CombatModule.Monster monster, CombatModule.Food food, int limit, Boolean pickUp, Training skill) {
-		eatAt = random.nextInt(6) + 10;
+	private Training skill;
+	private Monster monsterEnum;
+	private Food foodEnum;
+	private Skill skillToTrain;
+	private LocationFactory.GameLocation locationEnum;
+	
+	private boolean pickUp;
+	private boolean error;
+	private boolean killThread;
+	
+	public CombatModule(ThreadController controller, ClientThread client, CombatModule.Monster monster, CombatModule.Food food, int limit, Boolean pickUp, Training skill) {
+		eatAt = RandomProvider.randomInt(6) + 10;
 		this.limit = limit;
-		this.script = script;
-		this.collect = new ArrayList<String>();
-		this.skillToTrain = Skill.STRENGTH;
+		this.controller = controller;
 		setMonsterVariables(monster);
 		setFood(food);
 		this.pickUp = pickUp;
@@ -47,132 +56,130 @@ public class CombatModule extends ScriptModule {
 		this.error = false;
 		this.skill = skill;
 		this.moduleName = "CombatModule: " + monster;
+		getSkillToHover();
+		
+		new Thread(healingHandler).start();
 	}
 	
 	@Override
-	public int onLoop() {
-		random.setSeed(random.nextLong());
-		delay = random.nextInt(1000) + 2000;
+	public void run() {
 		
-		if(limit <= this.actionsCompleted) {
-			script.nextModule();
-			script.sleep(2000);
-			return delay;
-		}
-		
-		if(script.getSkills().getBoostedLevels(Skill.HITPOINTS) <= eatAt) {
-			script.setInfoText("Combat trainer: Eating - " + foodEnum);
-			if(script.getInventory().contains(f -> f != null && f.getName().equals(food))) {
-				Item eat = script.getInventory().get(f -> f != null && f.getName().equals(food));
-				eat.interact();
-				script.getMouse().move();
-				int realHp = script.getSkills().getRealLevel(Skill.HITPOINTS);
-				eatAt = realHp - random.nextInt((int)(realHp * 0.2323232323)) - (heal + 1);
-						//random.nextInt(6) + 10;
-			}
-		}
-		
-		if(!script.getLocalPlayer().isAnimating() && !script.getLocalPlayer().isInCombat()) {
+		threadloop: while(!killThread) {
 			
+			sleep(delay);
+			delay = RandomProvider.randomInt(1000) + 2000;
 			
-			if(!script.getInventory().isFull() && pickUp && location.inArea()) {
-				for(String item : collect) {
-					GroundItem collectItem = script.getGroundItems().closest(f -> f != null && f.getName().equals(item));
-					if(collectItem != null) {
-						script.setInfoText("Combat trainer: Picking up Item");
-						collectItem.interact("Take");
+			if(!script.getLocalPlayer().isAnimating() && !script.getLocalPlayer().isInCombat()) {
+				if(!script.getInventory().isFull() && pickUp && controller.getMovementHandler().isPlayerInLocation()) {
+					for(String item : collect) {
+						GroundItem collectItem = script.getGroundItems().closest(f -> f != null && f.getName().equals(item));
+						if(collectItem != null) {
+							while(controller.requestMouseAccess()) {RandomProvider.sleep(10);}
+							controller.getGraphicHandler().setInfo("Combat trainer: Picking up Item");
+							collectItem.interact("Take");
+							script.getMouse().move();
+							this.delay -= 1000;
+							controller.returnMouseAccess();
+							continue threadloop;
+						}
+					}
+				}
+				
+				if(!script.getInventory().contains(f -> f != null && f.getName().equals(food))) {
+					
+					controller.getGraphicHandler().setInfo("Combat trainer: No Food Left - Banking");
+					
+					controller.getMovementHandler().moveToBank();
+					
+					this.actionsCompleted++;
+					
+					sleep(RandomProvider.randomInt(750)+ 700);
+					
+					while(controller.requestMouseAccess()) {RandomProvider.sleep(10);}
+					while(controller.requestKeyboardAccess()) {RandomProvider.sleep(10);}
+					
+					if(!script.getInventory().isEmpty()) {
+						script.getBank().depositAllItems();
+						sleep(RandomProvider.randomInt((750)+ 1000));
+					}
+					
+					if(script.getBank().contains(food)) {
+						script.getBank().withdrawAll(f -> f != null && f.getName().equals(food));
+						sleep(RandomProvider.randomInt(750)+ 700);
+						script.getBank().close();
+						sleep(RandomProvider.randomInt(750)+ 400);
 						script.getMouse().move();
-						return delay -1000;
+						
 					}
-				}
-			}
-			
-			if(!script.getInventory().contains(f -> f != null && f.getName().equals(food))) {
-				script.setReact(0);
-				this.actionsCompleted++;
-				script.setInfoText("Combat trainer: No Food Left - Banking");
-				location.travelToBank();
-				script.sleep(random.nextInt(750)+ 700);
-				if(!script.getInventory().isEmpty()) {
-					script.getBank().depositAllItems();
-					script.sleep(random.nextInt(750)+ 1000);
-				}
-				
-				if(script.getBank().contains(food)) {
-					script.getBank().withdrawAll(f -> f != null && f.getName().equals(food));
-					script.sleep(random.nextInt(750)+ 700);
-					script.getBank().close();
-					script.sleep(random.nextInt(750)+ 400);
-					script.getMouse().move();
-				}
-				else {
-					script.nextModule();
-					script.sleep(2000);
-					return delay;
-				}
-				
-			}
-			
-			else if(!location.inArea()) {
-				script.setReact(0);
-				script.setInfoText("Combat trainer: Moving to Location - " + locationEnum);
-				location.travel();
-			}
-			
-			else if(!script.getLocalPlayer().isAnimating() && !script.getLocalPlayer().isInCombat()) {
-				
-				if(script.getEquipment().getItemInSlot(EquipmentSlot.WEAPON.getSlot()) == null) {
-					script.getMessenger().sendMessage("CombatTrainer - Module ERROR");
-					script.getMessenger().sendMessage("No Weapon Found - Changing Module");
-					script.nextModule();
-					script.sleep(2000);
-					return delay;
+					else {
+						this.error = true;
+						sleep(2000);
+						this.killThread();
+					}
+					
+					controller.returnKeyboardAccess();
+					controller.returnMouseAccess();
 					
 				}
-				if(script.getEquipment().getItemInSlot(EquipmentSlot.WEAPON.getSlot()).getName().toLowerCase().contains("bow")) {
+				
+				else if(!controller.getMovementHandler().isPlayerInLocation()) {
+					controller.getGraphicHandler().setInfo("Combat trainer: Moving to Location - " + locationEnum);
+					controller.getMovementHandler().moveToLocation();
+				}
+				
+				else if(!script.getLocalPlayer().isAnimating() && !script.getLocalPlayer().isInCombat()) {
+					
 					if(script.getEquipment().getItemInSlot(EquipmentSlot.WEAPON.getSlot()) == null) {
-						script.getMessenger().sendMessage("CombatTrainer - Module ERROR");
-						script.getMessenger().sendMessage("No Arrows Found - Changing Module");
-						script.nextModule();
-						script.sleep(2000);
-						return delay;
+						controller.getDiscord().sendMessage("CombatTrainer - Module ERROR");
+						controller.getDiscord().sendMessage("No Weapon Found - Changing Module");
+						this.error = true;
+						sleep(2000);
+						this.killThread();
+						
+					}
+					if(script.getEquipment().getItemInSlot(EquipmentSlot.WEAPON.getSlot()).getName().toLowerCase().contains("bow")) {
+						if(script.getEquipment().getItemInSlot(EquipmentSlot.WEAPON.getSlot()) == null) {
+							controller.getDiscord().sendMessage("CombatTrainer - Module ERROR");
+							controller.getDiscord().sendMessage("No Arrows Found - Changing Module");
+							this.error = true;
+							sleep(2000);
+							this.killThread();
+						}
+						
 					}
 					
+					controller.getGraphicHandler().setInfo("Combat trainer: Attacking target - "+ monsterEnum);
+					
+					while(controller.requestMouseAccess()) {RandomProvider.sleep(10);}
+					
+					NPC monster = script.getNpcs().closest(f -> f.getName().equals(monsterName) && f != null && !f.isInCombat() && f.getLevel()!=51);
+					int randomizer = RandomProvider.randomInt(2);
+					if(randomizer == 0) {
+						monster.interact();
+					}
+					else {
+						monster.interact("Attack");
+					}
+					script.getMouse().move();
+					
+					controller.returnMouseAccess();
 				}
 				
-				script.setReact(1);
-				script.setInfoText("Combat trainer: Attacking target - "+ monsterEnum);
-				NPC monster = script.getNpcs().closest(f -> f.getName().equals(monsterName) && f != null && !f.isInCombat() && f.getLevel()!=51);
-				int randomizer = random.nextInt(2);
-				if(randomizer == 0) {
-					monster.interact();
-				}
-				else {
-					monster.interact("Attack");
-				}
-				script.getMouse().move();
 			}
-			
-		}
-			
-		return delay;
+				
+			  
+			}
 	}
 	
 	public enum Training {
 		RANGE, ATTACK, STRENGTH
 	}
-	
-
-	@Override
-	public int actionsCompleted() {
-		return this.actionsCompleted;
-	}
 
 	@Override
 	public boolean setupModule() {
-		this.location.teleportToLocation();
+		this.controller.getMovementHandler().teleportToLocation();
 		
-		script.setInfoText("Combat trainer: Setting up module");
+		controller.getGraphicHandler().setInfo("Combat trainer: Setting up module");
 		if(!script.getInventory().contains(f -> f != null && f.getName().equals(food))) {
 			
 			if(!script.getWalking().isRunEnabled() && script.getWalking().getRunEnergy() > 0) {
@@ -181,19 +188,19 @@ public class CombatModule extends ScriptModule {
 	
 			while(!script.getBank().isOpen()) {
 				script.getBank().open(script.getBank().getClosestBankLocation());
-				script.sleep(random.nextInt(1000)+2000);
+				sleep(RandomProvider.randomInt(1000)+2000);
 			}
 			
 			if(!script.getInventory().isEmpty()) {
 				script.getBank().depositAllItems();
-				script.sleep(random.nextInt(750)+ 1000);
+				sleep(RandomProvider.randomInt(750)+ 1000);
 			}
 			
 			if(script.getBank().contains(food)) {
 				script.getBank().withdrawAll(f -> f != null && f.getName().equals(food));
-				script.sleep(random.nextInt(750)+ 700);
+				sleep(RandomProvider.randomInt(750)+ 700);
 				script.getBank().close();
-				script.sleep(random.nextInt(750)+ 400);
+				sleep(RandomProvider.randomInt(750)+ 400);
 				script.getMouse().move();
 				
 				
@@ -236,21 +243,21 @@ public class CombatModule extends ScriptModule {
 	public void setMonsterVariables(Monster monster) {
 		if(monster == Monster.GIANT_FROG) {
 			this.monsterName = "Giant frog";
-			this.location = new Location(script, Locations.COMBAT_GIANT_FROG);
+			this.controller.getMovementHandler().newLocation(LocationFactory.GameLocation.COMBAT_GIANT_FROG);
 			this.collect.add("Big bones");
-			this.locationEnum = Locations.COMBAT_GIANT_FROG;
+			this.locationEnum = LocationFactory.GameLocation.COMBAT_GIANT_FROG;
 			
 			
 		}
 		else if(monster == Monster.BARBARIAN) {
 			this.monsterName = "Barbarian";
-			this.location = new Location(script, Locations.COMBAT_BARBARIAN);
-			this.locationEnum = Locations.COMBAT_BARBARIAN;
+			this.controller.getMovementHandler().newLocation(LocationFactory.GameLocation.COMBAT_BARBARIAN);
+			this.locationEnum = LocationFactory.GameLocation.COMBAT_BARBARIAN;
 		}
 		else if(monster == Monster.EXPERIMENT) {
 			this.monsterName = "Experiment";
-			this.location = new Location(script, Locations.COMBAT_EXPERIMENTS);
-			this.locationEnum = Locations.COMBAT_EXPERIMENTS;
+			this.controller.getMovementHandler().newLocation(LocationFactory.GameLocation.COMBAT_EXPERIMENTS);
+			this.locationEnum = LocationFactory.GameLocation.COMBAT_EXPERIMENTS;
 		}
 	}
 	
@@ -271,9 +278,68 @@ public class CombatModule extends ScriptModule {
 
 	}
 
+
 	@Override
-	public void errorTest() {
-		// TODO Auto-generated method stub
+	public void killThread() {
+		this.killThread = true;
+		this.healingHandler.killThread();
+	}
+
+	@Override
+	public boolean isAlive() {
+		return !this.killThread;
+	}
+
+	@Override
+	public boolean isReady() {
+		if(this.error) {
+			return true;
+		}
+		else if(this.limit < this.actionsCompleted) {
+			return true;
+		}
+		else { return  false; }
+	
+	}
+	
+	private class HealingHandler implements KillableThread{
+		private boolean killThread;
+		
+		@Override
+		public void run() {
+			
+			while(!killThread) {
+				try {
+					Thread.sleep(1000 + RandomProvider.randomInt(1500));
+				} catch (InterruptedException e) {e.printStackTrace();}
+				if(script.getSkills().getBoostedLevels(Skill.HITPOINTS) <= eatAt) {
+					controller.getGraphicHandler().setInfo("Combat trainer: Eating - " + foodEnum);
+					if(script.getInventory().contains(f -> f != null && f.getName().equals(food))) {
+						Thread.currentThread().setPriority(Thread.MAX_PRIORITY-1);
+						while(controller.requestMouseAccess()) {RandomProvider.sleep(10);}
+						Item eat = script.getInventory().get(f -> f != null && f.getName().equals(food));
+						eat.interact();
+						script.getMouse().move();
+						int realHp = script.getSkills().getRealLevel(Skill.HITPOINTS);
+						eatAt = realHp - RandomProvider.randomInt((int)(realHp * 0.2323232323)) - (heal + 1);
+						controller.returnMouseAccess();
+						Thread.currentThread().setPriority(Thread.NORM_PRIORITY);
+								//random.nextInt(6) + 10;
+					}
+				}
+			}			
+			
+		}
+
+		@Override
+		public void killThread() {
+			this.killThread = true;
+		}
+
+		@Override
+		public boolean isAlive() {
+			return !this.killThread;
+		}
 		
 	}
 

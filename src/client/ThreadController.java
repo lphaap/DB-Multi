@@ -30,9 +30,9 @@ public class ThreadController implements KillableThread{
 	private ArrayList<ScriptModule> modules = new ArrayList<ScriptModule>();
 	private ArrayList<KillableThread> antibanThreads = new ArrayList<KillableThread>();
 	
-	private GraphicHandler graphic;
+	private GraphicHandler graphicHandler;
 	private MsgHandler msgHandler;
-	private MovementHandler movement;
+	private MovementHandler movementHandler;
 	private Discord discord;
 	
 	private int keyboardInUseFor;
@@ -44,9 +44,9 @@ public class ThreadController implements KillableThread{
 	
 	public ThreadController(ClientThread client) {
 		this.client = client;
-		this.graphic = new GraphicHandler();
+		this.graphicHandler = new GraphicHandler();
 		this.msgHandler = new MsgHandler(client, this);
-		this.movement = new MovementHandler(client, this);
+		this.movementHandler = new MovementHandler(client, this);
 		this.pauseTimer = RandomProvider.randomInt(90*60, 125*60); 
 		this.scriptTimer = RandomProvider.randomInt(180*60, 280*60);
 		createDiscordThread();
@@ -68,7 +68,7 @@ public class ThreadController implements KillableThread{
 			sleep(1000); //Tics every 1 second
 			
 			//--Checks when to change Module--//
-			if(currentModule.isReady()) {
+			if(currentModule.isReady() || !currentModule.isAlive()) {
 				currentModule.killThread();
 				nextModule();
 			}
@@ -160,7 +160,7 @@ public class ThreadController implements KillableThread{
 	}
 	
 	public GraphicHandler getGraphicHandler() {
-		return this.graphic;
+		return this.graphicHandler;
 	}
 	
 	public MsgHandler getMsgHandler() {
@@ -211,9 +211,9 @@ public class ThreadController implements KillableThread{
 			hour++;
 		}
 		
-		this.graphic.setInfo("Pause Stop: " + hour + ":" + minFinal);
-		this.graphic.setPause("Pause Stop: " + hour + ":" + minFinal);
-		this.graphic.togglePause();
+		this.graphicHandler.setInfo("Pause Stop: " + hour + ":" + minFinal);
+		this.graphicHandler.setPause("Pause Stop: " + hour + ":" + minFinal);
+		this.graphicHandler.togglePause();
 		discord.sendMessage("Script Paused - Stop: " + hour + ":" + minFinal);
 		
 		sleep(sleep*1000);
@@ -223,7 +223,7 @@ public class ThreadController implements KillableThread{
 		this.returnKeyboardAccess();
 		this.returnMouseAccess();
 		
-		this.graphic.togglePause();
+		this.graphicHandler.togglePause();
 		
 		Thread.currentThread().setPriority(Thread.NORM_PRIORITY);
 	}
@@ -249,9 +249,9 @@ public class ThreadController implements KillableThread{
 			hour++;
 		}
 		
-		this.graphic.setInfo("Pause Stop: " + hour + ":" + minFinal);
-		this.graphic.setPause("Pause Stop: " + hour + ":" + minFinal);
-		this.graphic.togglePause();
+		this.graphicHandler.setInfo("Pause Stop: " + hour + ":" + minFinal);
+		this.graphicHandler.setPause("Pause Stop: " + hour + ":" + minFinal);
+		this.graphicHandler.togglePause();
 		discord.sendMessage("Script Paused - Stop: " + hour + ":" + minFinal);
 		
 		sleep(sleep*1000);
@@ -261,7 +261,7 @@ public class ThreadController implements KillableThread{
 		this.returnKeyboardAccess();
 		this.returnMouseAccess();
 		
-		this.graphic.togglePause();
+		this.graphicHandler.togglePause();
 		
 		Thread.currentThread().setPriority(Thread.NORM_PRIORITY);
 	}
@@ -299,7 +299,7 @@ public class ThreadController implements KillableThread{
 	public void hopWorlds() {
 		
 		discord.sendMessage("Hopping Worlds..");
-		graphic.setInfo("Hopping Worlds..");
+		graphicHandler.setInfo("Hopping Worlds..");
 		
 		Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
 		while(this.requestKeyboardAccess()) {RandomProvider.sleep(10);}
@@ -314,6 +314,10 @@ public class ThreadController implements KillableThread{
 	}
 	
 	public void nextModule() {
+		Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
+		while(this.requestKeyboardAccess()) {RandomProvider.sleep(10);}
+		while(this.requestMouseAccess()) {RandomProvider.sleep(10);}
+		
 		this.currentModule.killThread();
 		this.modules.remove(currentModule);
 		if(this.modules.size() <= 0) {
@@ -325,6 +329,8 @@ public class ThreadController implements KillableThread{
 			Thread t = new Thread(this.currentModule);
 			t.start();
 		}
+		
+		Thread.currentThread().setPriority(Thread.NORM_PRIORITY);
 	}
 
 	@Override
@@ -339,7 +345,7 @@ public class ThreadController implements KillableThread{
 	}
 
 	public MovementHandler getMovementHandler() {
-		return this.movement;
+		return this.movementHandler;
 	}
 
 	

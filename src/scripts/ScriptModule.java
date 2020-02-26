@@ -3,9 +3,11 @@ import org.dreambot.api.methods.map.Area;
 import org.dreambot.api.methods.skills.Skill;
 
 import client.KillableThread;
+import client.ThreadController;
 
 public abstract class ScriptModule implements KillableThread{
 	protected String moduleName;
+	protected ThreadController controller;
 	
 	/**
 	 * Runnable.run() method
@@ -35,5 +37,18 @@ public abstract class ScriptModule implements KillableThread{
 	 */
 	public String getModuleName() {
 		return this.moduleName;
+	}
+	
+	/**
+	 * Thread sleep with try catch
+	 * @param time
+	 */
+	public void sleep(int time) {
+		try {
+			Thread.sleep(time);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 }

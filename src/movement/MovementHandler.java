@@ -2,6 +2,7 @@ package movement;
 
 import org.dreambot.api.methods.map.Area;
 
+import antiban.RandomProvider;
 import client.ClientThread;
 import client.KillableThread;
 import client.ThreadController;
@@ -25,8 +26,8 @@ public class MovementHandler {
 	 * @throws IllegalArgumentException
 	 */
 	public void moveToLocation() {
-		while(controller.requestKeyboardAccess());
-		while(controller.requestMouseAccess());
+		while(controller.requestKeyboardAccess()) {RandomProvider.sleep(10);};
+		while(controller.requestMouseAccess()) {RandomProvider.sleep(10);};
 		
 		new Thread( () -> location.travelPhase3()).start();
 		while(!location.isPhase3Done()) {
@@ -146,6 +147,10 @@ public class MovementHandler {
 		debugCounter = 0;
 		debugAreaCounter = 0;
 		debugArea = null;
+	}
+	
+	public boolean isPlayerInLocation() {
+		return this.location.inArea();
 	}
 
 }

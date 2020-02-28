@@ -4,10 +4,11 @@ import org.dreambot.api.methods.map.Area;
 
 import antiban.RandomProvider;
 import client.ClientThread;
+import client.KillableHandler;
 import client.KillableThread;
 import client.ThreadController;
 
-public class MovementHandler {
+public class MovementHandler implements KillableHandler {
 	private ThreadController controller;
 	private Location location;
 	private ClientThread client;
@@ -16,6 +17,7 @@ public class MovementHandler {
 	private int debugAreaCounter = 0;
 	private Area debugArea;
 
+	private boolean killHandler;
 	
 	public MovementHandler(ClientThread client, ThreadController controller) {
 		this.controller = controller;
@@ -31,7 +33,9 @@ public class MovementHandler {
 		
 		new Thread( () -> location.travelPhase3()).start();
 		while(!location.isPhase3Done()) {
-			monitorMovement();
+			if(monitorMovement()) {
+				return;
+			}
 			try {
 				Thread.sleep(1000);
 			} catch (InterruptedException e) {e.printStackTrace();}
@@ -40,7 +44,9 @@ public class MovementHandler {
 		
 		new Thread( () -> location.travelPhase2()).start();
 		while(!location.isPhase2Done()) {
-			monitorMovement();
+			if(monitorMovement()) {
+				return;
+			}
 			try {
 				Thread.sleep(1000);
 			} catch (InterruptedException e) {e.printStackTrace();}
@@ -49,7 +55,9 @@ public class MovementHandler {
 		
 		new Thread( () -> location.travelPhase1()).start();
 		while(!location.isPhase1Done()) {
-			monitorMovement();
+			if(monitorMovement()) {
+				return;
+			}
 			try {
 				Thread.sleep(1000);
 			} catch (InterruptedException e) {e.printStackTrace();}
@@ -71,7 +79,9 @@ public class MovementHandler {
 		
 		new Thread( () -> location.reTravelPhase2()).start();
 		while(!location.isRePhase2Done()) {
-			monitorMovement();
+			if(monitorMovement()) {
+				return;
+			}
 			try {
 				Thread.sleep(1000);
 			} catch (InterruptedException e) {e.printStackTrace();}
@@ -80,7 +90,9 @@ public class MovementHandler {
 		
 		new Thread( () -> location.reTravelPhase3()).start();
 		while(!location.isRePhase3Done()) {
-			monitorMovement();
+			if(monitorMovement()) {
+				return;
+			}
 			try {
 				Thread.sleep(1000);
 			} catch (InterruptedException e) {e.printStackTrace();}
@@ -89,7 +101,9 @@ public class MovementHandler {
 		
 		new Thread( () -> location.reTravelToBank()).start();
 		while(!location.isReBankingDone()) {
-			monitorMovement();
+			if(monitorMovement()) {
+				return;
+			}
 			try {
 				Thread.sleep(1000);
 			} catch (InterruptedException e) {e.printStackTrace();}
@@ -109,7 +123,9 @@ public class MovementHandler {
 			Thread.sleep(1000);
 		} catch (InterruptedException e) {e.printStackTrace();}
 		while(location.isTeleportInProgress()) {
-			monitorMovement();
+			if(monitorMovement()) {
+				return;
+			}
 			try {
 				Thread.sleep(1000);
 			} catch (InterruptedException e) {e.printStackTrace();}
@@ -131,7 +147,10 @@ public class MovementHandler {
 		}
 	}
 	
-	private void monitorMovement() {
+	/**
+	 * Returns true if problem appears
+	 */
+	private boolean monitorMovement() {
 		if(debugArea == null || debugArea.contains(client.getLocalPlayer())) {
 			this.debugArea = client.getLocalPlayer().getTile().getArea(6);
 			this.debugAreaCounter = 0;
@@ -140,6 +159,14 @@ public class MovementHandler {
 			debugAreaCounter++;
 		}
 		debugCounter++;
+		
+		if(this.killHandler) {
+			this.location.killCurrentAction();
+			return true;
+		}
+		else {
+			return false;
+		}
 		//TODO: What if counter goes too far + something needs to reset location thread killer
 	}
 	
@@ -151,6 +178,11 @@ public class MovementHandler {
 	
 	public boolean isPlayerInLocation() {
 		return this.location.inArea();
+	}
+
+	@Override
+	public void killHandler() {
+		this.killHandler = true;
 	}
 
 }

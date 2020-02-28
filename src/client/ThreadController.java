@@ -16,6 +16,7 @@ import movement.MovementHandler;
 import net.dv8tion.jda.api.AccountType;
 import net.dv8tion.jda.api.JDABuilder;
 import scripts.ScriptModule;
+import utilities.GearHandler;
 
 public class ThreadController implements KillableThread{
 	private ClientThread client; //-> Will be passed to other classes since it's used so reqularly
@@ -33,6 +34,7 @@ public class ThreadController implements KillableThread{
 	private GraphicHandler graphicHandler;
 	private MsgHandler msgHandler;
 	private MovementHandler movementHandler;
+	private GearHandler gearHandler;
 	private Discord discord;
 	
 	private int keyboardInUseFor;
@@ -47,6 +49,7 @@ public class ThreadController implements KillableThread{
 		this.graphicHandler = new GraphicHandler();
 		this.msgHandler = new MsgHandler(client, this);
 		this.movementHandler = new MovementHandler(client, this);
+		this.gearHandler = new GearHandler(client, this);
 		this.pauseTimer = RandomProvider.randomInt(90*60, 125*60); 
 		this.scriptTimer = RandomProvider.randomInt(180*60, 280*60);
 		createDiscordThread();
@@ -272,6 +275,8 @@ public class ThreadController implements KillableThread{
 			t.killThread();
 		}
 		this.currentModule.killThread();
+		this.gearHandler.killHandler();
+		this.movementHandler.killHandler();
 		this.killThread();
 		client.stop();
 	}
@@ -282,6 +287,8 @@ public class ThreadController implements KillableThread{
 			t.killThread();
 		}
 		this.currentModule.killThread();
+		this.gearHandler.killHandler();
+		this.movementHandler.killHandler();
 		this.killThread();
 		client.stop();
 		System.exit(0);

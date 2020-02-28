@@ -14,6 +14,7 @@ import client.KillableThread;
 import client.ThreadController;
 import movement.Location;
 import movement.LocationFactory;
+import utilities.GearHandler.Gear;
 
 
 public class CombatModule extends ScriptModule {
@@ -177,7 +178,10 @@ public class CombatModule extends ScriptModule {
 
 	@Override
 	public boolean setupModule() {
+		
 		this.controller.getMovementHandler().teleportToLocation();
+		
+		this.controller.getGearHandler().handleGearSwap(this.getGearToSwap());
 		
 		controller.getGraphicHandler().setInfo("Combat trainer: Setting up module");
 		if(!script.getInventory().contains(f -> f != null && f.getName().equals(food))) {
@@ -229,6 +233,15 @@ public class CombatModule extends ScriptModule {
 		}
 		else {
 			return Skill.HITPOINTS;
+		}
+	}
+	
+	public Gear getGearToSwap() {
+		if(this.skill == Training.RANGE) {
+			return Gear.RANGE;
+		}
+		else {
+			return Gear.MELEE;
 		}
 	}
 	

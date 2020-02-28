@@ -354,6 +354,9 @@ public class ThreadController implements KillableThread{
 	public MovementHandler getMovementHandler() {
 		return this.movementHandler;
 	}
-
+	
+	public GearHandler getGearHandler() {
+		return this.gearHandler;
+	}
 	
 }

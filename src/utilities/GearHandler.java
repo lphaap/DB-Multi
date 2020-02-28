@@ -25,12 +25,13 @@ public class GearHandler implements KillableHandler {
 	private ClientThread script;
 	private boolean repeat;
 	private boolean killHandler;
-	private Gear type;
 	
 	private GearSwapper swapper;
 	private int debugCounter = 0;
 	private int debugAreaCounter = 0;
 	private Area debugArea;
+	
+	private Gear currentGear;
 	
 	public GearHandler(ClientThread script, ThreadController controller) {
 		this.script = script;
@@ -46,7 +47,13 @@ public class GearHandler implements KillableHandler {
 	 * Handles its own accsess control
 	 */
 	public void handleGearSwap(Gear gear) {
-		this.setGearList(gear);
+		if(this.currentGear == gear) {
+			return;
+		}
+		else {
+			this.setGearList(gear);
+			this.currentGear = gear;
+		}
 		
 		while(controller.requestKeyboardAccess());
 		while(controller.requestMouseAccess());

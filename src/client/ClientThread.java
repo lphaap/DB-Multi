@@ -132,13 +132,13 @@ public class ClientThread extends AbstractScript implements AdvancedMessageListe
 		sleep(RandomProvider.randomInt(300,500));
 		getWidgets().getWidget(182).getChild(12).interact();
 		sleep(RandomProvider.randomInt(300,500));
-		controller.getDiscord().sendMessage("Log Out Completed");
+		controller.getTelegramHandler().sendMessage("Log Out Completed");
 	}
 	
 	void logIn() {
 		getRandomManager().enableSolver(RandomEvent.LOGIN);
 		while(!this.getClient().isLoggedIn()) {RandomProvider.sleep(10);}
-		controller.getDiscord().sendMessage("Log In Completed");
+		controller.getTelegramHandler().sendMessage("Log In Completed");
 	}
 	
 	public WidgetChild getWidget(int parent, int child) {
@@ -162,19 +162,19 @@ public class ClientThread extends AbstractScript implements AdvancedMessageListe
 	}
 	@Override
 	public void onClanMessage(Message m) {
-		controller.getMsgHandler().processMessage(InGameMsgHandler.MsgOrigin.CLAN, m);
+		controller.getInGameMsgHandler().processMessage(InGameMsgHandler.MsgOrigin.CLAN, m);
 	}
 	@Override
 	public void onGameMessage(Message m) {	
-		controller.getMsgHandler().processMessage(InGameMsgHandler.MsgOrigin.GAME, m);
+		controller.getInGameMsgHandler().processMessage(InGameMsgHandler.MsgOrigin.GAME, m);
 	}
 	@Override
 	public void onPlayerMessage(Message m) {
-		controller.getMsgHandler().processMessage(InGameMsgHandler.MsgOrigin.PLAYER, m);
+		controller.getInGameMsgHandler().processMessage(InGameMsgHandler.MsgOrigin.PLAYER, m);
 	}
 	@Override
 	public void onPrivateInMessage(Message m) {
-		controller.getMsgHandler().processMessage(InGameMsgHandler.MsgOrigin.FRIEND, m);
+		controller.getInGameMsgHandler().processMessage(InGameMsgHandler.MsgOrigin.FRIEND, m);
 	}
 	@Override
 	public void onPrivateInfoMessage(Message m) {

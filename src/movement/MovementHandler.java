@@ -151,7 +151,7 @@ public class MovementHandler implements KillableHandler {
 	 * Returns true if problem appears
 	 */
 	private boolean monitorMovement() {
-		if(debugArea == null || debugArea.contains(client.getLocalPlayer())) {
+		if(debugArea == null || !debugArea.contains(client.getLocalPlayer())) {
 			this.debugArea = client.getLocalPlayer().getTile().getArea(6);
 			this.debugAreaCounter = 0;
 		}

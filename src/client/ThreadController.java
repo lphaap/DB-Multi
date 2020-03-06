@@ -8,6 +8,9 @@ import java.util.List;
 import javax.security.auth.login.LoginException;
 
 import org.dreambot.api.methods.skills.Skill;
+import org.telegram.telegrambots.ApiContextInitializer;
+import org.telegram.telegrambots.meta.TelegramBotsApi;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiRequestException;
 
 import antiban.RandomProvider;
 import chat.Discord;
@@ -152,7 +155,14 @@ public class ThreadController implements KillableThread{
 	}
 	
 	public synchronized void restartModule() {
-		//TODO:
+		Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
+		while(this.requestKeyboardAccess()) {RandomProvider.sleep(10);}
+		while(this.requestMouseAccess()) {RandomProvider.sleep(10);}
+		
+		this.currentModule.setupModule();
+		
+		this.returnMouseAccess();
+		this.returnKeyboardAccess();
 	}
 	
 	public String getCurrentActionPrint() {
@@ -199,8 +209,14 @@ public class ThreadController implements KillableThread{
         //this.discord = discord;
 	}*/
 	
-	public void connectTelegramThread() {
-		
+	private void connectTelegramThread() {
+		ApiContextInitializer.init();
+        TelegramBotsApi botsApi = new TelegramBotsApi();  
+        telegramHandler = new TelegramHandler(this, client);
+        try {
+			botsApi.registerBot(telegramHandler);
+		} catch (TelegramApiRequestException e1) {e1.printStackTrace();} 
+
 	}
 	
 	public void pauseBot(int seconds) {
@@ -330,9 +346,7 @@ public class ThreadController implements KillableThread{
 	}
 	
 	public void nextModule() {
-		Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
-		while(this.requestKeyboardAccess()) {RandomProvider.sleep(10);}
-		while(this.requestMouseAccess()) {RandomProvider.sleep(10);}
+		Thread.currentThread().setPriority(Thread.MAX_PRIORITY);		
 		
 		this.currentModule.killThread();
 		this.modules.remove(currentModule);
@@ -341,12 +355,25 @@ public class ThreadController implements KillableThread{
 		}
 		else {
 			this.currentModule = modules.get(0);
-			this.currentModule.setupModule();
+			if(!this.currentModule.setupModule()) {
+				nextModule(); //TODO: Testaaa Rekusiivinen looppi != 100% miten käyttäytyy todellisuudessa
+				return;
+			}
 			Thread t = new Thread(this.currentModule);
 			t.start();
 		}
 		
 		Thread.currentThread().setPriority(Thread.NORM_PRIORITY);
+	}
+	
+	//Returns time in minutes
+	public int timeLeftInScript() {
+		return (int)(this.scriptTimer/60.0);
+	}
+	
+	//Returns time in minutes
+	public int timeLeftUntillPause() {
+		return (int)(this.pauseTimer/60.0);
 	}
 
 	@Override

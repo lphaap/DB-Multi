@@ -3,6 +3,7 @@ import java.util.ArrayList;
 import java.util.Random;
 
 import org.dreambot.api.methods.container.impl.equipment.EquipmentSlot;
+import org.dreambot.api.methods.map.Area;
 import org.dreambot.api.methods.skills.Skill;
 import org.dreambot.api.wrappers.interactive.NPC;
 import org.dreambot.api.wrappers.items.GroundItem;
@@ -44,6 +45,7 @@ public class CombatModule extends ScriptModule {
 	private boolean pickUp;
 	private boolean error;
 	private boolean killThread;
+	private boolean setupInProgress;
 	
 	public CombatModule(ThreadController controller, ClientThread client, CombatModule.Monster monster, CombatModule.Food food, int limit, Boolean pickUp, Training skill) {
 		eatAt = RandomProvider.randomInt(6) + 10;
@@ -178,6 +180,7 @@ public class CombatModule extends ScriptModule {
 
 	@Override
 	public boolean setupModule() {
+		this.setupInProgress = true;
 		
 		this.controller.getMovementHandler().teleportToLocation();
 		
@@ -186,13 +189,29 @@ public class CombatModule extends ScriptModule {
 		controller.getGraphicHandler().setInfo("Combat trainer: Setting up module");
 		if(!script.getInventory().contains(f -> f != null && f.getName().equals(food))) {
 			
+			while(controller.requestKeyboardAccess()) {RandomProvider.sleep(10);}
+			while(controller.requestMouseAccess()) {RandomProvider.sleep(10);}
+			
 			if(!script.getWalking().isRunEnabled() && script.getWalking().getRunEnergy() > 0) {
 				script.getWalking().toggleRun();
 			}
 	
+			Area debugArea = null;
+			int failsafe = 0;
 			while(!script.getBank().isOpen()) {
 				script.getBank().open(script.getBank().getClosestBankLocation());
 				sleep(RandomProvider.randomInt(1000)+2000);
+				if(debugArea == null || !debugArea.contains(script.getLocalPlayer())) {
+					debugArea = script.getLocalPlayer().getTile().getArea(6);
+					failsafe = 0;
+				}
+				else {
+					failsafe++;
+				}
+				//TODO: Test if failsafe lvl is alright
+				if(failsafe > 15) {
+					return false;
+				}
 			}
 			
 			if(!script.getInventory().isEmpty()) {
@@ -354,6 +373,12 @@ public class CombatModule extends ScriptModule {
 			return !this.killThread;
 		}
 		
+	}
+
+	@Override
+	public boolean setupInProgress() {
+		// TODO Auto-generated method stub
+		return false;
 	}
 
 }

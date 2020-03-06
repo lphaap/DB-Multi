@@ -17,7 +17,7 @@ public class TelegramHandler extends TelegramLongPollingBot{
 	
 	private Long chatID;
 	
-	public TelegramHandler(ClientThread script, ThreadController controller) {
+	public TelegramHandler(ThreadController controller, ClientThread script) {
 		this.script = script;
 		this.controller = controller;
 	}
@@ -35,7 +35,7 @@ public class TelegramHandler extends TelegramLongPollingBot{
 		        String text = update.getMessage().getText();
 		        
 		        if(text.startsWith("#connect")) {
-		        	message.setText("Nor Implemented Yet");
+		        	message.setText("Not Implemented Yet");
 		        	try {
 						execute(message);
 					} catch (TelegramApiException e) {}/*
@@ -104,31 +104,22 @@ public class TelegramHandler extends TelegramLongPollingBot{
 					}
 		        }
 		        else if(text.startsWith("#timeScript")) {
-		        	message.setText("Nor Implemented Yet");
-		        	try {
-						execute(message);
-					} catch (TelegramApiException e) {}
-		        	/*
-		        	message.setText(.getTimer());
+		      
+		        	message.setText("Time left in script: " + controller.timeLeftInScript());
 		        	try {
 						execute(message);
 					} catch (TelegramApiException e) {
 						e.printStackTrace();
-					}*/
+					}
 		        }
 		        else if(text.startsWith("#timePause")) {
-		        	//TODO:
-		        	message.setText("Nor Implemented Yet");
-		        	try {
-						execute(message);
-					} catch (TelegramApiException e) {}
-						/*
-		        	message.setText(script.getPauseTimer());
+				
+		        	message.setText("Time left until pause: " + controller.timeLeftUntillPause());
 		        	try {
 						execute(message);
 					} catch (TelegramApiException e) {
 						e.printStackTrace();
-					}*/
+					}
 		        }
 		        else if(text.startsWith("#autoreact")) {
 		        	

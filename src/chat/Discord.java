@@ -36,7 +36,7 @@ public class Discord extends ListenerAdapter{
 		        }
 		        if(connected) {
 			        if(text.startsWith("!send")) {	   
-			        	controller.getMsgHandler().sendMsgInGame(text.substring(6));
+			        	controller.getInGameMsgHandler().sendMsgInGame(text.substring(6));
 			        }
 			        else if(text.startsWith("!kill")) {
 			        	channel.sendMessage("Killing client").queue();
@@ -67,7 +67,7 @@ public class Discord extends ListenerAdapter{
 			        	
 			        }
 			        else if(text.startsWith("!autoreact")) {
-			        	channel.sendMessage("Set AutoReact to: " + controller.getMsgHandler().toggleAutoReact()).queue();
+			        	channel.sendMessage("Set AutoReact to: " + controller.getInGameMsgHandler().toggleAutoReact()).queue();
 			        	
 			        }
 			        else if(text.startsWith("!players")) {

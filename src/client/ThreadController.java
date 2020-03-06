@@ -11,10 +11,15 @@ import org.dreambot.api.methods.skills.Skill;
 
 import antiban.RandomProvider;
 import chat.Discord;
-import chat.MsgHandler;
+import chat.InGameMsgHandler;
+import chat.TelegramHandler;
 import movement.MovementHandler;
 import net.dv8tion.jda.api.AccountType;
 import net.dv8tion.jda.api.JDABuilder;
+import scripts.*;
+import scripts.CombatModule.Food;
+import scripts.CombatModule.Monster;
+import scripts.CombatModule.Training;
 import scripts.ScriptModule;
 import utilities.GearHandler;
 
@@ -32,10 +37,10 @@ public class ThreadController implements KillableThread{
 	private ArrayList<KillableThread> antibanThreads = new ArrayList<KillableThread>();
 	
 	private GraphicHandler graphicHandler;
-	private MsgHandler msgHandler;
+	private InGameMsgHandler inGameMsgHandler;
 	private MovementHandler movementHandler;
 	private GearHandler gearHandler;
-	private Discord discord;
+	private TelegramHandler telegramHandler;
 	
 	private int keyboardInUseFor;
 	private int mouseInUseFor;
@@ -47,15 +52,15 @@ public class ThreadController implements KillableThread{
 	public ThreadController(ClientThread client) {
 		this.client = client;
 		this.graphicHandler = new GraphicHandler();
-		this.msgHandler = new MsgHandler(client, this);
+		this.inGameMsgHandler = new InGameMsgHandler(client, this);
 		this.movementHandler = new MovementHandler(client, this);
 		this.gearHandler = new GearHandler(client, this);
 		this.pauseTimer = RandomProvider.randomInt(90*60, 125*60); 
 		this.scriptTimer = RandomProvider.randomInt(180*60, 280*60);
-		createDiscordThread();
+		connectTelegramThread();
 		
-		modules.add(null);
-		modules.add(null);
+		modules.add(new CombatModule(this, client, Monster.GIANT_FROG, Food.TROUT, 2, true, Training.STRENGTH));
+		//modules.add(null);
 		
 		currentModule = modules.get(0);
 		currentModule.setupModule();
@@ -166,12 +171,12 @@ public class ThreadController implements KillableThread{
 		return this.graphicHandler;
 	}
 	
-	public MsgHandler getMsgHandler() {
-		return this.msgHandler;
+	public TelegramHandler getTelegramHandler() {
+		return this.telegramHandler;
 	}
 	
-	public Discord getDiscord() {
-		return this.discord;
+	public InGameMsgHandler getInGameMsgHandler() {
+		return this.inGameMsgHandler;
 	}
 	
 	public void sleep(int time) {
@@ -180,22 +185,26 @@ public class ThreadController implements KillableThread{
 		} catch (InterruptedException e) {e.printStackTrace();}
 	}
 	
-	public void createDiscordThread() {
+	/*public static void main( String[] args ) {
 		JDABuilder builder = new JDABuilder(AccountType.BOT);
-        String token = "NjY0NTQ1NTcwMTUyNTEzNTQ3.XhZZfA.t42nR6nQJex7A9VsK9aBCT4zNZ4";
+        String token = "NjY0NTQ1NTcwMTUyNTEzNTQ3.XlmjOQ.t5pUs5Xh9zKJIeiwo6mbzQYG3J8";
       
-        Discord discord = new Discord(client, this); 
+        //Discord discord = new Discord(null, null); 
         
         builder.setToken(token);
-        builder.addEventListeners(discord);
+        builder.addEventListeners(new Discord(null, null));
         try {
 			builder.build();
 		} catch (LoginException e) {e.printStackTrace();}
-        this.discord = discord;
+        //this.discord = discord;
+	}*/
+	
+	public void connectTelegramThread() {
+		
 	}
 	
 	public void pauseBot(int seconds) {
-		discord.sendMessage("Pausing Bot...");
+		telegramHandler.sendMessage("Pausing Bot...");
 		
 		Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
 		while(this.requestKeyboardAccess()) {RandomProvider.sleep(10);}
@@ -217,7 +226,7 @@ public class ThreadController implements KillableThread{
 		this.graphicHandler.setInfo("Pause Stop: " + hour + ":" + minFinal);
 		this.graphicHandler.setPause("Pause Stop: " + hour + ":" + minFinal);
 		this.graphicHandler.togglePause();
-		discord.sendMessage("Script Paused - Stop: " + hour + ":" + minFinal);
+		telegramHandler.sendMessage("Script Paused - Stop: " + hour + ":" + minFinal);
 		
 		sleep(sleep*1000);
 		
@@ -233,7 +242,7 @@ public class ThreadController implements KillableThread{
 	
 	public void pauseBot() {
 		
-		discord.sendMessage("Pausing Bot...");
+		telegramHandler.sendMessage("Pausing Bot...");
 		
 		Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
 		while(this.requestKeyboardAccess()) {RandomProvider.sleep(10);}
@@ -255,7 +264,7 @@ public class ThreadController implements KillableThread{
 		this.graphicHandler.setInfo("Pause Stop: " + hour + ":" + minFinal);
 		this.graphicHandler.setPause("Pause Stop: " + hour + ":" + minFinal);
 		this.graphicHandler.togglePause();
-		discord.sendMessage("Script Paused - Stop: " + hour + ":" + minFinal);
+		telegramHandler.sendMessage("Script Paused - Stop: " + hour + ":" + minFinal);
 		
 		sleep(sleep*1000);
 		
@@ -270,7 +279,7 @@ public class ThreadController implements KillableThread{
 	}
 	
 	public void killBot() {
-		discord.sendMessage("Killing Bot..");
+		telegramHandler.sendMessage("Killing Bot..");
 		for(KillableThread t : this.antibanThreads) {
 			t.killThread();
 		}
@@ -282,7 +291,7 @@ public class ThreadController implements KillableThread{
 	}
 	
 	public void killClient() {
-		discord.sendMessage("Killing Client..");
+		telegramHandler.sendMessage("Killing Client..");
 		for(KillableThread t : this.antibanThreads) {
 			t.killThread();
 		}
@@ -305,7 +314,7 @@ public class ThreadController implements KillableThread{
 	
 	public void hopWorlds() {
 		
-		discord.sendMessage("Hopping Worlds..");
+		telegramHandler.sendMessage("Hopping Worlds..");
 		graphicHandler.setInfo("Hopping Worlds..");
 		
 		Thread.currentThread().setPriority(Thread.MAX_PRIORITY);

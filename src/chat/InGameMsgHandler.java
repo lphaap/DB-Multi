@@ -7,7 +7,7 @@ import antiban.RandomProvider;
 import client.ClientThread;
 import client.ThreadController;
 
-public class MsgHandler {
+public class InGameMsgHandler {
 	private ClientThread client;
 	private ThreadController controller;
 	private ArrayList<String> greetingMsg = new ArrayList<String>();
@@ -15,7 +15,7 @@ public class MsgHandler {
 	private boolean autoReact;
 	
 	
-	public MsgHandler(ClientThread client, ThreadController controller) {
+	public InGameMsgHandler(ClientThread client, ThreadController controller) {
 		this.client = client;
 		this.controller = controller;
 	}
@@ -51,15 +51,15 @@ public class MsgHandler {
 	
 	private void processPlayer(Message msg) {
 		if(filterSpaceAndCaps(msg.getMessage()).contains("bot")) {
-			//Log out
+			controller.hopWorlds();
 		}
 		else if(autoReact) {
 			sendMsgInGame(greetingMsg.get(RandomProvider.randomInt(greetingMsg.size())));
 			sendMsgInGame(worldSwapMsg.get(RandomProvider.randomInt(greetingMsg.size())));
-			
+			controller.hopWorlds();
 		}
 		else {
-			controller.getDiscord().sendMessage("Msg From " + msg.getUsername() + ": " +  msg.getMessage());
+			controller.getTelegramHandler().sendMessage("Msg From " + msg.getUsername() + ": " +  msg.getMessage());
 		}
 	}
 	

@@ -35,7 +35,7 @@ import org.dreambot.api.wrappers.widgets.message.Message;
 
 import antiban.RandomProvider;
 import chat.Discord;
-import chat.MsgHandler;
+import chat.InGameMsgHandler;
 import net.dv8tion.jda.api.AccountType;
 import net.dv8tion.jda.api.JDABuilder;
 import scripts.MinerModule;
@@ -162,19 +162,19 @@ public class ClientThread extends AbstractScript implements AdvancedMessageListe
 	}
 	@Override
 	public void onClanMessage(Message m) {
-		controller.getMsgHandler().processMessage(MsgHandler.MsgOrigin.CLAN, m);
+		controller.getMsgHandler().processMessage(InGameMsgHandler.MsgOrigin.CLAN, m);
 	}
 	@Override
 	public void onGameMessage(Message m) {	
-		controller.getMsgHandler().processMessage(MsgHandler.MsgOrigin.GAME, m);
+		controller.getMsgHandler().processMessage(InGameMsgHandler.MsgOrigin.GAME, m);
 	}
 	@Override
 	public void onPlayerMessage(Message m) {
-		controller.getMsgHandler().processMessage(MsgHandler.MsgOrigin.PLAYER, m);
+		controller.getMsgHandler().processMessage(InGameMsgHandler.MsgOrigin.PLAYER, m);
 	}
 	@Override
 	public void onPrivateInMessage(Message m) {
-		controller.getMsgHandler().processMessage(MsgHandler.MsgOrigin.FRIEND, m);
+		controller.getMsgHandler().processMessage(InGameMsgHandler.MsgOrigin.FRIEND, m);
 	}
 	@Override
 	public void onPrivateInfoMessage(Message m) {

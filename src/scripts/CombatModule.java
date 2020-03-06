@@ -131,8 +131,8 @@ public class CombatModule extends ScriptModule {
 				else if(!script.getLocalPlayer().isAnimating() && !script.getLocalPlayer().isInCombat()) {
 					
 					if(script.getEquipment().getItemInSlot(EquipmentSlot.WEAPON.getSlot()) == null) {
-						controller.getDiscord().sendMessage("CombatTrainer - Module ERROR");
-						controller.getDiscord().sendMessage("No Weapon Found - Changing Module");
+						controller.getTelegramHandler().sendMessage("CombatTrainer - Module ERROR");
+						controller.getTelegramHandler().sendMessage("No Weapon Found - Changing Module");
 						this.error = true;
 						sleep(2000);
 						this.killThread();
@@ -140,8 +140,8 @@ public class CombatModule extends ScriptModule {
 					}
 					if(script.getEquipment().getItemInSlot(EquipmentSlot.WEAPON.getSlot()).getName().toLowerCase().contains("bow")) {
 						if(script.getEquipment().getItemInSlot(EquipmentSlot.WEAPON.getSlot()) == null) {
-							controller.getDiscord().sendMessage("CombatTrainer - Module ERROR");
-							controller.getDiscord().sendMessage("No Arrows Found - Changing Module");
+							controller.getTelegramHandler().sendMessage("CombatTrainer - Module ERROR");
+							controller.getTelegramHandler().sendMessage("No Arrows Found - Changing Module");
 							this.error = true;
 							sleep(2000);
 							this.killThread();

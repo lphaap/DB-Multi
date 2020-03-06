@@ -135,13 +135,13 @@ public class GearHandler implements KillableHandler {
 		ArrayList<String> meleeTraining = new ArrayList<String>();
 		meleeTraining.add("Iron full helm");
 		meleeTraining.add("Iron platebody");
-		meleeTraining.add("Iron platelegs");
+		meleeTraining.add("Iron plateskirt");
 		meleeTraining.add("Iron kiteshield");
-		meleeTraining.add("Amulet of glory");
-		meleeTraining.add("Dragon sword");
-		meleeTraining.add("Purple gloves");
-		meleeTraining.add("Team-48 cape");
-		meleeTraining.add("Leather boots");
+		meleeTraining.add("Amulet of power");
+		meleeTraining.add("Mithril scimitar");
+		//meleeTraining.add("Purple gloves");
+		//meleeTraining.add("Team-48 cape");
+		//meleeTraining.add("Leather boots");
 		Collections.shuffle(meleeTraining);
 		this.melee = meleeTraining;
 		

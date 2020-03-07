@@ -26,11 +26,7 @@ public abstract class ScriptModule implements KillableThread{
 	 */
 	public abstract boolean setupModule();
 	
-	/**
-	 * True if setupModule() is in progress
-	 */
-	public abstract boolean setupInProgress();
-	
+
 	/**
 	 * Gets the wanted skill which to hover for random event
 	 * @return

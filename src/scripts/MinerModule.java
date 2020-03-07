@@ -1,7 +1,4 @@
 package scripts;
-import java.awt.AWTException;
-import java.awt.Robot;
-import java.util.Random;
 
 import org.dreambot.api.methods.container.impl.bank.Bank;
 import org.dreambot.api.methods.map.Area;
@@ -11,101 +8,110 @@ import org.dreambot.api.wrappers.interactive.Entity;
 import org.dreambot.api.wrappers.interactive.GameObject;
 import org.dreambot.api.wrappers.interactive.Player;
 
+import antiban.RandomProvider;
 import client.ClientThread;
+import client.ThreadController;
 import movement.Location;
-import movement.Locations;
+import movement.LocationFactory;
+import utilities.GearHandler.Gear;
+
 
 public class MinerModule extends ScriptModule{
 	private ClientThread script;
-	private Location location;
+	private ThreadController controller;
+	
+	private LocationFactory.GameLocation locationEnum;
+	
 	private int oreID;
 	private int delay;
-	private Random random;
-	private Robot robot;
+	private int limit;
 	private int completedActions;
+	
+	private Player thief;
 	private GameObject takenOre;
 	private Ore ore;
-	private Locations locationEnum;
-	private int limit;
-	private Player thief;
+	 
 	private boolean error;
+	private boolean killThread;
 
 	
-	public MinerModule(ClientThread script, Locations location, MinerModule.Ore ore, int limit) {
+	public MinerModule(ClientThread script, ThreadController controller, LocationFactory.GameLocation gamelocation, MinerModule.Ore ore, int limit) {
 		this.script = script;
-		this.limit = limit; 
-		this.ore = ore;
-		this.locationEnum = location;
-		this.location = new Location(script, location);
+		this.controller = controller;
+		
+		this.locationEnum = gamelocation;
+		
 		this.oreID = getOreID(this.ore);
-		if(oreID == -1) {
-			script.stop();
-		}
+		this.limit = limit;
+		 
+		this.ore = ore;
+		this.locationEnum = gamelocation;
+
 		this.thief = null;
-		//script.log("Ore ID: "+oreID);
-		try {
-			robot = new Robot();
-		} catch (AWTException e) {
-			e.printStackTrace();
-		}
-		random = new Random();
 		this.takenOre = null;
+		
 		this.error = false;
 		this.moduleName = "MiningModule: " + ore;
 	}
 	
 	@Override
-	public int onLoop(){
-		if(limit < completedActions) {
-			script.nextModule();
-			script.sleep(2000);
-			return delay;
-		}
+	public void run(){
 		
-		random.setSeed(random.nextLong());
-		delay = random.nextInt(1000) + 2500;
+		delay = RandomProvider.randomInt(1000) + 2500;
+		
 		if(!script.getLocalPlayer().isAnimating()) {
 			if(script.getInventory().isFull()) {
-				script.setInfoText("Miner: Inventory Full - Banking");
-				script.setReact(0);
+				controller.getGraphicHandler().setInfo("Miner: Inventory Full - Banking");
 				
-				location.travelToBank();
+				controller.getMovementHandler().moveToBank();
 				
-				script.sleep(random.nextInt(750)+ 1000);
+				while(controller.requestKeyboardAccess()) {RandomProvider.sleep(10);}
+				while(controller.requestMouseAccess()) {RandomProvider.sleep(10);}
+				
+				sleep(RandomProvider.randomInt(750)+ 1000);
 				script.getBank().depositAllExcept(f -> f != null && f.getName().contains("pickaxe"));
-				script.sleep(random.nextInt(750)+ 1000);
+				sleep(RandomProvider.randomInt(750)+ 1000);
 				script.getBank().close();
-				script.sleep(random.nextInt(750)+ 500);
+				sleep(RandomProvider.randomInt(750)+ 500);
 				script.getMouse().move();
 				completedActions++;
-			}
-			else if(!location.inArea()) {
-				script.setReact(0);
-				script.setInfoText("Miner: Walking to Mining Area - " + locationEnum);
 				
-				location.travel();
+				controller.returnKeyboardAccess();
+				controller.returnMouseAccess();
+			}
+			else if(!controller.getMovementHandler().isPlayerInLocation()) {
+				
+				controller.getGraphicHandler().setInfo("Miner: Walking to Mining Area - " + locationEnum);
+				
+				controller.getMovementHandler().moveToLocation();
 					
 			}
 			else if(!script.getLocalPlayer().isAnimating()) {
 				
 				if(!script.getInventory().contains(f -> f != null && f.getName().toLowerCase().contains("pickaxe"))) {
-					script.getMessenger().sendMessage("Miner - Module ERROR");
-					script.getMessenger().sendMessage("Trying to Restart Module...");
+					controller.getTelegramHandler().sendMessage("Miner - Module ERROR");
+					controller.getTelegramHandler().sendMessage("Trying to Restart Module...");
 					if(!setupModule() || error) {
-						script.getMessenger().sendMessage("Miner - Module ERROR");
-						script.getMessenger().sendMessage("Changing Module.");
-						script.nextModule();
+						controller.getTelegramHandler().sendMessage("Miner - Module ERROR");
+						controller.getTelegramHandler().sendMessage("Changing Module.");
+						controller.nextModule();
 					}
-					script.getMessenger().sendMessage("Restart Completed");
+					controller.getTelegramHandler().sendMessage("Restart Completed");
 					this.error = true;
 				}
 				
-				script.setReact(1);
-				script.setInfoText("Miner: Mining - " + ore);
+				controller.getGraphicHandler().setInfo("Miner: Mining - " + ore);
 				boolean playerTest = true;
 				GameObject ore = null;
 		
+				while(controller.requestKeyboardAccess()) {RandomProvider.sleep(10);}
+				while(controller.requestMouseAccess()) {RandomProvider.sleep(10);}
+				
 				thief = script.getPlayers().closest(f -> f != null);
+				
+				while(controller.requestKeyboardAccess()) {RandomProvider.sleep(10);}
+				while(controller.requestMouseAccess()) {RandomProvider.sleep(10);}
+				
 				if(thief != null) {
 					ore = script.getGameObjects().closest(gameObject -> gameObject != null && gameObject.getName().equals("Rocks") 
 															&& gameObject.getModelColors() != null && gameObject.getModelColors()[0] == this.oreID
@@ -115,9 +121,9 @@ public class MinerModule extends ScriptModule{
 					ore = script.getGameObjects().closest(gameObject -> gameObject != null && gameObject.getName().equals("Rocks") 
 							&& gameObject.getModelColors() != null && gameObject.getModelColors()[0] == this.oreID);
 				}
-				int randomizer = random.nextInt(3);
+				int randomizer = RandomProvider.randomInt(3);
 				if(randomizer == 0){
-					randomizer = random.nextInt(2);
+					randomizer = RandomProvider.randomInt(2);
 					if(randomizer == 0) {
 						script.getCamera().keyboardRotateToTile(ore.getSurroundingArea(1).getRandomTile());
 					}
@@ -126,7 +132,7 @@ public class MinerModule extends ScriptModule{
 					}
 				}
 				
-				int tester = random.nextInt(2);
+				int tester = RandomProvider.randomInt(2);
 				if(tester == 0) {
 					ore.interact("Mine");
 					script.getMouse().move();
@@ -135,6 +141,9 @@ public class MinerModule extends ScriptModule{
 					ore.interact();
 					script.getMouse().move();
 				}
+				
+				controller.returnKeyboardAccess();
+				controller.returnMouseAccess();
 			}
 
 			
@@ -142,13 +151,8 @@ public class MinerModule extends ScriptModule{
 			
 		}
 		
-		return delay;
 	}
 
-	@Override
-	public int actionsCompleted() {		
-		return completedActions;
-	}
 	
 	public enum Ore {
 		COPPER_ORE, TIN_ORE, IRON_ORE, GOLD_ORE, COAL, ADAMANTITE_ORE, RUNITE_ORE
@@ -174,6 +178,7 @@ public class MinerModule extends ScriptModule{
 			return 21662;
 		}
 		else {
+			controller.nextModule();
 			return -1;
 		}
 		
@@ -182,30 +187,56 @@ public class MinerModule extends ScriptModule{
 
 	@Override
 	public boolean setupModule() {
-		this.location.teleportToLocation();
+		controller.getMovementHandler().newLocation(this.locationEnum);
 		
-		script.setReact(0);
-		script.setInfoText("Miner: Setting Up Module");
+		controller.getMovementHandler().teleportToLocation();
+		
+		controller.getGearHandler().handleGearSwap(Gear.UTILITY);
+		
+		controller.getGraphicHandler().setInfo("Miner: Setting Up Module");
+		
 		if(!script.getInventory().contains(f -> f != null && f.getName().toLowerCase().contains("pickaxe") )) {
+			while(controller.requestKeyboardAccess()) {RandomProvider.sleep(10);}
+			while(controller.requestMouseAccess()) {RandomProvider.sleep(10);}
+			
 			if(!script.getWalking().isRunEnabled() && script.getWalking().getRunEnergy() > 0) {
 				script.getWalking().toggleRun();
 			}
 
+			Area debugArea = null;
+			int failsafe = 0;
 			while(!script.getBank().isOpen()) {
 				script.getBank().open(script.getBank().getClosestBankLocation());
-				script.sleep(random.nextInt(1000)+2000);
+				sleep(RandomProvider.randomInt(1000)+2000);
+				if(debugArea == null || !debugArea.contains(script.getLocalPlayer())) {
+					debugArea = script.getLocalPlayer().getTile().getArea(6);
+					failsafe = 0;
+				}
+				else {
+					failsafe++;
+				}
+				//TODO: Test if failsafe lvl is alright
+				if(failsafe > 15) {
+					controller.returnKeyboardAccess();
+					controller.returnMouseAccess();
+					return false;
+				}
 			}
 			if(!script.getInventory().isEmpty()) {
 				script.getBank().depositAllItems();	
 			}
-			script.sleep(random.nextInt(750)+ 500);
+			sleep(RandomProvider.randomInt(750)+ 500);
 			if(script.getBank().contains(f -> f != null && f.getName().toLowerCase().contains("pickaxe") )){
 				script.getBank().withdraw(f -> f != null && f.getName().toLowerCase().contains("pickaxe"));
-				script.sleep(random.nextInt(750)+ 1000);
+				sleep(RandomProvider.randomInt(750)+ 1000);
 				script.getBank().close();
+				controller.returnKeyboardAccess();
+				controller.returnMouseAccess();
 				return true;
 			}
 			else {
+				controller.returnKeyboardAccess();
+				controller.returnMouseAccess();
 				return false;
 			}
 		}
@@ -220,10 +251,26 @@ public class MinerModule extends ScriptModule{
 		return Skill.MINING;
 	}
 
+
 	@Override
-	public void errorTest() {
-		// TODO Auto-generated method stub
-		
+	public void killThread() {
+		this.killThread = true;
+	}
+
+	@Override
+	public boolean isAlive() {
+		return !killThread;
+	}
+
+
+	@Override
+	public boolean isReady() {
+		if(limit < completedActions) {
+			return true;
+		}
+		else {
+			return false;
+		}
 	}
 	
 }

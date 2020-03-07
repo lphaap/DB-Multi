@@ -45,7 +45,6 @@ public class CombatModule extends ScriptModule {
 	private boolean pickUp;
 	private boolean error;
 	private boolean killThread;
-	private boolean setupInProgress;
 	
 	public CombatModule(ThreadController controller, ClientThread client, CombatModule.Monster monster, CombatModule.Food food, int limit, Boolean pickUp, Training skill) {
 		eatAt = RandomProvider.randomInt(6) + 10;
@@ -61,7 +60,7 @@ public class CombatModule extends ScriptModule {
 		this.moduleName = "CombatModule: " + monster;
 		getSkillToHover();
 		
-		new Thread(healingHandler).start();
+		
 	}
 	
 	@Override
@@ -180,7 +179,10 @@ public class CombatModule extends ScriptModule {
 
 	@Override
 	public boolean setupModule() {
-		this.setupInProgress = true;
+		
+		this.controller.getMovementHandler().newLocation(this.locationEnum);
+		
+		new Thread(healingHandler).start();
 		
 		this.controller.getMovementHandler().teleportToLocation();
 		
@@ -210,6 +212,8 @@ public class CombatModule extends ScriptModule {
 				}
 				//TODO: Test if failsafe lvl is alright
 				if(failsafe > 15) {
+					controller.returnKeyboardAccess();
+					controller.returnMouseAccess();
 					return false;
 				}
 			}
@@ -226,15 +230,19 @@ public class CombatModule extends ScriptModule {
 				sleep(RandomProvider.randomInt(750)+ 400);
 				script.getMouse().move();
 				
-				
+				controller.returnKeyboardAccess();
+				controller.returnMouseAccess();
 				return true;
 			}
 			else {
+				controller.returnKeyboardAccess();
+				controller.returnMouseAccess();
 				return false;
 			}
 
 		}
 		else {
+			
 			return true;
 		}
 	}
@@ -275,7 +283,6 @@ public class CombatModule extends ScriptModule {
 	public void setMonsterVariables(Monster monster) {
 		if(monster == Monster.GIANT_FROG) {
 			this.monsterName = "Giant frog";
-			this.controller.getMovementHandler().newLocation(LocationFactory.GameLocation.COMBAT_GIANT_FROG);
 			this.collect.add("Big bones");
 			this.locationEnum = LocationFactory.GameLocation.COMBAT_GIANT_FROG;
 			
@@ -283,12 +290,10 @@ public class CombatModule extends ScriptModule {
 		}
 		else if(monster == Monster.BARBARIAN) {
 			this.monsterName = "Barbarian";
-			this.controller.getMovementHandler().newLocation(LocationFactory.GameLocation.COMBAT_BARBARIAN);
 			this.locationEnum = LocationFactory.GameLocation.COMBAT_BARBARIAN;
 		}
 		else if(monster == Monster.EXPERIMENT) {
 			this.monsterName = "Experiment";
-			this.controller.getMovementHandler().newLocation(LocationFactory.GameLocation.COMBAT_EXPERIMENTS);
 			this.locationEnum = LocationFactory.GameLocation.COMBAT_EXPERIMENTS;
 		}
 	}
@@ -375,10 +380,6 @@ public class CombatModule extends ScriptModule {
 		
 	}
 
-	@Override
-	public boolean setupInProgress() {
-		// TODO Auto-generated method stub
-		return false;
-	}
+
 
 }

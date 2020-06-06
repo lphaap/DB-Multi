@@ -83,10 +83,6 @@ public class ThreadController implements KillableThread{
 				currentModule.killThread();
 				nextModule();
 			}
-			else if(!currentModule.isAlive()) {
-				currentModule.killThread();
-				nextModule();
-			}
 			//--Checks when to change Module--//
 			
 			//--PauseTimer--//

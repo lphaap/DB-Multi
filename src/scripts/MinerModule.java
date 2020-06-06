@@ -23,7 +23,6 @@ public class MinerModule extends ScriptModule{
 	private LocationFactory.GameLocation locationEnum;
 	
 	private int oreID;
-	private int delay;
 	private int limit;
 	private int completedActions;
 	
@@ -57,7 +56,9 @@ public class MinerModule extends ScriptModule{
 	@Override
 	public void run(){
 		
-		delay = RandomProvider.randomInt(1000) + 2500;
+		while(!killThread) {
+		
+		RandomProvider.sleep(2500, 3500);
 		
 		if(!script.getLocalPlayer().isAnimating()) {
 			if(script.getInventory().isFull()) {
@@ -94,7 +95,7 @@ public class MinerModule extends ScriptModule{
 					if(!setupModule() || error) {
 						controller.getTelegramHandler().sendMessage("Miner - Module ERROR");
 						controller.getTelegramHandler().sendMessage("Changing Module.");
-						controller.nextModule();
+						this.killThread = true;
 					}
 					controller.getTelegramHandler().sendMessage("Restart Completed");
 					this.error = true;
@@ -103,9 +104,7 @@ public class MinerModule extends ScriptModule{
 				controller.getGraphicHandler().setInfo("Miner: Mining - " + ore);
 				boolean playerTest = true;
 				GameObject ore = null;
-		
-				while(controller.requestKeyboardAccess()) {RandomProvider.sleep(10);}
-				while(controller.requestMouseAccess()) {RandomProvider.sleep(10);}
+
 				
 				thief = script.getPlayers().closest(f -> f != null);
 				
@@ -121,19 +120,9 @@ public class MinerModule extends ScriptModule{
 					ore = script.getGameObjects().closest(gameObject -> gameObject != null && gameObject.getName().equals("Rocks") 
 							&& gameObject.getModelColors() != null && gameObject.getModelColors()[0] == this.oreID);
 				}
-				int randomizer = RandomProvider.randomInt(3);
-				if(randomizer == 0){
-					randomizer = RandomProvider.randomInt(2);
-					if(randomizer == 0) {
-						script.getCamera().keyboardRotateToTile(ore.getSurroundingArea(1).getRandomTile());
-					}
-					else {
-						script.getCamera().mouseRotateToTile(ore.getSurroundingArea(1).getRandomTile());
-					}
-				}
 				
-				int tester = RandomProvider.randomInt(2);
-				if(tester == 0) {
+				int randomizer = RandomProvider.randomInt(2);
+				if(randomizer == 0) {
 					ore.interact("Mine");
 					script.getMouse().move();
 				}
@@ -147,8 +136,7 @@ public class MinerModule extends ScriptModule{
 			}
 
 			
-				
-			
+			}
 		}
 		
 	}
@@ -178,7 +166,6 @@ public class MinerModule extends ScriptModule{
 			return 21662;
 		}
 		else {
-			controller.nextModule();
 			return -1;
 		}
 		
@@ -207,7 +194,9 @@ public class MinerModule extends ScriptModule{
 			int failsafe = 0;
 			while(!script.getBank().isOpen()) {
 				script.getBank().open(script.getBank().getClosestBankLocation());
-				sleep(RandomProvider.randomInt(1000)+2000);
+				
+				RandomProvider.sleep(2000, 3000);
+				
 				if(debugArea == null || !debugArea.contains(script.getLocalPlayer())) {
 					debugArea = script.getLocalPlayer().getTile().getArea(6);
 					failsafe = 0;
@@ -225,10 +214,12 @@ public class MinerModule extends ScriptModule{
 			if(!script.getInventory().isEmpty()) {
 				script.getBank().depositAllItems();	
 			}
-			sleep(RandomProvider.randomInt(750)+ 500);
+			
+			RandomProvider.sleep(500, 1250);
+			
 			if(script.getBank().contains(f -> f != null && f.getName().toLowerCase().contains("pickaxe") )){
 				script.getBank().withdraw(f -> f != null && f.getName().toLowerCase().contains("pickaxe"));
-				sleep(RandomProvider.randomInt(750)+ 1000);
+				RandomProvider.sleep(1000, 1750);
 				script.getBank().close();
 				controller.returnKeyboardAccess();
 				controller.returnMouseAccess();

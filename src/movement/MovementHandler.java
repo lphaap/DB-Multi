@@ -1,6 +1,7 @@
 package movement;
 
 import org.dreambot.api.methods.map.Area;
+import org.dreambot.api.methods.map.Tile;
 
 import antiban.RandomProvider;
 import client.ClientThread;
@@ -178,6 +179,10 @@ public class MovementHandler implements KillableHandler {
 	
 	public boolean isPlayerInLocation() {
 		return this.location.inArea();
+	}
+	
+	public Tile getRandomLocationTile() {
+		return this.location.randomTragetTile();
 	}
 
 	@Override

@@ -6,171 +6,198 @@ import org.dreambot.api.methods.skills.Skill;
 import org.dreambot.api.wrappers.interactive.GameObject;
 import org.dreambot.api.wrappers.widgets.WidgetChild;
 
+import antiban.RandomProvider;
 import client.ClientThread;
+import client.ThreadController;
 import movement.Location;
-import movement.Locations;
+import movement.LocationFactory;
+import utilities.GearHandler.Gear;
 
 
 
 public class JewelleryModule extends ScriptModule {
 	private ClientThread script;
-	private int actionsCompleted;
-	private Location location;
-	private Random random;
-	private int delay;
-	private int actionTester;
-	private Locations locationEnum;
+	private ThreadController controller;
+	
 	private String mouldName;
 	private final String barName = "Gold bar";
-	private int typeKeyNumber;
 	private String gemName;
+	
+	private int limit;
 	private int gemBankNum;
 	private int barBankNum;
+	private int actionTester;
+	private int typeKeyNumber;
+	private int actionsCompleted;
+	
 	private JewelleryMaterial materialEnum;
 	private JewelleryType typeEnum;
+	private LocationFactory.GameLocation locationEnum;
+	
 	private boolean firsInteract;
+	private boolean killThread;
 	private boolean widgetSet;
-	private WidgetChild widget;
 	private boolean error;
+	
+	private WidgetChild widget;
 
-	public JewelleryModule(ClientThread script, Locations location,
-							JewelleryModule.JewelleryMaterial material, JewelleryModule.JewelleryType type) {
+	public JewelleryModule(ThreadController controller, ClientThread script, LocationFactory.GameLocation location,
+							JewelleryModule.JewelleryMaterial material, JewelleryModule.JewelleryType type, int limit) {
+		
+		this.script = script;
+		this.controller = controller;
+		
 		this.locationEnum = location;
 		this.materialEnum = material;
 		this.typeEnum = type;
-		this.script = script;
-		this.location = new Location(script, location);
-		this.widget = null;
+		
 		this.firsInteract = false;
 		this.widgetSet = true;
-		this.random = new Random();
+		this.error = false;
+		
+		this.moduleName = "JewelleryModule: " + this.materialEnum + " - " + this.typeEnum;
+		
+		this.widget = null;
+		
+		this.limit = limit;
+		
 		setupMouldName(type);
 		setupGemNameAndReq(material);
-		this.error = false;
-		this.moduleName = "JewelleryModule: " + this.materialEnum + " - " + this.typeEnum;
 	}
 	
+	
 	@Override
-	public int onLoop() {
-		random.setSeed(random.nextLong());
-		delay = random.nextInt(1000) + 2000;
+	public void run() {
 		
-		if(!script.getLocalPlayer().isAnimating()) {
+		while(!killThread) {
 			
-			if( !(script.getInventory().contains(f -> f != null && f.getName().contains(barName))) ||
-				!(script.getInventory().contains(f -> f != null && f.getName().contains(gemName))) ) {
+			RandomProvider.sleep(2000, 3000);
+			
+			if(!script.getLocalPlayer().isAnimating()) {
 				
-				script.setReact(0);
-				this.actionTester = 0;
-				script.setInfoText("Jeweller: Inventory Full Banking");
-				
-				location.travelToBank();
-				
-				if(!script.getInventory().isEmpty()) {
-					script.getBank().depositAllExcept(f -> f != null && f.getName().equals(mouldName));	
-				}
-				
-				if(script.getBank().count(f -> f != null && f.getName().equals(barName)) >= this.barBankNum) {
-					if(script.getBank().count(f -> f != null && f.getName().equals(this.gemName)) >= this.gemBankNum) {
-						int randomizer = random.nextInt(2);
-						if(randomizer == 1) {
-							script.getBank().withdraw(f -> f != null && f.getName().equals(barName), this.barBankNum);
-							script.sleep(random.nextInt(750)+ 500);
-							script.getBank().withdraw(f -> f != null && f.getName().equals(gemName), this.gemBankNum);
+				if( !(script.getInventory().contains(f -> f != null && f.getName().contains(barName))) ||
+					!(script.getInventory().contains(f -> f != null && f.getName().contains(gemName))) ) {
+					
+					this.actionTester = 0;
+					
+					controller.getGraphicHandler().setInfo("Jeweller: Inventory Full Banking");
+					
+					controller.getMovementHandler().moveToBank();
+					
+					while(controller.requestKeyboardAccess()) {RandomProvider.sleep(10);}
+					while(controller.requestMouseAccess()) {RandomProvider.sleep(10);}
+					
+					if(!script.getInventory().isEmpty()) {
+						script.getBank().depositAllExcept(f -> f != null && f.getName().equals(mouldName));	
+					}
+					
+					if(script.getBank().count(f -> f != null && f.getName().equals(barName)) >= this.barBankNum) {
+						if(script.getBank().count(f -> f != null && f.getName().equals(this.gemName)) >= this.gemBankNum) {
+							int randomizer = RandomProvider.randomInt(2);
+							if(randomizer == 1) {
+								script.getBank().withdraw(f -> f != null && f.getName().equals(barName), this.barBankNum);
+								RandomProvider.sleep(500, 1250);
+								script.getBank().withdraw(f -> f != null && f.getName().equals(gemName), this.gemBankNum);
+							}
+							else {
+								script.getBank().withdraw(f -> f != null && f.getName().equals(gemName), this.gemBankNum);
+								RandomProvider.sleep(500, 12500);
+								script.getBank().withdraw(f -> f != null && f.getName().equals(barName), this.barBankNum);
+							}
+	
 						}
+						/**
+						 * If module doesn't materials to continue:
+						 */
 						else {
-							script.getBank().withdraw(f -> f != null && f.getName().equals(gemName), this.gemBankNum);
-							script.sleep(random.nextInt(750)+ 500);
-							script.getBank().withdraw(f -> f != null && f.getName().equals(barName), this.barBankNum);
+							controller.returnKeyboardAccess();
+							controller.returnMouseAccess();
+							this.killThread = true;
 						}
-
 					}
 					/**
-					 * If module doesn't materials to continue:
-					 */
+					* If module doesn't materials to continue:
+					*/
 					else {
-						script.nextModule();
-						script.sleep(2000);
-						return delay;
+						controller.returnKeyboardAccess();
+						controller.returnMouseAccess();
+						this.killThread = true;
 					}
-				}
-				/**
-				* If module doesn't materials to continue:
-				*/
-				else {
-					script.nextModule();
-					script.sleep(2000);
-					return delay;
+					
+		
+					script.getBank().close();
+					RandomProvider.sleep(500, 1250);
+					script.getMouse().move();
+					this.actionsCompleted++;
+					
+					controller.returnKeyboardAccess();
+					controller.returnMouseAccess();
 				}
 				
+				else if(!this.controller.getMovementHandler().isPlayerInLocation()) {
+					controller.getGraphicHandler().setInfo("Jeweller: Walking to Furnace - " + locationEnum);
+					
+					controller.getMovementHandler().moveToLocation();
+				}
+				
+				else if(actionTester != script.getInventory().count(f -> f != null && f.getName().equals(barName))) {
+					this.actionTester = script.getInventory().count(f -> f != null && f.getName().equals(barName));
+				}
+				
+				else if(!script.getLocalPlayer().isAnimating()) {
+					
+					if(!script.getInventory().contains(f -> f != null && f.getName().equals(mouldName))) {
+						controller.getTelegramHandler().sendMessage("Jeweller - Module ERROR");
+						controller.getTelegramHandler().sendMessage("Trying to Restart Module...");
+						if(!setupModule() || error) {
+							controller.getTelegramHandler().sendMessage("Jeweller - Module ERROR");
+							controller.getTelegramHandler().sendMessage("Changing Module.");
+							this.killThread = true;
+						}
+						controller.getTelegramHandler().sendMessage("Restart Completed");
+						this.error = true;
+					}
+					
+					while(controller.requestKeyboardAccess()) {RandomProvider.sleep(10);}
+					while(controller.requestMouseAccess()) {RandomProvider.sleep(10);}
+					
+					controller.getGraphicHandler().setInfo("Jewellery: Smelting Jeweles - " + this.materialEnum + " - " + this.typeEnum);
+					GameObject furnace = script.getGameObjects().closest(f -> f != null && f.getName().toLowerCase().contains("furnace"));
+					int tester = RandomProvider.randomInt(2);
+					if(tester == 0) {
+						furnace.interact("Smelt");
+						script.getMouse().move();
+					}
+					else {
+						furnace.interact();
+						script.getMouse().move();
+					}
+					if(this.firsInteract) {
+						int failSafe = 0;
+						if(this.widgetSet) {
+							while(!this.setWidget() || failSafe > 5){
+								failSafe++;	
+							}
+							if(failSafe < 5) {
+								widgetSet = false;
+							}
+							
+						}
 	
-				script.getBank().close();
-				script.sleep(random.nextInt(750)+ 500);
-				script.getMouse().move();
-				this.actionsCompleted++;
-			}
-			
-			else if(!location.inArea()) {
-				script.setReact(0);
-				script.setInfoText("Jeweller: Walking to Furnace - " + locationEnum);
-				
-				location.travel();
-			}
-			
-			else if(actionTester != script.getInventory().count(f -> f != null && f.getName().equals(barName))) {
-				this.actionTester = script.getInventory().count(f -> f != null && f.getName().equals(barName));
-			}
-			
-			else if(!script.getLocalPlayer().isAnimating()) {
-				
-				if(!script.getInventory().contains(f -> f != null && f.getName().equals(mouldName))) {
-					script.getMessenger().sendMessage("Jeweller - Module ERROR");
-					script.getMessenger().sendMessage("Trying to Restart Module...");
-					if(!setupModule() || error) {
-						script.getMessenger().sendMessage("Jeweller - Module ERROR");
-						script.getMessenger().sendMessage("Changing Module.");
-						script.nextModule();
+						RandomProvider.sleep(1400, 2600);
+						widget.interact();
+						script.getMouse().move();
 					}
-					script.getMessenger().sendMessage("Restart Completed");
-					this.error = true;
+					
+					controller.returnKeyboardAccess();
+					controller.returnMouseAccess();
+					
+					this.firsInteract = true;
+					
 				}
-				
-				script.setReact(1);
-				script.setInfoText("Jewellery: Smelting Jeweles - " + this.materialEnum + " - " + this.typeEnum);
-				GameObject furnace = script.getGameObjects().closest(f -> f != null && f.getName().toLowerCase().contains("furnace"));
-				int tester = random.nextInt(2);
-				if(tester == 0) {
-					furnace.interact("Smelt");
-					script.getMouse().move();
-				}
-				else {
-					furnace.interact();
-					script.getMouse().move();
-				}
-				if(this.firsInteract) {
-					int failSafe = 0;
-					if(this.widgetSet) {
-						while(!this.setWidget() || failSafe > 5){
-							failSafe++;	
-						}
-						if(failSafe < 5) {
-							widgetSet = false;
-						}
-						
-					}
-
-
-					script.sleep(random.nextInt(1200)+ 1400);
-					widget.interact();
-					script.getMouse().move();
-				}
-				
-
-				this.firsInteract = true;
-				
 			}
 		}
-		return delay;
+
 
 	}
 	
@@ -231,58 +258,68 @@ public class JewelleryModule extends ScriptModule {
 	}
 
 	@Override
-	public int actionsCompleted() {
-		return this.actionsCompleted;
-	}
-
-	@Override
 	public boolean setupModule() {
-		this.location.teleportToLocation();
+		controller.getMovementHandler().newLocation(this.locationEnum);
 		
-		script.setReact(0);
-		script.setInfoText("Jewellery: Setting Up Module");
+		controller.getMovementHandler().teleportToLocation();
+		
+		controller.getGearHandler().handleGearSwap(Gear.UTILITY);
+		
+		controller.getGraphicHandler().setInfo("Jeweller: Setting Up Module");
 			
+		while(controller.requestKeyboardAccess()) {RandomProvider.sleep(10);}
+		while(controller.requestMouseAccess()) {RandomProvider.sleep(10);}
+		
 			if(!script.getWalking().isRunEnabled() && script.getWalking().getRunEnergy() > 0) {
 				script.getWalking().toggleRun();
 			}
 
 			while(!script.getBank().isOpen()) {
 				script.getBank().open(script.getBank().getClosestBankLocation());
-				script.sleep(random.nextInt(1000)+2000);
+				RandomProvider.sleep(2000, 3000);
 			}
 			
 			if(!script.getInventory().isEmpty()) {
 				script.getBank().depositAllItems();
-				script.sleep(random.nextInt(750)+ 1000);
+				RandomProvider.sleep(1000, 1750);
 			}
 
 			
 			if(script.getBank().contains(f -> f != null && f.getName().equals(mouldName))) {
 				script.getBank().withdraw(f -> f != null && f.getName().equals(mouldName));
-				script.sleep(random.nextInt(750)+ 500);
+				RandomProvider.sleep(500, 1250);
 			}
 			else {
+				controller.returnKeyboardAccess();
+				controller.returnMouseAccess();
 				return false;
 			}
 			
 			if(script.getBank().count(f -> f != null && f.getName().equals(barName)) >= barBankNum) {
 				script.getBank().withdraw(f -> f != null && f.getName().equals(barName), this.barBankNum);
-				script.sleep(random.nextInt(750)+ 500);
+				RandomProvider.sleep(500, 1250);
 				if(script.getBank().count(f -> f != null && f.getName().equals(gemName)) >= gemBankNum) {
 					script.getBank().withdraw(f -> f != null && f.getName().equals(gemName), gemBankNum);
 				}
 				else {
+					controller.returnKeyboardAccess();
+					controller.returnMouseAccess();
 					return false;
 				}
 			}
 			else {
+				controller.returnKeyboardAccess();
+				controller.returnMouseAccess();
 				return false;
 			}
 
 			
 			script.getBank().close();
-			script.sleep(random.nextInt(750)+ 500);
+			RandomProvider.sleep(500, 1250);
 			script.getMouse().move();
+			
+			controller.returnKeyboardAccess();
+			controller.returnMouseAccess();
 			return true;
 	}
 
@@ -292,7 +329,7 @@ public class JewelleryModule extends ScriptModule {
 	}
 	
 	public boolean setWidget() {
-		script.sleep(random.nextInt(750)+ 3000);
+		RandomProvider.sleep(3000, 3750);
 		if(this.widget != null) {
 			return true;
 		}
@@ -378,9 +415,26 @@ public class JewelleryModule extends ScriptModule {
 	}
 
 	@Override
-	public void errorTest() {
-		// TODO Auto-generated method stub
+	public void killThread() {
+		this.killThread = true;
 		
+	}
+
+
+	@Override
+	public boolean isAlive() {
+		return !this.killThread;
+	}
+
+
+	@Override
+	public boolean isReady() {
+		if(limit < actionsCompleted) {
+			return true;
+		}
+		else {
+			return false;
+		}
 	}
 
 }

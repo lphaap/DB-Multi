@@ -286,15 +286,16 @@ public class CombatModule extends ScriptModule {
 			this.collect.add("Big bones");
 			this.locationEnum = LocationFactory.GameLocation.COMBAT_GIANT_FROG;
 			
-			
 		}
 		else if(monster == Monster.BARBARIAN) {
 			this.monsterName = "Barbarian";
 			this.locationEnum = LocationFactory.GameLocation.COMBAT_BARBARIAN;
+			
 		}
 		else if(monster == Monster.EXPERIMENT) {
 			this.monsterName = "Experiment";
 			this.locationEnum = LocationFactory.GameLocation.COMBAT_EXPERIMENTS;
+			
 		}
 	}
 	

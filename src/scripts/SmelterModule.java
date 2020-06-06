@@ -8,130 +8,153 @@ import org.dreambot.api.methods.widget.Widget;
 import org.dreambot.api.wrappers.interactive.GameObject;
 import org.dreambot.api.wrappers.widgets.WidgetChild;
 
+import antiban.RandomProvider;
 import client.ClientThread;
+import client.ThreadController;
 import movement.Location;
-import movement.Locations;
+import movement.LocationFactory;
+import utilities.GearHandler.Gear;
 
 public class SmelterModule extends ScriptModule {
 	private ClientThread script;
+	private ThreadController controller;
+	
 	private int actionsCompleted;
-	private Location location;
-	private OreToBar bar;
-	private Random random;
-	private int delay;
+	private int limit;
 	private int actionTester;
-	private Locations locationEnum;
+	
+	
+	private OreToBar bar;	
 	private Bars barEnum;
 	
-	public SmelterModule(Locations location, SmelterModule.Bars b, ClientThread script) {
-		this.location = new Location(script, location);
-		this.bar = new OreToBar(b);
-		this.random = new Random();
+	private LocationFactory.GameLocation locationEnum;
+	
+	private boolean killThread;
+	
+	public SmelterModule(ClientThread script, ThreadController controller, LocationFactory.GameLocation location, int limit, SmelterModule.Bars b) {
+		this.controller = controller;
 		this.script = script;
 		this.locationEnum = location;
-		this.barEnum = b;
-		actionTester = 0;
+		
+		this.limit = limit;
+		this.actionTester = 0;
 		this.moduleName = "SmelterModule: " + b;
+		
+		this.barEnum = b;
+		this.bar = new OreToBar(b);
 	}
 	
 	@Override
-	public int onLoop() {
-		random.setSeed(random.nextLong());
-		delay = random.nextInt(1000) + 2000;
-		if(!script.getLocalPlayer().isAnimating()) {
-			if(!(script.getInventory().count(f -> f != null && f.getName().contains(bar.getOreName1())) >= bar.getOreCost1()) ||
-					!(script.getInventory().count(f -> f != null && f.getName().contains(bar.getOreName2())) >= bar.getOreCost2())) {
-				script.setReact(0);
-				this.actionTester = 0;
-				script.setInfoText("Smelter: Inventory Full Banking");
-				
-				location.travelToBank();
-				
-				if(!script.getInventory().isEmpty()) {
-					script.getBank().depositAllExcept(f -> f != null && f.getName().equals("Ammo mould"));	
-				}
-				script.sleep(random.nextInt(750)+ 500);
-				
-				if(script.getBank().count(f -> f != null && f.getName().contains(bar.getOreName1())) >= bar.getOre1InBack()) {
-					script.getBank().withdraw(f -> f != null && f.getName().contains(this.bar.getOreName1()), this.bar.getOre1InBack());
-					script.sleep(random.nextInt(750)+ 500);
-					
-					if(this.barEnum != Bars.CANNON_BALL) {
-						if(script.getBank().count(f -> f != null && f.getName().contains(bar.getOreName2())) >= bar.getOre2InBack()) {
-							script.getBank().withdraw(f -> f != null && f.getName().contains(this.bar.getOreName2()), this.bar.getOre2InBack());
-						}
-						/**
-						 * If module doesn't materials to continue:
-						 */
-						else {
-							script.nextModule();
-							script.sleep(2000);
-							return delay;
+	public void run() {
+
+		while(!this.killThread) {
+			RandomProvider.sleep(2000, 3000);
+			
+			if(!script.getLocalPlayer().isAnimating()) {
+				if(!(script.getInventory().count(f -> f != null && f.getName().contains(bar.getOreName1())) >= bar.getOreCost1()) ||
+						!(script.getInventory().count(f -> f != null && f.getName().contains(bar.getOreName2())) >= bar.getOreCost2())) {
 	
+					this.actionTester = 0;
+					controller.getGraphicHandler().setInfo("Smelter: Inventory Full Banking");
+					
+					controller.getMovementHandler().moveToBank();
+					
+					while(controller.requestKeyboardAccess()) {RandomProvider.sleep(10);}
+					while(controller.requestMouseAccess()) {RandomProvider.sleep(10);}
+					
+					if(!script.getInventory().isEmpty()) {
+						
+						script.getBank().depositAllExcept(f -> f != null && f.getName().equals("Ammo mould"));	
+					}
+					RandomProvider.sleep(500, 1250);
+					
+					if(script.getBank().count(f -> f != null && f.getName().contains(bar.getOreName1())) >= bar.getOre1InBack()) {
+						script.getBank().withdraw(f -> f != null && f.getName().contains(this.bar.getOreName1()), this.bar.getOre1InBack());
+						RandomProvider.sleep(500, 1250);
+						
+						if(this.barEnum != Bars.CANNON_BALL) {
+							if(script.getBank().count(f -> f != null && f.getName().contains(bar.getOreName2())) >= bar.getOre2InBack()) {
+								script.getBank().withdraw(f -> f != null && f.getName().contains(this.bar.getOreName2()), this.bar.getOre2InBack());
+							}
+							/**
+							 * If module doesn't materials to continue:
+							 */
+							else {
+								this.killThread = true;
+								controller.returnKeyboardAccess();
+								controller.returnMouseAccess();
+							}
 						}
 					}
-				}
-				/**
-				 * If module doesn't materials to continue:
-				 */
-				else {
-					script.nextModule();
-					script.sleep(2000);
-					return delay;
-				}
-				
-				script.getBank().close();
-				script.sleep(random.nextInt(750)+ 500);
-				script.getMouse().move();
-				this.actionsCompleted++;
-			}
-			
-			else if(!location.inArea()) {
-				script.setReact(0);
-				script.setInfoText("Smelter: Walking to Furnace - " + locationEnum);
-				
-				location.travel();
+					/**
+					 * If module doesn't materials to continue:
+					 */
+					else {
+						this.killThread = true;
+						controller.returnKeyboardAccess();
+						controller.returnMouseAccess();
+					}
 					
-			}
-			else if(actionTester != script.getInventory().count(f -> f != null && f.getName().toLowerCase().contains("bar"))) {
-				this.actionTester = script.getInventory().count(f -> f != null && f.getName().toLowerCase().contains("bar"));
-			}
-			else if(!script.getLocalPlayer().isAnimating()) {
-				script.setReact(1);
-				script.setInfoText("Smelter: Smelting - " + barEnum);
-				GameObject furnace = script.getGameObjects().closest(f -> f != null && f.getName().toLowerCase().contains("furnace"));
-				int tester = random.nextInt(2);
-				if(tester == 0) {
-					furnace.interact("Smelt");
+					script.getBank().close();
+					RandomProvider.sleep(500, 1250);
 					script.getMouse().move();
+					this.actionsCompleted++;
+					
+					controller.returnKeyboardAccess();
+					controller.returnMouseAccess();
 				}
-				else {
-					furnace.interact();
-					script.getMouse().move();
+				
+				else if(!controller.getMovementHandler().isPlayerInLocation()) {
+				
+					controller.getGraphicHandler().setInfo("Smelter: Walking to Furnace - " + locationEnum);
+					
+					controller.getMovementHandler().moveToLocation();
+						
 				}
-				script.sleep(random.nextInt(750)+ 1000);
-				script.getKeyboard().type(bar.getKeyboardNumber(),false);
-				
-				
+				else if(actionTester != script.getInventory().count(f -> f != null && f.getName().toLowerCase().contains("bar"))) {
+					this.actionTester = script.getInventory().count(f -> f != null && f.getName().toLowerCase().contains("bar"));
+				}
+				else if(!script.getLocalPlayer().isAnimating()) {
+					controller.getGraphicHandler().setInfo("Smelter: Smelting - " + barEnum);
+					GameObject furnace = script.getGameObjects().closest(f -> f != null && f.getName().toLowerCase().contains("furnace"));
+					int tester = RandomProvider.randomInt(2);
+	
+					while(controller.requestKeyboardAccess()) {RandomProvider.sleep(10);}
+					while(controller.requestMouseAccess()) {RandomProvider.sleep(10);}
+					
+					if(tester == 0) {
+						furnace.interact("Smelt");
+						script.getMouse().move();
+					}
+					else {
+						furnace.interact();
+						script.getMouse().move();
+					}
+					RandomProvider.sleep(750, 1750);
+					script.getKeyboard().type(bar.getKeyboardNumber(),false);
+					
+					controller.returnKeyboardAccess();
+					controller.returnMouseAccess();
+				}
 			}
 		}
-		return delay;
-	}
-
-	@Override
-	public int actionsCompleted() {
 		
-		return this.actionsCompleted;
 	}
-
 
 	public boolean setupModule() {
-		this.location.teleportToLocation();
+		controller.getMovementHandler().newLocation(this.locationEnum);
 		
-		script.setReact(0);
-		script.setInfoText("Smelter: Setting Up Module");
+		controller.getMovementHandler().teleportToLocation();
+		
+		controller.getGearHandler().handleGearSwap(Gear.UTILITY);
+		
+		controller.getGraphicHandler().setInfo("Smelter: Setting Up Module");
+		
 		if(!(script.getInventory().count(f -> f != null && f.getName().contains(bar.getOreName1())) >= bar.getOreCost1()) ||
 				!(script.getInventory().count(f -> f != null && f.getName().contains(bar.getOreName2())) >= bar.getOreCost2())	) {
+			
+			while(controller.requestKeyboardAccess()) {RandomProvider.sleep(10);}
+			while(controller.requestMouseAccess()) {RandomProvider.sleep(10);}
 			
 			if(!script.getWalking().isRunEnabled() && script.getWalking().getRunEnergy() > 0) {
 				script.getWalking().toggleRun();
@@ -139,34 +162,43 @@ public class SmelterModule extends ScriptModule {
 
 			while(!script.getBank().isOpen()) {
 				script.getBank().open(script.getBank().getClosestBankLocation());
-				script.sleep(random.nextInt(1000)+2000);
+				RandomProvider.sleep(2000, 3000);
+				
 			}
 			
 			if(!script.getInventory().isEmpty()) {
 				script.getBank().depositAllExcept(f -> f != null && f.getName().equals("Ammo mould"));
-				script.sleep(random.nextInt(750)+ 1000);
+				RandomProvider.sleep(1000, 1750);
+				
 			}
 			
 			if(script.getBank().count(f -> f != null && f.getName().contains(bar.getOreName1())) >= bar.getOre1InBack()) {
 				script.getBank().withdraw(f -> f != null && f.getName().contains(this.bar.getOreName1()), this.bar.getOre1InBack());
-				script.sleep(random.nextInt(750)+ 500);
+				RandomProvider.sleep(500, 1250);
 	
 					if(script.getBank().count(f -> f != null && f.getName().contains(bar.getOreName2())) >= bar.getOre2InBack()) {
 							script.getBank().withdraw(f -> f != null && f.getName().contains(this.bar.getOreName2()), this.bar.getOre2InBack());
 					}
 					else {
+						controller.returnKeyboardAccess();
+						controller.returnMouseAccess();
 						return false;
 					}
 				
 			}
 			else {
+				controller.returnKeyboardAccess();
+				controller.returnMouseAccess();
 				return false;
 			}
 
 			
 			script.getBank().close();
-			script.sleep(random.nextInt(750)+ 500);
+			RandomProvider.sleep(500, 1250);
 			script.getMouse().move();
+			
+			controller.returnKeyboardAccess();
+			controller.returnMouseAccess();
 			return true;
 			
 		}
@@ -310,9 +342,24 @@ public class SmelterModule extends ScriptModule {
 		return Skill.SMITHING;
 	}
 
+
 	@Override
-	public void errorTest() {
-		// TODO Auto-generated method stub
-		
+	public void killThread() {
+		this.killThread = true;
+	}
+
+	@Override
+	public boolean isAlive() {
+		return !this.killThread;
+	}
+
+	@Override
+	public boolean isReady() {
+		if(this.limit < this.actionsCompleted) {
+			return true;
+		}
+		else {
+			return false;
+		}
 	}
 }

@@ -14,164 +14,217 @@ import org.dreambot.api.wrappers.interactive.NPC;
 import org.dreambot.api.wrappers.items.Item;
 import org.dreambot.api.wrappers.widgets.WidgetChild;
 
+import antiban.RandomProvider;
 import client.ClientThread;
+import client.ThreadController;
 import movement.Location;
-import movement.Locations;
+import movement.LocationFactory;
+import utilities.GearHandler.Gear;
 
 public class MageTrainerModule extends ScriptModule{
 	private ClientThread script;
-	private Random random = new Random();
-	private int delay;
+	private ThreadController controller;
+	
 	private int limit;
 	private int actionsCompleted;
-	private Location location;
-	private Locations locationEnum;
+	
+	private NPC target;
+	private LocationFactory.GameLocation locationEnum;
+	
 	private Spell alchemy;
 	private Spell curse;
+	
 	private WidgetChild curseArea;
 	private WidgetChild alchemyArea;
+	
 	private Point alchemyPoint;
 	private Point cursePoint;
 	private Point itemPoint;
+	
 	private String itemName;
-	private NPC target;
 	private String targetName;
+	
 	private boolean error;
+	private boolean killThread;
+	private boolean randomized;
+	private boolean trainAlchemy;
+	
 	private Rectangle itemArea;
 	
 	
-	public MageTrainerModule(ClientThread script, int limit, Spell curse, MageTrainerModule.alchemyItem item) {
+	public MageTrainerModule(ThreadController controller, ClientThread script, int limit, Spell curse, 
+							 boolean trainAlchemy, MageTrainerModule.alchemyItem item) {
+		
 		this.script = script;
+		this.controller = controller;
+		
+		this.trainAlchemy = trainAlchemy;
+		
 		this.limit = limit;
-		this.alchemy = Normal.HIGH_LEVEL_ALCHEMY;
-		this.location = new Location(this.script, Locations.SPLASHING_BEAR);
-		this.targetName = "Grizzly bear";
 		this.actionsCompleted = 0;
+		
+		this.alchemy = Normal.HIGH_LEVEL_ALCHEMY;
+		
+		this.alchemyArea = script.getWidget(218, 38);
+		
+		this.moduleName = "MageTrainerModule";
+		this.targetName = "Grizzly bear";
+
 		setCurseVariables(curse);
 		setItemName(item);
-		this.alchemyArea = script.getWidget(218, 38);
-		this.moduleName = "MageTrainerModule";
+		
 	}
 	
 	@Override
-	public int onLoop() {
-		random.setSeed(random.nextLong());
-		delay = random.nextInt(100) + 100;
-		Calculations.setRandomSeed(random.nextLong());
+	public void run() {
 		
-		if(limit <= this.actionsCompleted) {
-			script.nextModule();
-			script.sleep(2000);
-			return delay;
-		}
+		while(!killThread) {
 		
-		
-		
-		if(!location.inArea()) {
-			script.setReact(0);
-			location.travel();
-		}
-		else {
-			script.setReact(1);
-			
-			//alchemyPoint = new Point(Calculations.random(alchemyArea.getX(), alchemyArea.getX() + alchemyArea.getWidth()),
-			//Calculations.random(alchemyArea.getY(), alchemyArea.getY() + alchemyArea.getHeight()));
-			//script.getMouse().click(alchemyPoint);
-			if(!script.getTabs().isOpen(Tab.MAGIC)) {
-				script.getTabs().open(Tab.MAGIC);
-				script.sleep(30);
-			}
-			
-			
-			if(!script.getMagic().canCast(curse) || !script.getInventory().contains(f -> f != null && f.getName().equals("Nature rune")) || !script.getInventory().contains(f -> f != null && f.getName().equals(itemName))) {
-				
-				
-				//|| script.getMagic().canCast(alchemy)
-				script.getMessenger().sendMessage("MageTrainer - Module ERROR");
-				script.getMessenger().sendMessage("Trying to Restart Module...");
-				if(!setupModule() || error) {
-					script.getMessenger().sendMessage("MageTrainer - Module ERROR");
-					script.getMessenger().sendMessage("Changing Module.");
-					script.nextModule();
-				}
-				script.getMessenger().sendMessage("Module Restart Complete");
-				this.error = true;
-			}
-			
-			if(script.getEquipment().getItemInSlot(EquipmentSlot.WEAPON.getSlot()) == null || !script.getEquipment().getItemInSlot(EquipmentSlot.WEAPON.getSlot()).getName().equals("Staff of fire")) {
-				if(script.getEquipment().getItemInSlot(EquipmentSlot.WEAPON.getSlot()) == null) {
-					script.getMessenger().sendMessage("MageTrainer - Module ERROR");
-					script.getMessenger().sendMessage("No Fire staff Found - Changing Module");
-					script.nextModule();
-					script.sleep(2000);
-					return delay;
-				}
-			}
-			
-			alchemyPoint = new Point(Calculations.random(alchemyArea.getX(), alchemyArea.getX() + alchemyArea.getWidth()),
-					Calculations.random(alchemyArea.getY(), alchemyArea.getY() + alchemyArea.getHeight()));
-			script.getMouse().click(alchemyPoint);
-			
-			script.sleep(random.nextInt(100) + 100);
-			
-			if(script.getInventory().contains(itemName)) {
-				script.setInfoText( "Mage trainer: Casting Alchemy");
-				itemArea = script.getInventory().slotBounds(script.getInventory().get(itemName).getSlot());
-				itemPoint = new Point(Calculations.random((int)itemArea.getX(), (int)itemArea.getX() + (int)itemArea.getWidth()),
-						Calculations.random((int)itemArea.getY(), (int)itemArea.getY() + (int)itemArea.getHeight()));
-				script.getMouse().click(itemPoint);
-			}
-			
-			script.sleep(random.nextInt(250) + 450);
-			
-			script.setInfoText("Mage trainer: Casting Spell - " + this.curse);
-			
-			cursePoint = new Point(Calculations.random(curseArea.getX(), curseArea.getX() + curseArea.getWidth()),
-								Calculations.random(curseArea.getY(), curseArea.getY() + curseArea.getHeight()));
-			script.getMouse().click(cursePoint);
-			script.sleep(random.nextInt(200) + 200);
-			target = script.getNpcs().closest(f -> f != null && f.getName().equals(targetName) && (f.getInteractingCharacter() == null || f.getInteractingCharacter().equals(script.getLocalPlayer()) ));
-			
-			if(target != null) {
-				int randomizer = random.nextInt(5);
-				if(randomizer == 0){
-					randomizer = random.nextInt(2);
-					if(randomizer == 0) {
-						script.getCamera().keyboardRotateToTile(target.getTile().getArea(3).getRandomTile());
-					}
-					else {
-						script.getCamera().mouseRotateToTile(target.getTile().getArea(3).getRandomTile());
-					}
-				}
-				target.interact();
-				script.getMouse().move();
-				this.actionsCompleted++;
+			RandomProvider.sleep(100, 200);
+	
+			if(!controller.getMovementHandler().isPlayerInLocation()) {
+				controller.getMovementHandler().moveToLocation();
 			}
 			else {
-				target = script.getNpcs().closest(f -> f != null && f.getName().equals(targetName));
-				if(target == null) {
-					script.hop();
+				itemPoint = new Point(RandomProvider.randomInt((int)itemArea.getX(), (int)itemArea.getX() + (int)itemArea.getWidth()),
+						  			  RandomProvider.randomInt((int)itemArea.getY(), (int)itemArea.getY() + (int)itemArea.getHeight()) );
+				alchemyPoint = new Point(RandomProvider.randomInt(alchemyArea.getX(), alchemyArea.getX() + alchemyArea.getWidth()),
+						 			     RandomProvider.randomInt(alchemyArea.getY(), alchemyArea.getY() + alchemyArea.getHeight()));
+				cursePoint = new Point(RandomProvider.randomInt(curseArea.getX(), curseArea.getX() + curseArea.getWidth()),
+						   			   RandomProvider.randomInt(curseArea.getY(), curseArea.getY() + curseArea.getHeight()));
+				
+				while(controller.requestKeyboardAccess()) {RandomProvider.sleep(10);}
+				while(controller.requestMouseAccess()) {RandomProvider.sleep(10);}
+				
+				if(!script.getTabs().isOpen(Tab.MAGIC)) {
+					script.getTabs().open(Tab.MAGIC);
+					script.sleep(30);
 				}
-				else if(target.isInteractedWith() && !target.isInteracting(script.getLocalPlayer())) {
-					script.hop();
+				
+				
+				if(!script.getMagic().canCast(curse) || ((!script.getInventory().contains(f -> f != null && f.getName().equals("Nature rune")) || 
+						!script.getInventory().contains(f -> f != null && f.getName().equals(itemName))) && trainAlchemy)) {
+					
+					//|| script.getMagic().canCast(alchemy)
+					controller.getTelegramHandler().sendMessage("MageTrainer - Module ERROR");
+					controller.getTelegramHandler().sendMessage("Trying to Restart Module...");
+					if(!setupModule() || error) {
+						controller.getTelegramHandler().sendMessage("MageTrainer - Module ERROR");
+						controller.getTelegramHandler().sendMessage("Changing Module.");
+						this.killThread = true;
+						
+						controller.returnKeyboardAccess();
+						controller.returnMouseAccess();
+					}
+					controller.getTelegramHandler().sendMessage("Module Restart Complete");
+					this.error = true;
 				}
+				
+				if(script.getEquipment().getItemInSlot(EquipmentSlot.WEAPON.getSlot()) == null || 
+														(!script.getEquipment().getItemInSlot(EquipmentSlot.WEAPON.getSlot()).getName().equals("Staff of fire") && trainAlchemy)) {
+					if(script.getEquipment().getItemInSlot(EquipmentSlot.WEAPON.getSlot()) == null) {
+						controller.getTelegramHandler().sendMessage("MageTrainer - Module ERROR");
+						controller.getTelegramHandler().sendMessage("No Fire staff Found - Changing Module");
+						this.killThread = true;
+						
+						controller.returnKeyboardAccess();
+						controller.returnMouseAccess();
+					}
+				}
+				
+				if(trainAlchemy) {
+					
+					randomize(alchemyPoint);
+					
+					alchemyPoint = new Point(RandomProvider.randomInt(alchemyArea.getX(), alchemyArea.getX() + alchemyArea.getWidth()),
+			 				 RandomProvider.randomInt(alchemyArea.getY(), alchemyArea.getY() + alchemyArea.getHeight()));
+	
+					script.getMouse().click(alchemyPoint); //Alchemy cast
+					
+					RandomProvider.sleep(100, 200);
+				}
+				
+				if(script.getInventory().contains(itemName)) {
+					randomize(itemPoint);
+					
+					controller.getGraphicHandler().setInfo( "Mage trainer: Casting Alchemy");
+					itemArea = script.getInventory().slotBounds(script.getInventory().get(itemName).getSlot());
+				
+					script.getMouse().click(itemPoint); //Item click
+				}
+				
+				RandomProvider.sleep(450, 800);
+				
+				controller.getGraphicHandler().setInfo("Mage trainer: Casting Spell - " + this.curse);
+				
+				randomize(cursePoint);
+				
+				script.getMouse().click(cursePoint); //Curse cast
+				
+				RandomProvider.sleep(200, 400);
+				
+				target = script.getNpcs().closest(f -> f != null && f.getName().equals(targetName) && (f.getInteractingCharacter() == null || f.getInteractingCharacter().equals(script.getLocalPlayer()) ));
+				
+				if(target != null) {
+					target.interact();
+					script.getMouse().move();
+					this.actionsCompleted++;
+					
+					controller.returnKeyboardAccess();
+					controller.returnMouseAccess();
+				}
+				else {
+					target = script.getNpcs().closest(f -> f != null && f.getName().equals(targetName)); //Target click
+					if(target == null) {
+						
+						controller.returnKeyboardAccess();
+						controller.returnMouseAccess();
+						
+						controller.hopWorlds();
+					}
+					else if(target.isInteractedWith() && !target.isInteracting(script.getLocalPlayer())) {
+						
+						controller.returnKeyboardAccess();
+						controller.returnMouseAccess();
+						
+						controller.hopWorlds();
+					}
+				}
+				int failSafe = 0;
+				while(!script.getLocalPlayer().isAnimating() && failSafe < 500) {
+					script.sleep(10);
+					failSafe++;
+				}
+				
 			}
-			int failSafe = 0;
-			while(!script.getLocalPlayer().isAnimating() && failSafe < 500) {
-				script.sleep(10);
-				failSafe++;
-			}
-			
+		
 		}
 		
-		
-		
-		
-		return delay;
+	}
+	
+	public void randomize(Point point) {
+		target = script.getNpcs().closest(f -> f != null && f.getName().equals(targetName) && 
+										 (f.getInteractingCharacter() == null || f.getInteractingCharacter().equals(script.getLocalPlayer()) ));
+		int randomizer = RandomProvider.randomInt(15);
+		if(randomizer == 0){
+			randomizer = RandomProvider.randomInt(3);
+			if(randomizer == 0) {
+				script.getCamera().keyboardRotateToTile(target.getTile().getArea(3).getRandomTile());
+			}
+			if(randomizer == 1) {
+				script.getMouse().move(
+							 new Point(
+								  RandomProvider.randomInt((int)(point.getX()-20),(int)(point.getX()+20)),
+								  RandomProvider.randomInt((int)(point.getY()-20),(int)(point.getY()+20))));
+			}
+			else {
+				script.getCamera().mouseRotateToTile(target.getTile().getArea(3).getRandomTile());
+			}
+		}
+		RandomProvider.sleep(200, 400);
 	}
 	
 	public void setCurseVariables(Spell curse) {
-		
 		
 		if(curse == Normal.CONFUSE) {
 			this.curseArea = script.getWidgets().getWidget(218).getChild(6);
@@ -211,21 +264,22 @@ public class MageTrainerModule extends ScriptModule{
 	public void setItemName(alchemyItem item) {
 		if(item == alchemyItem.DRAGOSTONE_BOLT_TIPS) {
 			this.itemName = "Dragonstone bolt tips";
-		
 		}
 	}
 	
-	@Override
-	public int actionsCompleted() {
-		return this.actionsCompleted;
-	}
 
 	@Override
 	public boolean setupModule() {
-		this.location.teleportToLocation();
+		controller.getMovementHandler().newLocation(this.locationEnum);
 		
-		script.setReact(0);
-		script.setInfoText("Mage trainer: Setting up module");
+		controller.getMovementHandler().teleportToLocation();
+		
+		controller.getGearHandler().handleGearSwap(Gear.MAGIC); 
+		
+		controller.getGraphicHandler().setInfo("Mage trainer: Setting Up Module");
+		
+		while(controller.requestKeyboardAccess()) {RandomProvider.sleep(10);}
+		while(controller.requestMouseAccess()) {RandomProvider.sleep(10);}
 		
 		if(!script.getMagic().canCast(curse) || !script.getInventory().contains(f -> f != null && f.getName().equals("Nature rune"))) {
 			
@@ -235,37 +289,45 @@ public class MageTrainerModule extends ScriptModule{
 	
 			while(!script.getBank().isOpen()) {
 				script.getBank().open(script.getBank().getClosestBankLocation());
-				script.sleep(random.nextInt(1000)+2000);
+				RandomProvider.sleep(2000, 3000);
 			}
 			
 			if(!script.getInventory().isEmpty()) {
 				script.getBank().depositAllItems();
-				script.sleep(random.nextInt(750)+ 1000);
+				RandomProvider.sleep(1000, 1750);
 			}
 			
 			for(Rune rune : curse.getCost()) {
 				if(script.getBank().contains(f -> f != null && f.getName().equals(rune.getName()))) {
 					script.getBank().withdrawAll(f -> f != null && f.getName().equals(rune.getName()));
-					script.sleep(random.nextInt(500)+ 500);
+					RandomProvider.sleep(500, 1000);
 				}
 				else {
+					controller.returnKeyboardAccess();
+					controller.returnMouseAccess();
 					return false;
 				}
 			}
 			
-			if(script.getBank().contains("Nature rune")) {
-				script.getBank().withdrawAll(f -> f != null && f.getName().equals("Nature rune"));
-				script.sleep(random.nextInt(500)+ 500);
-			}
-			else {
-				return false;
+			if(this.trainAlchemy) {
+				if(script.getBank().contains("Nature rune")) {
+					script.getBank().withdrawAll(f -> f != null && f.getName().equals("Nature rune"));
+					RandomProvider.sleep(500, 1000);
+				}
+				else {
+					controller.returnKeyboardAccess();
+					controller.returnMouseAccess();
+					return false;
+				}
 			}
 			
 			if(script.getBank().contains(itemName)) {
 				script.getBank().withdrawAll(f -> f != null && f.getName().equals(itemName));
-				script.sleep(random.nextInt(500)+ 500);
+				RandomProvider.sleep(500, 1000);
 			}
 			else {
+				controller.returnKeyboardAccess();
+				controller.returnMouseAccess();
 				return false;
 			}
 			
@@ -275,27 +337,32 @@ public class MageTrainerModule extends ScriptModule{
 			Item i = script.getInventory().get(f -> f != null && f.getName().equals(itemName));
 			if(script.getInventory().getItemInSlot(15) == null || (i != null && !script.getInventory().getItemInSlot(15).getName().equals(itemName))) {
 				script.getMouse().move(i.getDestination());
-				script.sleep(random.nextInt(500) + 500);
+				RandomProvider.sleep(500, 1000);
 				script.getMouse().drag(script.getInventory().slotBounds(15));
 				script.getMouse().move();
 			}
 			
+			controller.returnKeyboardAccess();
+			controller.returnMouseAccess();
 			return true;
 
 		}
 		else {
 			if(script.getBank().isOpen()) {
 				script.getBank().close();
-				script.sleep(random.nextInt(1000) + 1000);
+				RandomProvider.sleep(1000, 2000);
 			}
 			
 			Item i = script.getInventory().get(f -> f != null && f.getName().equals(itemName));
 			if(script.getInventory().getItemInSlot(15) == null || (i != null && !script.getInventory().getItemInSlot(15).getName().equals(itemName))) {
 				script.getMouse().move(i.getDestination());
-				script.sleep(random.nextInt(300) + 300);
+				RandomProvider.sleep(300, 600);
 				script.getMouse().drag(script.getInventory().slotBounds(15));
 				script.getMouse().move();
 			}
+			
+			controller.returnKeyboardAccess();
+			controller.returnMouseAccess();
 			return true;
 		}
 	}
@@ -305,15 +372,30 @@ public class MageTrainerModule extends ScriptModule{
 		return Skill.MAGIC;
 	}
 
-	@Override
-	public void errorTest() {
-		// TODO Auto-generated method stub
-		
-	}
 	
 	public enum alchemyItem {
 		DRAGOSTONE_BOLT_TIPS
-	
+	}
+
+
+	@Override
+	public void killThread() {
+		this.killThread = true;
+	}
+
+	@Override
+	public boolean isAlive() {
+		return !this.killThread;
+	}
+
+	@Override
+	public boolean isReady() {
+		if(limit < actionsCompleted) {
+			return true;
+		}
+		else {
+			return false;
+		}
 	}
 	
 }

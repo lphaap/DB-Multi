@@ -3,19 +3,13 @@ import org.dreambot.api.methods.skills.Skill;
 
 public class ThievingModule extends ScriptModule {
 
+	//TODO:
 	
 	@Override
-	public int onLoop() {
+	public void run() {
 		// TODO Auto-generated method stub
-		return 0;
 	}
-
-	@Override
-	public int actionsCompleted() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
+	
 	@Override
 	public boolean setupModule() {
 		// TODO Auto-generated method stub
@@ -28,10 +22,23 @@ public class ThievingModule extends ScriptModule {
 		return null;
 	}
 
-	@Override
-	public void errorTest() {
-		// TODO Auto-generated method stub
 
+	@Override
+	public void killThread() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public boolean isAlive() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean isReady() {
+		// TODO Auto-generated method stub
+		return false;
 	}
 
 }

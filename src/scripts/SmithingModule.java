@@ -8,191 +8,231 @@ import org.dreambot.api.methods.widget.Widget;
 import org.dreambot.api.wrappers.interactive.GameObject;
 import org.dreambot.api.wrappers.widgets.WidgetChild;
 
+import antiban.RandomProvider;
 import client.ClientThread;
+import client.ThreadController;
 import movement.Location;
-import movement.Locations;
+import movement.LocationFactory;
+import utilities.GearHandler.Gear;
+
 
 public class SmithingModule extends ScriptModule {
 	private ClientThread script;
-	private Random random;
-	private int delay;
-	private Location location;
-	private String barText;
-	private int actionsCompleted;
-	private WidgetChild widget;
+	private ThreadController controller;
+
 	private int barsRequired;
-	private SmithingType type;
+	private int actionsCompleted;
+	private int delay;
+	private int actionTester;
+	private int limit;
+	
 	private boolean firsInteract;
 	private boolean firstInteractSupport;
 	private boolean widgetSet;
-	private int actionTester;
-	private Locations locationEnum;
-	private SmithingMaterial materialEnum;
-	private String interactWith;
 	private boolean error;
+	private boolean killThread;
 	
+	private LocationFactory.GameLocation locationEnum;
 	
-	public SmithingModule(SmithingModule.SmithingType type, SmithingModule.SmithingMaterial material, Locations location, ClientThread script) {
+	private SmithingMaterial materialEnum;
+	private SmithingType type;
+	
+	private String interactWith;
+	private String barText;
+	
+	private WidgetChild widget;
+	
+	public SmithingModule(ThreadController controller, ClientThread script, SmithingModule.SmithingType type, SmithingModule.SmithingMaterial material, LocationFactory.GameLocation location, int limit) {
+		this.script = script;
+		this.controller = controller;
+		
 		this.type = type;
 		this.barText = getTextFromMaterial(material);
-		this.script = script;
-		this.location = new Location(script, location);
-		this.random = new Random();
 		this.getBarsRequired(this.type);
+		
 		this.widget = null;
+		
 		this.firsInteract = false;
 		this.widgetSet = true;
-		actionTester = 0;
-		firstInteractSupport = true;
-		locationEnum = location;
-		this.materialEnum = material;
+		this.firstInteractSupport = true;
 		this.error = false;
+		
+		this.actionTester = 0;
+		
+		this.locationEnum = location;
+		this.materialEnum = material;
+		
 		this.moduleName = "SmithingModule: " + materialEnum + " - " + this.type;
 	}
 	
 	@Override
-	public int onLoop() {
-		random.setSeed(random.nextLong());
-		delay = random.nextInt(1000) + 2000;
+	public void run()  {
 		
-		if(!script.getLocalPlayer().isAnimating()) {
-			if(script.getInventory().count(f -> f != null && f.getName().equals(barText)) < barsRequired) {
-				script.setReact(0);
-				script.setInfoText("Smither: Inventory Done - Banking");
-				this.actionsCompleted++;
-				
-				location.travelToBank();
-				
-				script.getBank().depositAllExcept(f -> f != null && f.getName().toLowerCase().equals("hammer") || f.getName().toLowerCase().equals(barText));
-				script.sleep(random.nextInt(750)+ 1000);
-				
-				script.log(""+(script.getBank().count(f -> f != null && f.getName().equals(barText)) > barsRequired));
-				script.log(""+(script.getBank().count(f -> f != null && f.getName().equals(barText))));
-				
-				if(script.getBank().count(f -> f != null && f.getName().equals(barText)) > barsRequired) {
-					script.sleep(random.nextInt(750)+ 1000);
-					script.getBank().withdrawAll(f -> f != null && f.getName().equals(barText));
-				}
-				else {
-					script.nextModule();
-					script.sleep(2000);
-					script.log("Ouf of Bars");
-					return delay;
-				}
-				script.sleep(random.nextInt(750)+ 700);
-				script.getBank().close();
-				script.sleep(random.nextInt(750)+ 500);
-				script.getMouse().move();
-
-			}
+		while(!this.killThread) {
+			
+			RandomProvider.sleep(2000, 3000);
 		
-			else if(!location.inArea()) {
-				script.setReact(0);
-				script.setInfoText("Smither: Walking to Anvil - " + locationEnum);
-				
-				location.travel();
+			if(!script.getLocalPlayer().isAnimating()) {
+				if(script.getInventory().count(f -> f != null && f.getName().equals(barText)) < barsRequired) {
 					
-			}
-			
-			else if(actionTester != script.getInventory().count(f -> f != null && f.getName().toLowerCase().contains("bar"))) {
-				this.actionTester = script.getInventory().count(f -> f != null && f.getName().toLowerCase().contains("bar"));
-			}
-			
-			else if(!script.getLocalPlayer().isAnimating()) {
-				
-				
-				if(!script.getInventory().contains(f -> f != null && f.getName().toLowerCase().contains("hammer"))) {
-					script.getMessenger().sendMessage("Smither - Module ERROR");
-					script.getMessenger().sendMessage("Trying to Restart Module...");
-					if(!setupModule() || error) {
-						script.getMessenger().sendMessage("Jeweller - Module ERROR");
-						script.getMessenger().sendMessage("Changing Module.");
-						script.nextModule();
-					}
-					script.getMessenger().sendMessage("Module Restart Complete");
-					this.error = true;
-				}
-				
-				script.setReact(1);
-				script.setInfoText("Smither: Smithing - " + materialEnum + " - " + this.type);
-				GameObject anvil = script.getGameObjects().closest(f -> f != null && f.getName().toLowerCase().contains("anvil"));
-				int tester = random.nextInt(2);
-				
-				if(tester == 0) {
-					anvil.interact("Smith");
-					script.getMouse().move();
-				}
-				else {
-					anvil.interact();
-					script.getMouse().move();
-				}
-				
-				
-				if(this.firsInteract) {
-					int failSafe = 0;
-					if(this.widgetSet) {
-						while(!this.setWidget() || failSafe > 5){
-							failSafe++;	
-						}
-						if(failSafe < 5) {
-							widgetSet = false;
-						}
+					controller.getGraphicHandler().setInfo("Smither: Inventory Done - Banking");
+					
+					this.actionsCompleted++;
+					
+					controller.getMovementHandler().moveToBank();
+					
+					while(controller.requestKeyboardAccess()) {RandomProvider.sleep(10);}
+					while(controller.requestMouseAccess()) {RandomProvider.sleep(10);}
+					
+					script.getBank().depositAllExcept(f -> f != null && f.getName().toLowerCase().equals("hammer") || f.getName().toLowerCase().equals(barText));
+					RandomProvider.sleep(1000, 1750);
+					
+					if(script.getBank().count(f -> f != null && f.getName().equals(barText)) > barsRequired) {
+						RandomProvider.sleep(1000, 1750);
 						
-					}
-
-
-					script.sleep(random.nextInt(1000)+ 1500);
-					if(interactWith != null) {
-						widget.interact(interactWith);
+						script.getBank().withdrawAll(f -> f != null && f.getName().equals(barText));
 					}
 					else {
-						this.setWidget();
+						this.killThread = true;
+						
+						script.sleep(2000);
+						controller.getTelegramHandler().sendMessage("Ouf of Bars");
 					}
+					RandomProvider.sleep(700, 1450);
+					
+					script.getBank().close();
+					
+					RandomProvider.sleep(500, 1250);
+	
 					script.getMouse().move();
+					
+					controller.returnKeyboardAccess();
+					controller.returnMouseAccess();
+	
+				}
+			
+				else if(!controller.getMovementHandler().isPlayerInLocation()) {
+					
+					controller.getGraphicHandler().setInfo("Smither: Walking to Anvil - " + locationEnum);
+					
+					controller.getMovementHandler().moveToLocation();
+	
+						
 				}
 				
-
-				this.firsInteract = true;
+				else if(actionTester != script.getInventory().count(f -> f != null && f.getName().toLowerCase().contains("bar"))) {
+					this.actionTester = script.getInventory().count(f -> f != null && f.getName().toLowerCase().contains("bar"));
+				}
+				
+				else if(!script.getLocalPlayer().isAnimating()) {
+							
+					if(!script.getInventory().contains(f -> f != null && f.getName().toLowerCase().contains("hammer"))) {
+						controller.getTelegramHandler().sendMessage("Smither - Module ERROR");
+						controller.getTelegramHandler().sendMessage("Trying to Restart Module...");
+						if(!setupModule() || error) {
+							controller.getTelegramHandler().sendMessage("Jeweller - Module ERROR");
+							controller.getTelegramHandler().sendMessage("Changing Module.");
+							this.killThread = true;
+						}
+						controller.getTelegramHandler().sendMessage("Module Restart Complete");
+						this.error = true;
+					}
 					
 				
+					controller.getGraphicHandler().setInfo("Smither: Smithing - " + materialEnum + " - " + this.type);
+					GameObject anvil = script.getGameObjects().closest(f -> f != null && f.getName().toLowerCase().contains("anvil"));
+					int tester = RandomProvider.randomInt(2);
+					
+					while(controller.requestKeyboardAccess()) {RandomProvider.sleep(10);}
+					while(controller.requestMouseAccess()) {RandomProvider.sleep(10);}
+					
+					if(tester == 0) {
+						anvil.interact("Smith");
+						script.getMouse().move();
+					}
+					else {
+						anvil.interact();
+						script.getMouse().move();
+					}
+					
+					
+					if(this.firsInteract) {
+						int failSafe = 0;
+						if(this.widgetSet) {
+							while(!this.setWidget() || failSafe > 5){
+								failSafe++;	
+							}
+							if(failSafe < 5) {
+								widgetSet = false;
+							}
+							
+						}
+	
+						RandomProvider.sleep(1500, 2500);
+						if(interactWith != null) {
+							widget.interact(interactWith);
+						}
+						else {
+							this.setWidget();
+						}
+						script.getMouse().move();
+					}
+					
+					controller.returnKeyboardAccess();
+					controller.returnMouseAccess();
+					
+					this.firsInteract = true;
+						
+					
+				}
 			}
+		
 		}
-		return delay;
+		
 	}
 		
-	
 
-	@Override
-	public int actionsCompleted() {
-		return this.actionsCompleted;
-	}
 
 	@Override
 	public boolean setupModule() {
-		this.location.teleportToLocation();
+		controller.getMovementHandler().newLocation(this.locationEnum);
 		
-		script.setReact(0);
-		script.setInfoText("Smither: Setting Up Module");
+		controller.getMovementHandler().teleportToLocation();
+		
+		controller.getGearHandler().handleGearSwap(Gear.UTILITY); 
+		
+		controller.getGraphicHandler().setInfo("Smither: Setting Up Module");
+		
 		if(!script.getInventory().contains(f -> f != null && f.getName().toLowerCase().contains("hammer") )) {
+			
+			while(controller.requestKeyboardAccess()) {RandomProvider.sleep(10);}
+			while(controller.requestMouseAccess()) {RandomProvider.sleep(10);}
+			
 			if(!script.getWalking().isRunEnabled() && script.getWalking().getRunEnergy() > 0) {
 				script.getWalking().toggleRun();
 			}
 
 			while(!script.getBank().isOpen()) {
 				script.getBank().open(script.getBank().getClosestBankLocation());
-				script.sleep(random.nextInt(1000)+2000);
+				RandomProvider.sleep(2000, 3000);
 			}
 			if(!script.getInventory().isEmpty()) {
 				script.getBank().depositAllItems();	
-				
 			}
-			script.sleep(random.nextInt(750)+ 500);
+			
+			RandomProvider.sleep(500, 1250);
 			if(script.getBank().contains(f -> f != null && f.getName().toLowerCase().contains("hammer") )){
 				script.getBank().withdraw(f -> f != null && f.getName().toLowerCase().contains("hammer"));
-				script.sleep(random.nextInt(750)+ 1000);
+				RandomProvider.sleep(1000, 1750);
+				
+				controller.returnKeyboardAccess();
+				controller.returnMouseAccess();
 				return true;
 			}
 			else {
+				
+				controller.returnKeyboardAccess();
+				controller.returnMouseAccess();
 				return false;
 			}
 		}
@@ -221,8 +261,6 @@ public class SmithingModule extends ScriptModule {
 			return "Runite bar";
 		}
 		else {
-			script.stop();
-			script.log("Setup ERROR");
 			return null;
 		}
 	}
@@ -264,7 +302,7 @@ public class SmithingModule extends ScriptModule {
 		}
 		
 		public boolean setWidget() {
-			script.sleep(random.nextInt(750)+ 3000);
+			RandomProvider.sleep(3000, 3750);
 			if(this.widget != null) {
 				return true;
 			}
@@ -326,14 +364,30 @@ public class SmithingModule extends ScriptModule {
 
 		@Override
 		public Skill getSkillToHover() {
-			
 			return Skill.SMITHING;
 		}
 
+
 		@Override
-		public void errorTest() {
-			// TODO Auto-generated method stub
-			
+		public void killThread() {
+			this.killThread = true;
+		}
+
+		@Override
+		public boolean isAlive() {
+			return !this.killThread;
+		}
+
+
+
+		@Override
+		public boolean isReady() {
+			if((this.limit < this.actionsCompleted)) {
+				return true;
+			}
+			else {
+				return false;
+			}
 		}
 		
 		

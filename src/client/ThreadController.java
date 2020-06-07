@@ -12,6 +12,7 @@ import org.telegram.telegrambots.ApiContextInitializer;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiRequestException;
 
+import antiban.AntibanHandler;
 import antiban.RandomProvider;
 import chat.Discord;
 import chat.InGameMsgHandler;
@@ -37,13 +38,13 @@ public class ThreadController implements KillableThread{
 
 	private ScriptModule currentModule;
 	private ArrayList<ScriptModule> modules = new ArrayList<ScriptModule>();
-	private ArrayList<KillableThread> antibanThreads = new ArrayList<KillableThread>();
 	
 	private GraphicHandler graphicHandler;
 	private InGameMsgHandler inGameMsgHandler;
 	private MovementHandler movementHandler;
 	private GearHandler gearHandler;
 	private TelegramHandler telegramHandler;
+	private AntibanHandler antibanHandler;
 	
 	private int keyboardInUseFor;
 	private int mouseInUseFor;
@@ -58,6 +59,7 @@ public class ThreadController implements KillableThread{
 		this.inGameMsgHandler = new InGameMsgHandler(client, this);
 		this.movementHandler = new MovementHandler(client, this);
 		this.gearHandler = new GearHandler(client, this);
+		
 		this.pauseTimer = RandomProvider.randomInt(90*60, 125*60); 
 		this.scriptTimer = RandomProvider.randomInt(180*60, 280*60);
 		connectTelegramThread();
@@ -292,10 +294,8 @@ public class ThreadController implements KillableThread{
 	
 	public void killBot() {
 		telegramHandler.sendMessage("Killing Bot..");
-		for(KillableThread t : this.antibanThreads) {
-			t.killThread();
-		}
 		this.currentModule.killThread();
+		this.antibanHandler.killHandler();
 		this.gearHandler.killHandler();
 		this.movementHandler.killHandler();
 		this.killThread();
@@ -304,11 +304,9 @@ public class ThreadController implements KillableThread{
 	
 	public void killClient() {
 		telegramHandler.sendMessage("Killing Client..");
-		for(KillableThread t : this.antibanThreads) {
-			t.killThread();
-		}
 		this.currentModule.killThread();
 		this.gearHandler.killHandler();
+		this.antibanHandler.killHandler();
 		this.movementHandler.killHandler();
 		this.killThread();
 		client.stop();
@@ -317,9 +315,7 @@ public class ThreadController implements KillableThread{
 	
 	//Avoid infinite loop if called from ClientThread().stop();
 	public void killController() {
-		for(KillableThread t : this.antibanThreads) {
-			t.killThread();
-		}
+		this.antibanHandler.killHandler();
 		this.currentModule.killThread();
 		this.killThread();
 	}

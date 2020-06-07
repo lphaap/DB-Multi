@@ -4,12 +4,14 @@ import java.awt.Point;
 
 import client.ClientThread;
 import client.KillableThread;
+import client.PauseableThread;
 import client.ThreadController;
 
-public class MouseMovement implements KillableThread {
+public class MouseMovement implements KillableThread, PauseableThread {
 	protected ClientThread client;
 	protected ThreadController controller;
 	protected boolean killThread;
+	protected boolean pauseThread;
 	
 	public MouseMovement(ClientThread client, ThreadController controller) {
 		this.client = client;
@@ -20,10 +22,13 @@ public class MouseMovement implements KillableThread {
 	public void run() {
 		while(!killThread) {
 			RandomProvider.sleep(5000, 5000);
-			while(controller.requestMouseAccess()) {RandomProvider.sleep(10);}
-			controller.getGraphicHandler().setInfo("Random: Moving Mouse On Screen");
-			client.getMouse().move(new Point(RandomProvider.randomInt(100)+100,RandomProvider.randomInt(100)+100));
-			controller.returnMouseAccess();
+			if(!pauseThread) {
+				
+				while(controller.requestMouseAccess()) {RandomProvider.sleep(10);}
+				controller.getGraphicHandler().setInfo("Random: Moving Mouse On Screen");
+				client.getMouse().move(new Point(RandomProvider.randomInt(100)+100,RandomProvider.randomInt(100)+100));
+				controller.returnMouseAccess();
+			}
 		}
 		
 	}
@@ -39,6 +44,19 @@ public class MouseMovement implements KillableThread {
 		
 	}
 	
-	
+	@Override
+	public void pauseThread() {
+		this.pauseThread = true;
+	}
+
+	@Override
+	public void resumeThread() {
+		this.pauseThread = false;
+	}
+
+	@Override
+	public boolean isPaused() {
+		return this.pauseThread;
+	}
 
 }

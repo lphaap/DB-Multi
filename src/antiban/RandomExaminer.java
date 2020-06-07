@@ -4,12 +4,14 @@ import java.awt.Point;
 
 import client.ClientThread;
 import client.KillableThread;
+import client.PauseableThread;
 import client.ThreadController;
 
-public class RandomExaminer implements KillableThread {
+public class RandomExaminer implements KillableThread, PauseableThread {
 	protected ClientThread client;
 	protected ThreadController controller;
-	protected boolean killThread;
+	private boolean killThread;
+	private boolean pauseThread;
 	
 	public RandomExaminer(ClientThread client, ThreadController controller) {
 		this.client = client;
@@ -20,11 +22,14 @@ public class RandomExaminer implements KillableThread {
 	public void run() {
 		while(!killThread) {
 			RandomProvider.sleep(5000, 5000);
-			//TODO:
-			while(controller.requestMouseAccess()) {RandomProvider.sleep(10);}
-			controller.getGraphicHandler().setInfo("Random: Examining random target");
-			client.getMouse().move(new Point(RandomProvider.randomInt(100)+100,RandomProvider.randomInt(100)+100));
-			controller.returnMouseAccess();
+			if(!pauseThread) {
+				
+				//TODO:
+				while(controller.requestMouseAccess()) {RandomProvider.sleep(10);}
+				controller.getGraphicHandler().setInfo("Random: Examining random target");
+				client.getMouse().move(new Point(RandomProvider.randomInt(100)+100,RandomProvider.randomInt(100)+100));
+				controller.returnMouseAccess();
+			}
 		}
 		
 	}
@@ -37,6 +42,21 @@ public class RandomExaminer implements KillableThread {
 	@Override
 	public boolean isAlive() {
 		return !(killThread);
+	}
+
+	@Override
+	public void pauseThread() {
+		this.pauseThread = true;
+	}
+
+	@Override
+	public void resumeThread() {
+		this.pauseThread = false;
+	}
+
+	@Override
+	public boolean isPaused() {
+		return this.pauseThread;
 	}
 
 }

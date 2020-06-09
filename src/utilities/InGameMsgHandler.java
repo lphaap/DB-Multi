@@ -1,4 +1,4 @@
-package chat;
+package utilities;
 import java.util.ArrayList;
 
 import org.dreambot.api.wrappers.widgets.message.Message;
@@ -59,7 +59,7 @@ public class InGameMsgHandler {
 			controller.hopWorlds();
 		}
 		else {
-			controller.getTelegramHandler().sendMessage("Msg From " + msg.getUsername() + ": " +  msg.getMessage());
+			controller.debug("Msg From " + msg.getUsername() + ": " +  msg.getMessage());
 		}
 	}
 	

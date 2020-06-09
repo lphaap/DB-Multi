@@ -32,6 +32,9 @@ public class MovementHandler implements KillableHandler {
 		while(controller.requestKeyboardAccess()) {RandomProvider.sleep(10);};
 		while(controller.requestMouseAccess()) {RandomProvider.sleep(10);};
 		
+		controller.debug("Mouse control: MovementHandler");
+		controller.debug("Keyboard control: MovementHandler");
+		
 		new Thread( () -> location.travelPhase3()).start();
 		while(!location.isPhase3Done()) {
 			if(monitorMovement()) {

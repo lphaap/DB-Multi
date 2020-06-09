@@ -147,14 +147,14 @@ public class JewelleryModule extends ScriptModule {
 				else if(!script.getLocalPlayer().isAnimating()) {
 					
 					if(!script.getInventory().contains(f -> f != null && f.getName().equals(mouldName))) {
-						controller.getTelegramHandler().sendMessage("Jeweller - Module ERROR");
-						controller.getTelegramHandler().sendMessage("Trying to Restart Module...");
+						controller.debug("Jeweller - Module ERROR");
+						controller.debug("Trying to Restart Module...");
 						if(!setupModule() || error) {
-							controller.getTelegramHandler().sendMessage("Jeweller - Module ERROR");
-							controller.getTelegramHandler().sendMessage("Changing Module.");
+							controller.debug("Jeweller - Module ERROR");
+							controller.debug("Changing Module.");
 							this.killThread = true;
 						}
-						controller.getTelegramHandler().sendMessage("Restart Completed");
+						controller.debug("Restart Completed");
 						this.error = true;
 					}
 					

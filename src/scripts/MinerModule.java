@@ -90,14 +90,14 @@ public class MinerModule extends ScriptModule{
 			else if(!script.getLocalPlayer().isAnimating()) {
 				
 				if(!script.getInventory().contains(f -> f != null && f.getName().toLowerCase().contains("pickaxe"))) {
-					controller.getTelegramHandler().sendMessage("Miner - Module ERROR");
-					controller.getTelegramHandler().sendMessage("Trying to Restart Module...");
+					controller.debug("Miner - Module ERROR");
+					controller.debug("Trying to Restart Module...");
 					if(!setupModule() || error) {
-						controller.getTelegramHandler().sendMessage("Miner - Module ERROR");
-						controller.getTelegramHandler().sendMessage("Changing Module.");
+						controller.debug("Miner - Module ERROR");
+						controller.debug("Changing Module.");
 						this.killThread = true;
 					}
-					controller.getTelegramHandler().sendMessage("Restart Completed");
+					controller.debug("Restart Completed");
 					this.error = true;
 				}
 				

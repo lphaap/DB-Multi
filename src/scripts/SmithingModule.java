@@ -96,7 +96,7 @@ public class SmithingModule extends ScriptModule {
 						this.killThread = true;
 						
 						script.sleep(2000);
-						controller.getTelegramHandler().sendMessage("Ouf of Bars");
+						controller.debug("Ouf of Bars");
 					}
 					RandomProvider.sleep(700, 1450);
 					
@@ -127,14 +127,14 @@ public class SmithingModule extends ScriptModule {
 				else if(!script.getLocalPlayer().isAnimating()) {
 							
 					if(!script.getInventory().contains(f -> f != null && f.getName().toLowerCase().contains("hammer"))) {
-						controller.getTelegramHandler().sendMessage("Smither - Module ERROR");
-						controller.getTelegramHandler().sendMessage("Trying to Restart Module...");
+						controller.debug("Smither - Module ERROR");
+						controller.debug("Trying to Restart Module...");
 						if(!setupModule() || error) {
-							controller.getTelegramHandler().sendMessage("Jeweller - Module ERROR");
-							controller.getTelegramHandler().sendMessage("Changing Module.");
+							controller.debug("Jeweller - Module ERROR");
+							controller.debug("Changing Module.");
 							this.killThread = true;
 						}
-						controller.getTelegramHandler().sendMessage("Module Restart Complete");
+						controller.debug("Module Restart Complete");
 						this.error = true;
 					}
 					

@@ -18,6 +18,9 @@ public class MouseOffScreenMovement extends MouseMovement {
 			if(!pauseThread) {
 
 				while(controller.requestMouseAccess()) {RandomProvider.sleep(10);}
+				
+				controller.debug("Mouse control: MouseOffScreen");
+				
 				controller.getGraphicHandler().setInfo("Random: Mouse outside of the screen");
 				client.getMouse().moveMouseOutsideScreen();
 				controller.returnMouseAccess();

@@ -34,30 +34,16 @@ import org.dreambot.api.wrappers.widgets.WidgetChild;
 import org.dreambot.api.wrappers.widgets.message.Message;
 
 import antiban.RandomProvider;
-import chat.Discord;
-import chat.InGameMsgHandler;
-import net.dv8tion.jda.api.AccountType;
-import net.dv8tion.jda.api.JDABuilder;
+
 import scripts.MinerModule;
 import scripts.ScriptModule;
 import scripts.SmelterModule;
 import scripts.MinerModule.Ore;
 import scripts.SmelterModule.Bars;
-
-/**
- * TODO:
- * Fix Movement into threads
- * Fix All the scripts to use new thread updates to the project
- * Experiment, Catherby fishing - Locations
- * Teleporter
- * P2P improvements Fishing, Smelting 
- * Thieving module
- * @author Soulless
- */
+import utilities.InGameMsgHandler;
 
 
-
-@ScriptManifest(author = "Molang", name = "Multi Bot", version = 3.0, description = "Multi Bot", category = Category.MISC)
+@ScriptManifest(author = "Molang", name = "Multi Bot", version = 1.0, description = "Multi Bot", category = Category.MISC)
 public class ClientThread extends AbstractScript implements AdvancedMessageListener{
 	
 	private ThreadController controller;
@@ -65,6 +51,7 @@ public class ClientThread extends AbstractScript implements AdvancedMessageListe
 	//--Called in the begining of the script--//
 	@Override
 	public void onStart() {
+		log("Start");
 		addDwarvenMine();
 		addExperimentCave();
 		addCanifisFix();
@@ -86,7 +73,9 @@ public class ClientThread extends AbstractScript implements AdvancedMessageListe
 	
 	//--Updates this object with latest ingame info--//
 	@Override
-	public int onLoop() { return(1); }
+	public int onLoop() { 
+		log("Loop - Active");
+		return(1000); }
 	//--Updates this object with latest ingame info--//
 	
 
@@ -132,13 +121,13 @@ public class ClientThread extends AbstractScript implements AdvancedMessageListe
 		sleep(RandomProvider.randomInt(300,500));
 		getWidgets().getWidget(182).getChild(12).interact();
 		sleep(RandomProvider.randomInt(300,500));
-		controller.getTelegramHandler().sendMessage("Log Out Completed");
+		controller.debug("Log Out Completed");
 	}
 	
 	void logIn() {
 		getRandomManager().enableSolver(RandomEvent.LOGIN);
 		while(!this.getClient().isLoggedIn()) {RandomProvider.sleep(10);}
-		controller.getTelegramHandler().sendMessage("Log In Completed");
+		controller.debug("Log In Completed");
 	}
 	
 	public WidgetChild getWidget(int parent, int child) {

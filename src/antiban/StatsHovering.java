@@ -27,6 +27,9 @@ public class StatsHovering implements KillableThread, PauseableThread {
 				
 				while(controller.requestKeyboardAccess()) {RandomProvider.sleep(10);}
 				while(controller.requestMouseAccess()) {RandomProvider.sleep(10);}
+				
+				controller.debug("Keyboard control: StatsHovering");
+				controller.debug("Mouse control: StatsHovering");
 					
 				controller.getGraphicHandler().setInfo("Random: Hovering XP");
 				client.getTabs().open(Tab.STATS);

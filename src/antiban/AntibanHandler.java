@@ -36,6 +36,8 @@ public class AntibanHandler implements KillableHandler{
 		threads.add(mouseMove);
 		threads.add(cameraMove);
 		
+		this.pauseAllAntibanThreads();
+		
 		for(KillableThread thread : threads) {
 			new Thread(thread).start();
 		}

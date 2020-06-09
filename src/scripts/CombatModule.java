@@ -77,6 +77,9 @@ public class CombatModule extends ScriptModule {
 						GroundItem collectItem = script.getGroundItems().closest(f -> f != null && f.getName().equals(item));
 						if(collectItem != null) {
 							while(controller.requestMouseAccess()) {RandomProvider.sleep(10);}
+							
+							controller.debug("Mouse control: CombatModule");
+							
 							controller.getGraphicHandler().setInfo("Combat trainer: Picking up Item");
 							collectItem.interact("Take");
 							script.getMouse().move();
@@ -99,6 +102,9 @@ public class CombatModule extends ScriptModule {
 					
 					while(controller.requestMouseAccess()) {RandomProvider.sleep(10);}
 					while(controller.requestKeyboardAccess()) {RandomProvider.sleep(10);}
+					
+					controller.debug("Mouse control: CombatModule");
+					controller.debug("Keyboard control: CombatModule");
 					
 					if(!script.getInventory().isEmpty()) {
 						script.getBank().depositAllItems();
@@ -132,8 +138,8 @@ public class CombatModule extends ScriptModule {
 				else if(!script.getLocalPlayer().isAnimating() && !script.getLocalPlayer().isInCombat()) {
 					
 					if(script.getEquipment().getItemInSlot(EquipmentSlot.WEAPON.getSlot()) == null) {
-						controller.getTelegramHandler().sendMessage("CombatTrainer - Module ERROR");
-						controller.getTelegramHandler().sendMessage("No Weapon Found - Changing Module");
+						controller.debug("CombatTrainer - Module ERROR");
+						controller.debug("No Weapon Found - Changing Module");
 						this.error = true;
 						sleep(2000);
 						this.killThread();
@@ -141,8 +147,8 @@ public class CombatModule extends ScriptModule {
 					}
 					if(script.getEquipment().getItemInSlot(EquipmentSlot.WEAPON.getSlot()).getName().toLowerCase().contains("bow")) {
 						if(script.getEquipment().getItemInSlot(EquipmentSlot.WEAPON.getSlot()) == null) {
-							controller.getTelegramHandler().sendMessage("CombatTrainer - Module ERROR");
-							controller.getTelegramHandler().sendMessage("No Arrows Found - Changing Module");
+							controller.debug("CombatTrainer - Module ERROR");
+							controller.debug("No Arrows Found - Changing Module");
 							this.error = true;
 							sleep(2000);
 							this.killThread();
@@ -193,6 +199,9 @@ public class CombatModule extends ScriptModule {
 			
 			while(controller.requestKeyboardAccess()) {RandomProvider.sleep(10);}
 			while(controller.requestMouseAccess()) {RandomProvider.sleep(10);}
+			
+			controller.debug("Mouse control: Combat module setup");
+			controller.debug("Keyboard control: Combat module setup");
 			
 			if(!script.getWalking().isRunEnabled() && script.getWalking().getRunEnergy() > 0) {
 				script.getWalking().toggleRun();
@@ -355,6 +364,9 @@ public class CombatModule extends ScriptModule {
 					if(script.getInventory().contains(f -> f != null && f.getName().equals(food))) {
 						Thread.currentThread().setPriority(Thread.MAX_PRIORITY-1);
 						while(controller.requestMouseAccess()) {RandomProvider.sleep(10);}
+						
+						controller.debug("Mouse control: Combat module healing");
+						
 						Item eat = script.getInventory().get(f -> f != null && f.getName().equals(food));
 						eat.interact();
 						script.getMouse().move();

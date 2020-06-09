@@ -106,25 +106,25 @@ public class MageTrainerModule extends ScriptModule{
 						!script.getInventory().contains(f -> f != null && f.getName().equals(itemName))) && trainAlchemy)) {
 					
 					//|| script.getMagic().canCast(alchemy)
-					controller.getTelegramHandler().sendMessage("MageTrainer - Module ERROR");
-					controller.getTelegramHandler().sendMessage("Trying to Restart Module...");
+					controller.debug("MageTrainer - Module ERROR");
+					controller.debug("Trying to Restart Module...");
 					if(!setupModule() || error) {
-						controller.getTelegramHandler().sendMessage("MageTrainer - Module ERROR");
-						controller.getTelegramHandler().sendMessage("Changing Module.");
+						controller.debug("MageTrainer - Module ERROR");
+						controller.debug("Changing Module.");
 						this.killThread = true;
 						
 						controller.returnKeyboardAccess();
 						controller.returnMouseAccess();
 					}
-					controller.getTelegramHandler().sendMessage("Module Restart Complete");
+					controller.debug("Module Restart Complete");
 					this.error = true;
 				}
 				
 				if(script.getEquipment().getItemInSlot(EquipmentSlot.WEAPON.getSlot()) == null || 
 														(!script.getEquipment().getItemInSlot(EquipmentSlot.WEAPON.getSlot()).getName().equals("Staff of fire") && trainAlchemy)) {
 					if(script.getEquipment().getItemInSlot(EquipmentSlot.WEAPON.getSlot()) == null) {
-						controller.getTelegramHandler().sendMessage("MageTrainer - Module ERROR");
-						controller.getTelegramHandler().sendMessage("No Fire staff Found - Changing Module");
+						controller.debug("MageTrainer - Module ERROR");
+						controller.debug("No Fire staff Found - Changing Module");
 						this.killThread = true;
 						
 						controller.returnKeyboardAccess();

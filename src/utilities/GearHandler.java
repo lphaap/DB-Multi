@@ -58,6 +58,10 @@ public class GearHandler implements KillableHandler {
 		while(controller.requestKeyboardAccess());
 		while(controller.requestMouseAccess());
 		
+		controller.debug("Mouse control: GearSwap");
+		controller.debug("Keyboard control: GearSwap");
+
+		
 		new Thread( () -> {
 			swapper = new GearSwapper();
 			swapper.swapGear();
@@ -137,7 +141,7 @@ public class GearHandler implements KillableHandler {
 		meleeTraining.add("Iron platebody");
 		meleeTraining.add("Iron plateskirt");
 		meleeTraining.add("Iron kiteshield");
-		meleeTraining.add("Amulet of power");
+		meleeTraining.add("Amulet of strength");
 		meleeTraining.add("Mithril scimitar");
 		//meleeTraining.add("Purple gloves");
 		//meleeTraining.add("Team-48 cape");

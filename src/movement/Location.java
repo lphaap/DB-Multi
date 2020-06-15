@@ -59,6 +59,11 @@ public class Location {
 		int runEnergyTest = RandomProvider.randomInt(10) + 1;
 		this.killCurrentAction = false;
 		
+		
+		if(!this.inArea()) {
+			this.phase1Complete = false;
+		}
+		
 		if(phase1 != null && !this.phase1Complete) {
 			script.sleep(RandomProvider.randomInt(1000)+2500);
 			while(!phase1.contains(script.getWalking().getDestination()) && !phase1.contains(script.getLocalPlayer()) && !killCurrentAction) {

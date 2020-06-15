@@ -14,7 +14,12 @@ public class MouseOffScreenMovement extends MouseMovement {
 	@Override
 	public void run() {
 		while(!killThread) {
-			RandomProvider.sleep(5000, 5000);
+			RandomProvider.sleep(100000, 180000);
+			
+			if(killThread) {
+				break;
+			}
+			
 			if(!pauseThread) {
 
 				while(controller.requestMouseAccess()) {RandomProvider.sleep(10);}
@@ -23,6 +28,7 @@ public class MouseOffScreenMovement extends MouseMovement {
 				
 				controller.getGraphicHandler().setInfo("Random: Mouse outside of the screen");
 				client.getMouse().moveMouseOutsideScreen();
+				RandomProvider.sleep(5000, 8000);
 				controller.returnMouseAccess();
 			}
 		}

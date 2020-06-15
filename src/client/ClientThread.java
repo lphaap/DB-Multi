@@ -74,8 +74,8 @@ public class ClientThread extends AbstractScript implements AdvancedMessageListe
 	//--Updates this object with latest ingame info--//
 	@Override
 	public int onLoop() { 
-		log("Loop - Active");
-		return(1000); }
+		//log("Loop - Active");
+		return(10); }
 	//--Updates this object with latest ingame info--//
 	
 

@@ -51,34 +51,45 @@ public class ThreadController implements KillableThread{
 	private int onPause;
 	
 	public ThreadController(ClientThread client) {
-		this.debug = true;
-		this.client = client;
+		this.client = client; //Save bot-client for spreading to Scripts
+		
+		this.debug = true; //Set false for no Script info in console
 		
 		debug("Controller Start");
 		
+		//---Setup Handlers---//
 		this.graphicHandler = new GraphicHandler();
 		this.inGameMsgHandler = new InGameMsgHandler(client, this);
 		this.movementHandler = new MovementHandler(client, this);
 		this.gearHandler = new GearHandler(client, this);
+		this.antibanHandler = new AntibanHandler(client, this);
 		debug("Handlers loaded");
+		//---Setup Handlers---//
 		
+		//---Setup Pause Parametres---//
 		this.pauseTimer = RandomProvider.randomInt(90*60, 125*60); 
 		this.scriptTimer = RandomProvider.randomInt(180*60, 280*60);
+		//---Setup Pause Parametres---//
 		
+		//---Modules---//
 		modules.add(new CombatModule(this, client, Monster.GIANT_FROG, Food.TROUT, 2, true, Training.STRENGTH));
-		//modules.add(null);
+		//---Modules---//
 		
+		//---Manual Start of 1st Module---//
 		currentModule = modules.get(0);
 		currentModule.setupModule();
 		
-		this.antibanHandler.resumeAllAntibanThreads();
-		this.antibanHandler.pauseAntibanThread(AntiBanThread.ENTITY_EXAMINER);
-		
-		
 		Thread thread = new Thread(currentModule);
 		thread.start();
+		//---Manual Start of 1st Module---//
+		
+		//---Antiban StartUp---//
+		this.antibanHandler.startAllAntibanThreads();
+		//---Antiban StartUp---//
 		
 		debug("Controller Loaded");
+		
+		
 	}
 	
 	@Override
@@ -86,6 +97,7 @@ public class ThreadController implements KillableThread{
 		Thread.currentThread().setPriority(Thread.NORM_PRIORITY + 1);
 		while(!this.killThread) {
 			sleep(1000); //Tics every 1 second
+
 			
 			//--Checks when to change Module--//
 			if(currentModule.isReady() || !currentModule.isAlive()) {
@@ -112,8 +124,10 @@ public class ThreadController implements KillableThread{
 			
 			
 			//--If Thread Dosen't release Mouse or Keyboard--//
-				keyboardInUseFor++;
-				mouseInUseFor++;
+				if(!this.getMovementHandler().isInControl()) { //Check if movement handler has control (takes too long for debug)
+					keyboardInUseFor++;
+					mouseInUseFor++;
+				}
 				if(keyboardInUseFor >= 100) {
 					debug("ERROR");
 					debug("Keyboard In Use For Too Long!");
@@ -157,6 +171,7 @@ public class ThreadController implements KillableThread{
 	
 	public synchronized void returnKeyboardAccess() {
 		this.keyboardInUseFor = 0;
+		RandomProvider.sleep(950, 1050);
 		this.keyboardInUse = false;
 		
 		debug("Keyboard control returned");
@@ -164,6 +179,7 @@ public class ThreadController implements KillableThread{
 	
 	public synchronized void returnMouseAccess() {
 		this.mouseInUseFor = 0;
+		RandomProvider.sleep(950, 1050);
 		this.mouseInUse = false;
 		
 		debug("Mouse control returned");
@@ -243,6 +259,8 @@ public class ThreadController implements KillableThread{
 	
 	public void pauseBot(int seconds) {
 		debug("Pausing Bot...");
+		debug("Pausing Bot...");
+		debug("Pausing Bot...");
 		
 		Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
 		while(this.requestKeyboardAccess()) {RandomProvider.sleep(10);}
@@ -281,6 +299,8 @@ public class ThreadController implements KillableThread{
 	public void pauseBot() {
 		
 		debug("Pausing Bot...");
+		debug("Pausing Bot...");
+		debug("Pausing Bot...");
 		
 		Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
 		while(this.requestKeyboardAccess()) {RandomProvider.sleep(10);}
@@ -317,7 +337,10 @@ public class ThreadController implements KillableThread{
 	}
 	
 	public void killBot() {
-		debug("Killing Bot..");
+		debug("KILLING BOT");
+		debug("KILLING BOT");
+		debug("KILLING BOT");
+		
 		this.currentModule.killThread();
 		this.antibanHandler.killHandler();
 		this.gearHandler.killHandler();
@@ -327,7 +350,10 @@ public class ThreadController implements KillableThread{
 	}
 	
 	public void killClient() {
-		debug("Killing Client..");
+		debug("KILLING CLIENT");
+		debug("KILLING CLIENT");
+		debug("KILLING CLIENT");
+		
 		this.currentModule.killThread();
 		this.gearHandler.killHandler();
 		this.antibanHandler.killHandler();

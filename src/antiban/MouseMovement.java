@@ -21,7 +21,12 @@ public class MouseMovement implements KillableThread, PauseableThread {
 	@Override
 	public void run() {
 		while(!killThread) {
-			RandomProvider.sleep(5000, 5000);
+			RandomProvider.sleep(40000, 70000);
+			//RandomProvider.sleep(1000,2000);
+			if(killThread) {
+				break;
+			}
+			
 			if(!pauseThread) {
 				
 				while(controller.requestMouseAccess()) {RandomProvider.sleep(10);}
@@ -29,8 +34,19 @@ public class MouseMovement implements KillableThread, PauseableThread {
 				controller.debug("Mouese control: MouseMovement");
 				
 				controller.getGraphicHandler().setInfo("Random: Moving Mouse On Screen");
-				client.getMouse().move(new Point(RandomProvider.randomInt(100)+100,RandomProvider.randomInt(100)+100));
+				
+				int repeat = RandomProvider.randomInt(1,4);
+				controller.debug(""+repeat);
+				
+				for(int i = 0; i < repeat; i++) {
+					client.getMouse().move(new Point(RandomProvider.randomInt(RandomProvider.randomInt(40, 100),RandomProvider.randomInt(700, 750)),
+													 RandomProvider.randomInt(RandomProvider.randomInt(40, 100),RandomProvider.randomInt(440, 490))));
+					RandomProvider.sleep(200,400);
+				}
+
+				RandomProvider.sleep(1200, 1400);
 				controller.returnMouseAccess();
+				
 			}
 		}
 		

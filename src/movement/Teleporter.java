@@ -5,6 +5,7 @@ import java.util.Random;
 import org.dreambot.api.methods.map.Area;
 import org.dreambot.api.methods.map.Tile;
 
+import antiban.RandomProvider;
 import client.ClientThread;
 
 public class Teleporter {
@@ -15,10 +16,11 @@ public class Teleporter {
 	private Tile player;
 	private TeleportItem tele;
 	private ArrayList<TeleportItem> teleLocations;
-	private Random random = new Random();
 	
 	public Teleporter(ClientThread script, Area target) {
 		this.script = script;
+		script.log(""+ (script.getLocalPlayer() == null));
+		
 		this.target = target.getNearestTile(script.getLocalPlayer());
 		
 		teleLocations = new ArrayList<TeleportItem>();
@@ -67,7 +69,7 @@ public class Teleporter {
 		script.log("walk: " + walk + " teleporter: " + teleporter);
 		if(walk > teleporter) {
 			tele.getItem();
-			script.sleep(random.nextInt(250) + 500);
+			RandomProvider.sleep(500, 750);
 			tele.useTeleport();
 			//TODO: ADD check for not found teleporters 
 		}

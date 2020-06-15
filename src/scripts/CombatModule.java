@@ -47,6 +47,7 @@ public class CombatModule extends ScriptModule {
 	private boolean killThread;
 	
 	public CombatModule(ThreadController controller, ClientThread client, CombatModule.Monster monster, CombatModule.Food food, int limit, Boolean pickUp, Training skill) {
+		this.script = client;
 		eatAt = RandomProvider.randomInt(6) + 10;
 		this.limit = limit;
 		this.controller = controller;
@@ -188,8 +189,6 @@ public class CombatModule extends ScriptModule {
 		
 		this.controller.getMovementHandler().newLocation(this.locationEnum);
 		
-		new Thread(healingHandler).start();
-		
 		this.controller.getMovementHandler().teleportToLocation();
 		
 		this.controller.getGearHandler().handleGearSwap(this.getGearToSwap());
@@ -241,6 +240,8 @@ public class CombatModule extends ScriptModule {
 				
 				controller.returnKeyboardAccess();
 				controller.returnMouseAccess();
+				
+				new Thread(healingHandler).start();
 				return true;
 			}
 			else {
@@ -251,7 +252,7 @@ public class CombatModule extends ScriptModule {
 
 		}
 		else {
-			
+			new Thread(healingHandler).start();
 			return true;
 		}
 	}
@@ -294,7 +295,7 @@ public class CombatModule extends ScriptModule {
 			this.monsterName = "Giant frog";
 			this.collect.add("Big bones");
 			this.locationEnum = LocationFactory.GameLocation.COMBAT_GIANT_FROG;
-			
+			controller.debug("Loaction set");
 		}
 		else if(monster == Monster.BARBARIAN) {
 			this.monsterName = "Barbarian";
@@ -321,6 +322,9 @@ public class CombatModule extends ScriptModule {
 			this.food = "Tuna";
 			this.heal = 10;
 		}
+		
+		int realHp = script.getSkills().getRealLevel(Skill.HITPOINTS);
+		eatAt = realHp - RandomProvider.randomInt((int)(realHp * 0.2323232323)) - (heal + 1);
 		
 
 	}
@@ -356,9 +360,7 @@ public class CombatModule extends ScriptModule {
 		public void run() {
 			
 			while(!killThread) {
-				try {
-					Thread.sleep(1000 + RandomProvider.randomInt(1500));
-				} catch (InterruptedException e) {e.printStackTrace();}
+				RandomProvider.sleep(1000, 1500);
 				if(script.getSkills().getBoostedLevels(Skill.HITPOINTS) <= eatAt) {
 					controller.getGraphicHandler().setInfo("Combat trainer: Eating - " + foodEnum);
 					if(script.getInventory().contains(f -> f != null && f.getName().equals(food))) {

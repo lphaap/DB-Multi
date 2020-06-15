@@ -1,6 +1,7 @@
 package antiban;
 
 import org.dreambot.api.methods.Calculations;
+import org.dreambot.api.methods.skills.Skill;
 import org.dreambot.api.methods.tabs.Tab;
 
 import client.ClientThread;
@@ -22,7 +23,12 @@ public class StatsHovering implements KillableThread, PauseableThread {
 	@Override
 	public void run() {
 		while(!killThread) {
-			RandomProvider.sleep(5000, 5000);
+			RandomProvider.sleep(120000, 180000);
+			//RandomProvider.sleep(1000, 2000); 
+			if(killThread) {
+				break;
+			}
+			
 			if(!pauseThread) {
 				
 				while(controller.requestKeyboardAccess()) {RandomProvider.sleep(10);}
@@ -33,13 +39,29 @@ public class StatsHovering implements KillableThread, PauseableThread {
 					
 				controller.getGraphicHandler().setInfo("Random: Hovering XP");
 				client.getTabs().open(Tab.STATS);
-				client.getSkills().hoverSkill(controller.getCurrentSkill());
+				
+				if(RandomProvider.fiftyfifty()) {
+					client.getSkills().hoverSkill(controller.getCurrentSkill());
+				}
+				else {
+					client.getSkills().hoverSkill(Skill.values()[RandomProvider.randomInt(Skill.values().length)]);
+				}
+				
 				RandomProvider.sleep(2000, 3000);
+				
+				if(RandomProvider.fiftyfifty()) {
+					client.getSkills().hoverSkill(Skill.values()[RandomProvider.randomInt(Skill.values().length)]);
+					RandomProvider.sleep(1500, 2500);
+				}
+				
 				client.getTabs().open(Tab.INVENTORY);
 				client.getMouse().move();
 				
+				RandomProvider.sleep(1200, 1400);
+				
 				controller.returnKeyboardAccess();
 				controller.returnMouseAccess();
+				
 			
 			}
 		}

@@ -62,4 +62,18 @@ public class RandomProvider {
 				Thread.sleep(randomInt(split) + randomInt(split));
 			} catch (InterruptedException e) {e.printStackTrace();}
 	 }
+	 
+	 /*
+	  * 50/50 chance for false/true
+	  */
+	 public static boolean fiftyfifty() {
+		 int re = 0;
+		 re = randomInt(2);
+		 if(re == 0) {
+			 return true;
+		 }
+		 else {
+			return false;
+		 }
+	 }
 }

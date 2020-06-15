@@ -35,6 +35,7 @@ public class GearHandler implements KillableHandler {
 	
 	public GearHandler(ClientThread script, ThreadController controller) {
 		this.script = script;
+		this.controller = controller;
 		this.found = new ArrayList<Boolean>();
 		this.repeat = false;
 		
@@ -137,15 +138,15 @@ public class GearHandler implements KillableHandler {
 	
 	private void initGearLists() {
 		ArrayList<String> meleeTraining = new ArrayList<String>();
-		meleeTraining.add("Iron full helm");
+		meleeTraining.add("Purple partyhat");
 		meleeTraining.add("Iron platebody");
-		meleeTraining.add("Iron plateskirt");
-		meleeTraining.add("Iron kiteshield");
+		meleeTraining.add("Black plateskirt");
+		meleeTraining.add("Black kiteshield");
 		meleeTraining.add("Amulet of strength");
 		meleeTraining.add("Mithril scimitar");
 		//meleeTraining.add("Purple gloves");
-		//meleeTraining.add("Team-48 cape");
-		//meleeTraining.add("Leather boots");
+		meleeTraining.add("Black cape");
+		meleeTraining.add("Leather boots");
 		Collections.shuffle(meleeTraining);
 		this.melee = meleeTraining;
 		
@@ -163,13 +164,14 @@ public class GearHandler implements KillableHandler {
 		this.range = rangeTraining;
 		
 		ArrayList<String> skillTraining = new ArrayList<String>();
-		skillTraining.add("Wizard hat");
-		skillTraining.add("Amulet of glory");
-		skillTraining.add("Granite longsword");
-		skillTraining.add("Purple gloves");
-		skillTraining.add("Team-48 cape");
+		meleeTraining.add("Black kiteshield");
+		meleeTraining.add("Amulet of strength");
+		meleeTraining.add("Mithril scimitar");
+		meleeTraining.add("Purple partyhat");
+		//skillTraining.add("Purple gloves");
+		meleeTraining.add("Black cape");
 		skillTraining.add("Leather boots");
-		skillTraining.add("Brown apron");
+		//skillTraining.add("Brown apron");
 		Collections.shuffle(skillTraining);
 		this.utility = skillTraining;
 		
@@ -189,8 +191,8 @@ public class GearHandler implements KillableHandler {
 
 	public boolean completeTest() {
 		for(String piece : gear) {
-			script.log(""+gear.indexOf(piece));
-			script.log(""+found.size());
+			//script.log(""+gear.indexOf(piece));
+			//script.log(""+found.size());
 			if(found.get(gear.indexOf(piece))) {
 				if(!script.getEquipment().contains(f -> f != null && f.getName().equals(piece))) {
 					return false;

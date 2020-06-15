@@ -1,6 +1,7 @@
 package antiban;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 import client.ClientThread;
 import client.KillableHandler;
@@ -20,6 +21,8 @@ public class AntibanHandler implements KillableHandler{
 	private CameraRotate cameraMove;
 	private ArrayList<KillableThread> threads = new ArrayList<KillableThread>();
 	
+	private boolean killHandler;
+	
 	public AntibanHandler(ClientThread client, ThreadController controller) {
 		this.client = client;
 		this.controller = controller;
@@ -36,11 +39,7 @@ public class AntibanHandler implements KillableHandler{
 		threads.add(mouseMove);
 		threads.add(cameraMove);
 		
-		this.pauseAllAntibanThreads();
-		
-		for(KillableThread thread : threads) {
-			new Thread(thread).start();
-		}
+		Collections.shuffle(threads);
 	}
 	
 	public enum AntiBanThread {
@@ -73,7 +72,7 @@ public class AntibanHandler implements KillableHandler{
 			this.mouseMove.resumeThread();
 		}
 		else if(thread == AntiBanThread.MOUSE_MOVEMENT_OFF_SCREEN) {
-			this.mouseOffMove.pauseThread();
+			this.mouseOffMove.resumeThread();
 		}
 		else if(thread == AntiBanThread.CAMERA_MOVEMENT) {
 			this.cameraMove.resumeThread();
@@ -94,14 +93,31 @@ public class AntibanHandler implements KillableHandler{
 	public void resumeAllAntibanThreads() {
 			this.hoverer.resumeThread();
 			this.mouseMove.resumeThread();
-			this.mouseOffMove.pauseThread();
+			this.mouseOffMove.resumeThread();
 			this.cameraMove.resumeThread();
 			this.examiner.resumeThread();
 	}
 	
+	public void startAllAntibanThreads() {
+		
+		new Thread(() -> { 
+			for(KillableThread thread : threads) {
+				//RandomProvider.sleep(25000, 45000);
+				if(this.killHandler) {
+					break;
+				}
+				new Thread(thread).start();
+				controller.debug("Antiban " + threads.indexOf(thread) + " Started");
+			}
+		}).start();
+	}
+	
 	@Override
 	public void killHandler() {
+		this.killHandler = true;
+		
 		for(KillableThread thread : threads) {
+			
 			thread.killThread();
 		}
 	}

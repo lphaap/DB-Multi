@@ -19,8 +19,10 @@ public class MovementHandler implements KillableHandler {
 	private Area debugArea;
 
 	private boolean killHandler;
+	private boolean inControll;
 	
 	public MovementHandler(ClientThread client, ThreadController controller) {
+		this.client = client;
 		this.controller = controller;
 	}
 	
@@ -34,10 +36,12 @@ public class MovementHandler implements KillableHandler {
 		
 		controller.debug("Mouse control: MovementHandler");
 		controller.debug("Keyboard control: MovementHandler");
+		this.inControll = true;
 		
 		new Thread( () -> location.travelPhase3()).start();
 		while(!location.isPhase3Done()) {
 			if(monitorMovement()) {
+				this.inControll = false;
 				return;
 			}
 			try {
@@ -49,6 +53,7 @@ public class MovementHandler implements KillableHandler {
 		new Thread( () -> location.travelPhase2()).start();
 		while(!location.isPhase2Done()) {
 			if(monitorMovement()) {
+				this.inControll = false;
 				return;
 			}
 			try {
@@ -60,6 +65,7 @@ public class MovementHandler implements KillableHandler {
 		new Thread( () -> location.travelPhase1()).start();
 		while(!location.isPhase1Done()) {
 			if(monitorMovement()) {
+				this.inControll = false;
 				return;
 			}
 			try {
@@ -68,6 +74,7 @@ public class MovementHandler implements KillableHandler {
 		}
 		resetMonitor();
 		
+		this.inControll = false;
 		controller.returnKeyboardAccess();
 		controller.returnMouseAccess();
 		
@@ -191,6 +198,19 @@ public class MovementHandler implements KillableHandler {
 	@Override
 	public void killHandler() {
 		this.killHandler = true;
+	}
+	
+	//Does this handler have mouse/key control
+	public boolean isInControl() {
+		if(location != null && location.isTeleportInProgress()) {
+			return true;
+		}
+		else if(this.isInControl()) {
+			return true;
+		}
+		else {
+			return false;
+		}
 	}
 
 }

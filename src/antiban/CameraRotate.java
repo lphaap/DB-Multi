@@ -21,9 +21,14 @@ public class CameraRotate implements KillableThread, PauseableThread {
 	@Override
 	public void run() {
 		while(!killThread) {
-			RandomProvider.sleep(5000, 5000);
+			//controller.debug("Camera sleeping");
+			RandomProvider.sleep(30000, 45000);
+			//RandomProvider.sleep(1000,2000);
+			if(killThread) {
+				break;
+			}
+
 			if(!pauseThread){
-				
 				int random = RandomProvider.randomInt(2);
 				if(random == 0) {
 					while(controller.requestKeyboardAccess()) {RandomProvider.sleep(10);}
@@ -32,6 +37,7 @@ public class CameraRotate implements KillableThread, PauseableThread {
 					
 					controller.getGraphicHandler().setInfo("Random: Rotating Camera");
 					client.getCamera().keyboardRotateToTile(client.getLocalPlayer().getTile().getArea(6).getRandomTile());
+					RandomProvider.sleep(1200, 1400);
 					controller.returnKeyboardAccess();
 				}
 				else{
@@ -41,7 +47,9 @@ public class CameraRotate implements KillableThread, PauseableThread {
 					
 					controller.getGraphicHandler().setInfo("Random: Rotating Camera");
 					client.getCamera().mouseRotateToTile(client.getLocalPlayer().getTile().getArea(6).getRandomTile());
+					RandomProvider.sleep(1200, 1400);
 					controller.returnMouseAccess();
+					
 				}
 			}
 		}

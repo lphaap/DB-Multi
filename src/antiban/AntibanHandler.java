@@ -27,17 +27,17 @@ public class AntibanHandler implements KillableHandler{
 		this.client = client;
 		this.controller = controller;
 		
+		this.cameraMove = new CameraRotate(client, controller);
+		this.mouseOffMove = new MouseOffScreenMovement(client, controller);
 		this.examiner = new RandomExaminer(client, controller);
 		this.hoverer = new StatsHovering(client, controller);
-		this.mouseOffMove = new MouseOffScreenMovement(client, controller);
 		this.mouseMove = new MouseMovement(client, controller);
-		this.cameraMove = new CameraRotate(client, controller);
 		
+		threads.add(cameraMove);
+		threads.add(mouseOffMove);
 		threads.add(examiner);
 		threads.add(hoverer);
-		threads.add(mouseOffMove);
 		threads.add(mouseMove);
-		threads.add(cameraMove);
 		
 		Collections.shuffle(threads);
 	}
@@ -102,7 +102,7 @@ public class AntibanHandler implements KillableHandler{
 		
 		new Thread(() -> { 
 			for(KillableThread thread : threads) {
-				//RandomProvider.sleep(25000, 45000);
+				RandomProvider.sleep(25000, 45000);
 				if(this.killHandler) {
 					break;
 				}

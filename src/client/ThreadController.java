@@ -16,13 +16,13 @@ import antiban.AntibanHandler;
 import antiban.AntibanHandler.AntiBanThread;
 import antiban.RandomProvider;
 import utilities.InGameMsgHandler;
+import movement.LocationFactory;
 import movement.MovementHandler;
 
 import scripts.*;
 import scripts.CombatModule.Food;
 import scripts.CombatModule.Monster;
 import scripts.CombatModule.Training;
-import scripts.ScriptModule;
 import utilities.GearHandler;
 
 public class ThreadController implements KillableThread{
@@ -72,35 +72,37 @@ public class ThreadController implements KillableThread{
 		//---Setup Pause Parametres---//
 		
 		//---Modules---//
-		modules.add(new CombatModule(this, client, Monster.GIANT_FROG, Food.TROUT, 2, true, Training.STRENGTH));
+		modules.add(null); //DO NOT REMOVE - Needed for the start with nextModule();
+		//modules.add(new MinerModule(client, this, LocationFactory.GameLocation.MINER_WEST_VARROCK, MinerModule.Ore.TIN_ORE, false, 1));
+		modules.add(new MinerModule(client, this, LocationFactory.GameLocation.MINER_WEST_VARROCK, MinerModule.Ore.TIN_ORE, true, 1));
+		//modules.add(new MinerModule(client, this, LocationFactory.GameLocation.MINER_WEST_VARROCK, MinerModule.Ore.COPPER_ORE, 2));
+		//modules.add(new CombatModule(this, client, Monster.GIANT_FROG, Food.TROUT, 2, true, Training.STRENGTH));
 		//---Modules---//
-		
-		//---Manual Start of 1st Module---//
-		currentModule = modules.get(0);
-		currentModule.setupModule();
-		
-		Thread thread = new Thread(currentModule);
-		thread.start();
-		//---Manual Start of 1st Module---//
 		
 		//---Antiban StartUp---//
 		this.antibanHandler.startAllAntibanThreads();
 		//---Antiban StartUp---//
 		
 		debug("Controller Loaded");
-		
-		
+
 	}
 	
 	@Override
 	public void run() {
+		
 		Thread.currentThread().setPriority(Thread.NORM_PRIORITY + 1);
+		
+		//---Manual Start of 1st Module---//
+		nextModule();
+		//---Manual Start of 1st Module---//
+		
 		while(!this.killThread) {
 			sleep(1000); //Tics every 1 second
 
 			
 			//--Checks when to change Module--//
 			if(currentModule.isReady() || !currentModule.isAlive()) {
+				
 				currentModule.killThread();
 				nextModule();
 			}
@@ -114,7 +116,7 @@ public class ThreadController implements KillableThread{
 				}
 			//--PauseTimer--//
 			
-			
+				
 			//--ScriptTimer--//
 				this.scriptTimer--;
 				if(scriptTimer <= 0) {
@@ -122,9 +124,9 @@ public class ThreadController implements KillableThread{
 				}
 			//--ScriptTimer--//
 			
-			
+				
 			//--If Thread Dosen't release Mouse or Keyboard--//
-				if(!this.getMovementHandler().isInControl()) { //Check if movement handler has control (takes too long for debug)
+				if(!this.movementHandler.isInControl()) { //Check if movement handler has control (takes too long for debug)
 					keyboardInUseFor++;
 					mouseInUseFor++;
 				}
@@ -145,6 +147,7 @@ public class ThreadController implements KillableThread{
 					//TODO:this.mouseInUse = false;
 				}
 			//--If Thread Dosen't release Mouse or Keyboard--//
+
 		}
 	}
 	
@@ -388,19 +391,24 @@ public class ThreadController implements KillableThread{
 	}
 	
 	public void nextModule() {
-		debug("Loading new module");
 		
 		Thread.currentThread().setPriority(Thread.MAX_PRIORITY);		
 		
-		this.currentModule.killThread();
+		if(this.currentModule != null) {
+			this.currentModule.killThread();
+		}
+		
 		this.modules.remove(currentModule);
 		if(this.modules.size() <= 0) {
+			debug("All Modules Completed");
 			this.killBot();
 		}
 		else {
 			this.currentModule = modules.get(0);
+			debug("Loading new module: " + this.currentModule.getModuleName());
 			if(!this.currentModule.setupModule()) {
-				nextModule(); //TODO: Testaaa Rekusiivinen looppi != 100% miten käyttäytyy todellisuudessa
+				debug("Module Loading Failed");
+				nextModule(); 
 				return;
 			}
 			Thread t = new Thread(this.currentModule);

@@ -346,7 +346,7 @@ public class CombatModule extends ScriptModule {
 		if(this.error) {
 			return true;
 		}
-		else if(this.limit < this.actionsCompleted) {
+		else if(this.limit <= this.actionsCompleted) {
 			return true;
 		}
 		else { return  false; }

@@ -382,7 +382,7 @@ public class SmithingModule extends ScriptModule {
 
 		@Override
 		public boolean isReady() {
-			if((this.limit < this.actionsCompleted)) {
+			if((this.limit <= this.actionsCompleted)) {
 				return true;
 			}
 			else {

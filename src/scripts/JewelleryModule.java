@@ -429,7 +429,7 @@ public class JewelleryModule extends ScriptModule {
 
 	@Override
 	public boolean isReady() {
-		if(limit < actionsCompleted) {
+		if(limit <= actionsCompleted) {
 			return true;
 		}
 		else {

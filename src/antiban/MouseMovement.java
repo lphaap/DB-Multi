@@ -21,7 +21,7 @@ public class MouseMovement implements KillableThread, PauseableThread {
 	@Override
 	public void run() {
 		while(!killThread) {
-			RandomProvider.sleep(40000, 70000);
+			RandomProvider.sleep(30000, 60000);
 			//RandomProvider.sleep(1000,2000);
 			if(killThread) {
 				break;

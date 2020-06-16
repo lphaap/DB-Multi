@@ -94,7 +94,8 @@ public class FishingModule extends ScriptModule {
 						while(controller.requestMouseAccess()) {RandomProvider.sleep(10);}
 						
 						controller.getGraphicHandler().setInfo("Fisher: Dropping Inventory");
-						script.getInventory().dropAll();
+						//TODO: TARKISTA TÄMÄ MUUTOS
+						script.getInventory().dropAllExcept(f -> f != null && (f.getName().equals(this.bait) || f.getName().equals(this.fishingGear)));
 						this.actionsCompleted++;
 						
 						controller.returnKeyboardAccess();
@@ -348,7 +349,7 @@ public class FishingModule extends ScriptModule {
 
 	@Override
 	public boolean isReady() {
-		if(limit < actionsCompleted) {
+		if(limit <= actionsCompleted) {
 			return true;
 		}
 		else {

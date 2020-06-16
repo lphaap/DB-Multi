@@ -164,12 +164,12 @@ public class GearHandler implements KillableHandler {
 		this.range = rangeTraining;
 		
 		ArrayList<String> skillTraining = new ArrayList<String>();
-		meleeTraining.add("Black kiteshield");
-		meleeTraining.add("Amulet of strength");
-		meleeTraining.add("Mithril scimitar");
-		meleeTraining.add("Purple partyhat");
+		skillTraining.add("Black kiteshield");
+		skillTraining.add("Amulet of strength");
+		skillTraining.add("Mithril scimitar");
+		skillTraining.add("Purple partyhat");
 		//skillTraining.add("Purple gloves");
-		meleeTraining.add("Black cape");
+		skillTraining.add("Black cape");
 		skillTraining.add("Leather boots");
 		//skillTraining.add("Brown apron");
 		Collections.shuffle(skillTraining);

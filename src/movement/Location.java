@@ -66,7 +66,7 @@ public class Location {
 		
 		if(phase1 != null && !this.phase1Complete) {
 			script.sleep(RandomProvider.randomInt(1000)+2500);
-			while(!phase1.contains(script.getWalking().getDestination()) && !phase1.contains(script.getLocalPlayer()) && !killCurrentAction) {
+			while(!phase1.contains(script.getWalking().getDestination()) && !phase1.contains(script.getLocalPlayer())) {
 				script.getWalking().walk(phase1.getRandomTile());
 				script.sleep(RandomProvider.randomInt(1000)+2000);
 				
@@ -75,6 +75,11 @@ public class Location {
 					script.sleep(RandomProvider.randomInt(1000)+500);
 					runEnergyTest = RandomProvider.randomInt(10) + 1;
 				}
+				
+				if(killCurrentAction) {
+					break;
+				}
+				
 			}
 			this.phase1Complete = true;
 			this.rePhase1Complete = false;
@@ -90,13 +95,18 @@ public class Location {
 			int failSafe1 = 0;
 	
 			
-			while(!phase2.contains(script.getWalking().getDestination()) && !phase2.contains(script.getLocalPlayer()) && !killCurrentAction) {
+			while(!phase2.contains(script.getWalking().getDestination()) && !phase2.contains(script.getLocalPlayer())) {
 				script.getWalking().walk(phase2.getRandomTile());
 				script.sleep(RandomProvider.randomInt(1000)+2000);
+				
 				if(script.getWalking().getRunEnergy() >= runEnergyTest && !script.getWalking().isRunEnabled()) {
 					script.getWalking().toggleRun();
 					script.sleep(RandomProvider.randomInt(1000)+2000);
 					runEnergyTest = RandomProvider.randomInt(10) + 1;
+				}
+				
+				if(killCurrentAction) {
+					break;
 				}
 			}
 			
@@ -133,13 +143,18 @@ public class Location {
 		if(phase3 != null && !this.phase3Complete) {
 			int failSafe2 = 0;
 			
-			while(!phase3.contains(script.getWalking().getDestination()) && !phase3.contains(script.getLocalPlayer()) && !killCurrentAction) {
+			while(!phase3.contains(script.getWalking().getDestination()) && !phase3.contains(script.getLocalPlayer())) {
 				script.getWalking().walk(phase3.getRandomTile());
 				script.sleep(RandomProvider.randomInt(1000)+2000);
+				
 				if(script.getWalking().getRunEnergy() >= runEnergyTest && !script.getWalking().isRunEnabled()) {
 					script.getWalking().toggleRun();
 					script.sleep(RandomProvider.randomInt(1000)+2000);
 					runEnergyTest = RandomProvider.randomInt(10) + 1;
+				}
+				
+				if(killCurrentAction) {
+					break;
 				}
 			}
 			script.sleep(RandomProvider.randomInt(1000)+4000);
@@ -167,13 +182,18 @@ public class Location {
 	public void reTravelToBank(){
 		int runEnergyTest = RandomProvider.randomInt(10) + 1;
 		script.sleep(RandomProvider.randomInt(1000)+2000);
-		while(!script.getBank().isOpen() && !killCurrentAction) {
+		while(!script.getBank().isOpen()) {
 			script.getBank().open(script.getBank().getClosestBankLocation());
 			script.sleep(RandomProvider.randomInt(1000)+2000);
+			
 			if(script.getWalking().getRunEnergy() >= runEnergyTest && !script.getWalking().isRunEnabled()) {
 				script.getWalking().toggleRun();
 				script.sleep(RandomProvider.randomInt(1000)+2000);
 				runEnergyTest = RandomProvider.randomInt(10) + 1;
+			}
+			
+			if(killCurrentAction) {
+				break;
 			}
 		}
 		this.phase1Complete = false;
@@ -185,13 +205,18 @@ public class Location {
 		if(phase2 != null && rePhase2 != null) {
 			script.sleep(RandomProvider.randomInt(1000)+2000);
 			int failSafe1 = 0;
-			while(!rePhase2.contains(script.getWalking().getDestination()) && !rePhase2.contains(script.getLocalPlayer()) && !killCurrentAction) {
+			while(!rePhase2.contains(script.getWalking().getDestination()) && !rePhase2.contains(script.getLocalPlayer())) {
 				script.getWalking().walk(rePhase2.getRandomTile());
 				script.sleep(RandomProvider.randomInt(1000)+2000);
+				
 				if(script.getWalking().getRunEnergy() >= runEnergyTest && !script.getWalking().isRunEnabled()) {
 					script.getWalking().toggleRun();
 					script.sleep(RandomProvider.randomInt(1000)+2000);
 					runEnergyTest = RandomProvider.randomInt(10) + 1;
+				}
+				
+				if(killCurrentAction) {
+					break;
 				}
 			}
 			script.sleep(RandomProvider.randomInt(1000)+4000);
@@ -212,13 +237,18 @@ public class Location {
 		if(phase3 != null && rePhase3 != null) {
 			script.sleep(RandomProvider.randomInt(1000)+2000);
 			int failSafe2 = 0;
-			while(!rePhase3.contains(script.getWalking().getDestination()) && !rePhase3.contains(script.getLocalPlayer()) && !killCurrentAction) {
+			while(!rePhase3.contains(script.getWalking().getDestination()) && !rePhase3.contains(script.getLocalPlayer())) {
 				script.getWalking().walk(rePhase3.getRandomTile());
 				script.sleep(RandomProvider.randomInt(1000)+2000);
+				
 				if(script.getWalking().getRunEnergy() >= runEnergyTest && !script.getWalking().isRunEnabled()) {
 					script.getWalking().toggleRun();
 					script.sleep(RandomProvider.randomInt(1000)+2000);
 					runEnergyTest = RandomProvider.randomInt(10) + 1;
+				}
+				
+				if(killCurrentAction) {
+					break;
 				}
 			}
 			script.sleep(RandomProvider.randomInt(1000)+4000);

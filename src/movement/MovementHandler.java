@@ -85,8 +85,9 @@ public class MovementHandler implements KillableHandler {
 	 * @throws IllegalArgumentException
 	 */
 	public void moveToBank() {
-		while(controller.requestKeyboardAccess());
-		while(controller.requestMouseAccess());
+		while(controller.requestKeyboardAccess()) {RandomProvider.sleep(10);};
+		while(controller.requestMouseAccess()) {RandomProvider.sleep(10);};
+		this.inControll = true;
 		
 		new Thread( () -> location.reTravelPhase2()).start();
 		while(!location.isRePhase2Done()) {
@@ -121,13 +122,17 @@ public class MovementHandler implements KillableHandler {
 		}
 		resetMonitor();
 		
+		RandomProvider.sleep(2000, 3000);
+		
+		this.inControll = false;
 		controller.returnKeyboardAccess();
 		controller.returnMouseAccess();
 	}
 	
 	public void teleportToLocation() {
-		while(controller.requestKeyboardAccess());
-		while(controller.requestMouseAccess());
+		while(controller.requestKeyboardAccess()) {RandomProvider.sleep(10);};
+		while(controller.requestMouseAccess()) {RandomProvider.sleep(10);};
+		this.inControll = true;
 		
 		new Thread( () -> location.teleportToLocation()).start();
 		try {
@@ -143,6 +148,9 @@ public class MovementHandler implements KillableHandler {
 		}
 		resetMonitor();
 		
+		RandomProvider.sleep(2000, 3000);
+		
+		this.inControll = false;
 		controller.returnKeyboardAccess();
 		controller.returnMouseAccess();
 		
@@ -205,7 +213,7 @@ public class MovementHandler implements KillableHandler {
 		if(location != null && location.isTeleportInProgress()) {
 			return true;
 		}
-		else if(this.isInControl()) {
+		else if(this.inControll) {
 			return true;
 		}
 		else {

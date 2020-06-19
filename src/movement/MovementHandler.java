@@ -75,7 +75,7 @@ public class MovementHandler implements KillableHandler {
 		}
 		resetMonitor();
 		
-		RandomProvider.sleep(2000, 3000);
+		RandomProvider.sleep(1000, 1500);
 		
 		controller.debug("MOVEMENT HANDLER RETURNED ACCESS");
 		controller.debug("MOVEMENT HANDLER RETURNED ACCESS");
@@ -132,7 +132,7 @@ public class MovementHandler implements KillableHandler {
 		}
 		resetMonitor();
 		
-		RandomProvider.sleep(2000, 3000);
+		RandomProvider.sleep(1000, 1500);
 		
 		controller.debug("MOVEMENT HANDLER RETURNED ACCESS");
 		controller.debug("MOVEMENT HANDLER RETURNED ACCESS");
@@ -165,7 +165,7 @@ public class MovementHandler implements KillableHandler {
 		}
 		resetMonitor();
 		
-		RandomProvider.sleep(2000, 3000);
+		RandomProvider.sleep(1000, 1500);
 		
 		controller.debug("MOVEMENT HANDLER RETURNED ACCESS");
 		controller.debug("MOVEMENT HANDLER RETURNED ACCESS");

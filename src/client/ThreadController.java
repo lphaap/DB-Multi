@@ -24,6 +24,7 @@ import scripts.*;
 import scripts.CombatModule.Food;
 import scripts.CombatModule.Monster;
 import scripts.CombatModule.Training;
+import scripts.CookerModule.Cook;
 import utilities.GearHandler;
 
 public class ThreadController implements KillableThread{
@@ -76,9 +77,14 @@ public class ThreadController implements KillableThread{
 		modules.add(null); //DO NOT REMOVE - Needed for the start with nextModule();
 		//modules.add(new ClientTester(this, client));
 		
-		modules.add(new JewelleryModule(this, client, LocationFactory.GameLocation.SMELTER_AL_KHARID,
-					JewelleryModule.JewelleryMaterial.GOLD, JewelleryModule.JewelleryType.NECKLACE, 2));
-		//modules.add( new SmelterModule(client, this, LocationFactory.GameLocation.SMELTER_AL_KHARID, 2, SmelterModule.Bars.BRONZE));
+		//modules.add(new CookerModule(this, client, LocationFactory.GameLocation.COOKING_AL_KHARID, Cook.SHRIMP, 8));
+		modules.add(new CombatModule(this, client, Monster.GIANT_FROG, Food.TROUT, 1, true, Training.STRENGTH));
+		//modules.add(new FishingModule(this, client, FishingModule.Fish.HERRING, 2, false));
+		
+		//modules.add(new JewelleryModule(this, client, LocationFactory.GameLocation.SMELTER_AL_KHARID,
+			//		JewelleryModule.JewelleryMaterial.GOLD, JewelleryModule.JewelleryType.NECKLACE, 10));
+		
+		//modules.add( new SmelterModule(client, this, LocationFactory.GameLocation.SMELTER_AL_KHARID, 10, SmelterModule.Bars.BRONZE));
 		//modules.add(new MinerModule(client, this, LocationFactory.GameLocation.MINER_WEST_VARROCK, MinerModule.Ore.TIN_ORE, true, 1));
 		
 		//modules.add(new MinerModule(client, this, LocationFactory.GameLocation.MINER_EAST_VARROCK, MinerModule.Ore.COPPER_ORE, true, 2));
@@ -134,8 +140,12 @@ public class ThreadController implements KillableThread{
 				
 			//--If Thread Dosen't release Mouse or Keyboard--//
 				if(!this.movementHandler.isInControl()) { //Check if movement handler has control (takes too long for debug)
-					keyboardInUseFor++;
-					mouseInUseFor++;
+					if(this.keyboardInUse) {
+						keyboardInUseFor++;
+					}
+					if(this.mouseInUse) {
+						mouseInUseFor++;
+					}
 				}
 				if(keyboardInUseFor >= 100) {
 					debug("ERROR");
@@ -174,7 +184,7 @@ public class ThreadController implements KillableThread{
 	//Returns false to break asking loop if access granted otherwise true
 	//Ask control -> while(controller.requestMouseAccess()) {RandomProvider.sleep(10);}
 	public synchronized boolean requestMouseAccess() {
-		if(mouseInUse) { //Reduces mouse access request to 10per/second
+		if(mouseInUse) { 
 			return true;
 		}
 		else {
@@ -205,6 +215,7 @@ public class ThreadController implements KillableThread{
 					break;
 				}
 				debug("MOUSE MOVED SINCE RELEASE");
+				p = client.getMouse().getPosition();
 			}
 			this.mouseInUse = false;
 			this.mouseInUseFor = 0;

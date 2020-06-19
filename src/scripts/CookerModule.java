@@ -65,6 +65,9 @@ public class CookerModule extends ScriptModule {
 					while(controller.requestKeyboardAccess()) {RandomProvider.sleep(10);}
 					while(controller.requestMouseAccess()) {RandomProvider.sleep(10);}
 					
+					controller.debug("Mouse control: CookerModule");
+					controller.debug("Keyboard control: CookerModule");
+					
 					script.getBank().depositAllItems();
 					
 					if(script.getBank().contains(cookTarget)) {
@@ -96,20 +99,43 @@ public class CookerModule extends ScriptModule {
 					while(controller.requestKeyboardAccess()) {RandomProvider.sleep(10);}
 					while(controller.requestMouseAccess()) {RandomProvider.sleep(10);}
 					
+					controller.debug("Mouse control: CookerModule");
+					controller.debug("Keyboard control: CookerModule");
+					
 					GameObject heatSource = script.getGameObjects().closest(f -> f != null && f.getName().equals(cookOn));
 					
-					int randomizer = RandomProvider.randomInt(2);
+					if(heatSource != null) {
+						int randomizer = RandomProvider.randomInt(2);
+						
+						if(RandomProvider.fiftyfifty()) {
+							script.getCamera().rotateToEntity(heatSource);
+							RandomProvider.sleep(750, 1000);
+						}
 					
-					if(randomizer == 0) {
-						heatSource.interact();
-					}
-					else {
-						heatSource.interact("Cook");
-					}
 					
-					script.getMouse().move();
-					RandomProvider.sleep(1300, 2050);
-					script.getKeyboard().type(1,false);
+						if(randomizer == 0) {
+							heatSource.interact();
+						}
+						else {
+							heatSource.interact("Cook");
+						}
+						
+						if(RandomProvider.fiftyfifty()) {
+							script.getMouse().move();
+						}
+						
+						RandomProvider.sleep(1300, 2050);
+						script.getKeyboard().type(1,false);
+						
+						RandomProvider.sleep(500, 750);
+						
+						if(RandomProvider.fiftyfifty()) {
+							script.getMouse().moveMouseOutsideScreen();
+						}
+						else {
+							script.getMouse().move();
+						}
+					}
 					
 					controller.returnKeyboardAccess();
 					controller.returnMouseAccess();
@@ -176,6 +202,9 @@ public class CookerModule extends ScriptModule {
 			
 			while(controller.requestKeyboardAccess()) {RandomProvider.sleep(10);}
 			while(controller.requestMouseAccess()) {RandomProvider.sleep(10);}
+			
+			controller.debug("Mouse control: CookerModule");
+			controller.debug("Keyboard control: CookerModule");
 			
 			if(!script.getWalking().isRunEnabled() && script.getWalking().getRunEnergy() > 0) {
 				script.getWalking().toggleRun();

@@ -56,9 +56,11 @@ public class FishingModule extends ScriptModule {
 		
 			RandomProvider.sleep(2000, 3000);
 			
+			
 			if(this.error > 5) {
 				this.killThread();
 			}
+			
 			
 			if(!script.getInventory().contains(f -> f != null && f.getName().equals(fishingGear))
 				||  (!script.getInventory().contains(f -> f != null && f.getName().equals(bait)) && useBait)) {
@@ -66,6 +68,8 @@ public class FishingModule extends ScriptModule {
 			}
 			
 			if(!script.getLocalPlayer().isAnimating()) {
+				
+				controller.debug("1");
 				if(script.getInventory().isFull()) {
 					
 					if(this.bankTheFish) {
@@ -76,6 +80,9 @@ public class FishingModule extends ScriptModule {
 							else {
 								while(controller.requestKeyboardAccess()) {RandomProvider.sleep(10);}
 								while(controller.requestMouseAccess()) {RandomProvider.sleep(10);}
+								
+								controller.debug("Mouse control: FishingModule");
+								controller.debug("Keyboard control: FishingModule");
 								
 								controller.getGraphicHandler().setInfo("Fisher: Dropping Thrash Fish");
 								script.getInventory().dropAllExcept(f -> f != null && (f.getName().equals(payFish) || f.getName().equals(fishingGear) 
@@ -93,9 +100,13 @@ public class FishingModule extends ScriptModule {
 						while(controller.requestKeyboardAccess()) {RandomProvider.sleep(10);}
 						while(controller.requestMouseAccess()) {RandomProvider.sleep(10);}
 						
+						controller.debug("Mouse control: FishingModule");
+						controller.debug("Keyboard control: FishingModule");
+						
 						controller.getGraphicHandler().setInfo("Fisher: Dropping Inventory");
-						//TODO: TARKISTA TÄMÄ MUUTOS
+
 						script.getInventory().dropAllExcept(f -> f != null && (f.getName().equals(this.bait) || f.getName().equals(this.fishingGear)));
+						
 						this.actionsCompleted++;
 						
 						controller.returnKeyboardAccess();
@@ -103,7 +114,7 @@ public class FishingModule extends ScriptModule {
 					}
 				}
 				
-				else if(!controller.getMovementHandler().isPlayerInLocation()) {
+				else if(!controller.getMovementHandler().isPlayerInLocation() && !this.onFishingSpot()) {
 					controller.getGraphicHandler().setInfo("Fisher: Walking to Location - " + this.locationEnum);
 					controller.getMovementHandler().moveToLocation();
 				}
@@ -114,10 +125,28 @@ public class FishingModule extends ScriptModule {
 					while(controller.requestKeyboardAccess()) {RandomProvider.sleep(10);}
 					while(controller.requestMouseAccess()) {RandomProvider.sleep(10);}
 					
+					controller.debug("Mouse control: FishingModule");
+					controller.debug("Keyboard control: FishingModule");
+					
 					NPC fishSpot = script.getNpcs().closest(f -> f != null && f.getName().equals(fishingSpot) && f.hasAction(this.defineSpot));
 					if(fishSpot != null) {
+						
+						if(RandomProvider.fiftyfifty()) {
+							script.getCamera().rotateToEntity(fishSpot);
+							RandomProvider.sleep(750, 1000);
+						}
+						
 						fishSpot.interact(interactWith);
-						script.getMouse().move();
+						
+						RandomProvider.sleep(500, 750);
+						
+						if(RandomProvider.fiftyfifty()) {
+							script.getMouse().moveMouseOutsideScreen();
+						}
+						else {
+							script.getMouse().move();
+						}
+						RandomProvider.sleep(750, 1000);
 						this.error = 0;
 					}
 					else {
@@ -136,6 +165,16 @@ public class FishingModule extends ScriptModule {
 		
 	}
 	
+	public boolean onFishingSpot() {
+		NPC fishSpot = script.getNpcs().closest(f -> f != null && f.getName().equals(fishingSpot) && f.hasAction(this.defineSpot));
+		if(fishSpot != null && fishSpot.getTile().getArea(3).contains(script.getLocalPlayer())) {
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+	
 	public void bank() {
 		controller.getGraphicHandler().setInfo("Fisher: Inventory Full - Banking");
 		this.actionsCompleted++;
@@ -144,6 +183,9 @@ public class FishingModule extends ScriptModule {
 		
 		while(controller.requestKeyboardAccess()) {RandomProvider.sleep(10);}
 		while(controller.requestMouseAccess()) {RandomProvider.sleep(10);}
+		
+		controller.debug("Mouse control: FishingModule");
+		controller.debug("Keyboard control: FishingModule");
 		
 		script.getBank().depositAllExcept(f -> f != null && (f.getName().equals(bait) || f.getName().equals(fishingGear)));
 		
@@ -285,6 +327,9 @@ public class FishingModule extends ScriptModule {
 			while(controller.requestKeyboardAccess()) {RandomProvider.sleep(10);}
 			while(controller.requestMouseAccess()) {RandomProvider.sleep(10);}
 			
+			controller.debug("Mouse control: FishingModule");
+			controller.debug("Keyboard control: FishingModule");
+			
 			if(!script.getWalking().isRunEnabled() && script.getWalking().getRunEnergy() > 0) {
 				script.getWalking().toggleRun();
 			}
@@ -328,6 +373,7 @@ public class FishingModule extends ScriptModule {
 			}
 		}
 		else {
+			controller.debug("return true");
 			return true;
 		}
 	}

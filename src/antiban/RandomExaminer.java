@@ -71,65 +71,73 @@ public class RandomExaminer implements KillableThread, PauseableThread {
 	
 	
 	private boolean npcExamine() {
-		
-		List<NPC> found = client.getNpcs().all(f -> f != null && f.isOnScreen() && 
-											  (lastNPC == null || !f.equals(lastNPC)));
-		this.lastNPC = found.get(RandomProvider.randomInt(found.size()));
-		
-		if(this.lastNPC == null) {
-			return false;
-		}
-		else {
-			if(RandomProvider.fiftyfifty()) {
-				controller.debug("NPC: 1");
-				client.getCamera().rotateToEntity(lastNPC);
-				RandomProvider.sleep(100, 200);
-				client.getMouse().click(lastObject, true);
-				RandomProvider.sleep(600, 1000);
-				
-				//client.getMouse().move();
+		try {
+			List<NPC> found = client.getNpcs().all(f -> f != null && f.isOnScreen() && 
+												  (lastNPC == null || !f.equals(lastNPC)));
+			this.lastNPC = found.get(RandomProvider.randomInt(found.size()));
+			
+			if(this.lastNPC == null) {
+				return false;
 			}
 			else {
-				controller.debug("NPC: 2");
-				client.getCamera().rotateToEntity(lastNPC);
-				RandomProvider.sleep(100, 200);
-				this.lastNPC.interactForceRight("Examine");
-				
+				if(RandomProvider.fiftyfifty()) {
+					controller.debug("NPC: 1");
+					client.getCamera().rotateToEntity(lastNPC);
+					RandomProvider.sleep(100, 200);
+					client.getMouse().click(lastObject, true);
+					RandomProvider.sleep(600, 1000);
+					
+					//client.getMouse().move();
+				}
+				else {
+					controller.debug("NPC: 2");
+					client.getCamera().rotateToEntity(lastNPC);
+					RandomProvider.sleep(100, 200);
+					this.lastNPC.interactForceRight("Examine");
+					
+				}
+				RandomProvider.sleep(1200, 1400);
+				client.getMouse().move();
+				return true;
 			}
-			RandomProvider.sleep(1200, 1400);
-			client.getMouse().move();
-			return true;
+		}
+		catch(Exception e) {
+			return false;
 		}
 	}
 	
 	private boolean objectExamine() {
-
-		List<GameObject> found = client.getGameObjects().all(f -> f != null && f.isOnScreen() && 
-															(lastObject == null || !f.equals(lastObject)));
-		this.lastObject = found.get(RandomProvider.randomInt(found.size()));
-		
-		if(this.lastObject == null) {
-			return false;
-		}
-		else {
-			if(RandomProvider.fiftyfifty()) {
-				controller.debug("Object: 1");
-				client.getCamera().rotateToEntity(lastObject);
-				RandomProvider.sleep(100, 200);
-				client.getMouse().click(lastObject, true);
-				RandomProvider.sleep(600, 1000);
-				//client.getMouse().move();
-
+		try {
+			List<GameObject> found = client.getGameObjects().all(f -> f != null && f.isOnScreen() && 
+																(lastObject == null || !f.equals(lastObject)));
+			this.lastObject = found.get(RandomProvider.randomInt(found.size()));
+			
+			if(this.lastObject == null) {
+				return false;
 			}
 			else {
-				controller.debug("Object: 2");
-				client.getCamera().rotateToEntity(lastObject);
-				RandomProvider.sleep(100, 200);
-				this.lastObject.interactForceRight("Examine");
+				if(RandomProvider.fiftyfifty()) {
+					controller.debug("Object: 1");
+					client.getCamera().rotateToEntity(lastObject);
+					RandomProvider.sleep(100, 200);
+					client.getMouse().click(lastObject, true);
+					RandomProvider.sleep(600, 1000);
+					//client.getMouse().move();
+	
+				}
+				else {
+					controller.debug("Object: 2");
+					client.getCamera().rotateToEntity(lastObject);
+					RandomProvider.sleep(100, 200);
+					this.lastObject.interactForceRight("Examine");
+				}
+				RandomProvider.sleep(1200, 1400);
+				client.getMouse().move();
+				return true;
 			}
-			RandomProvider.sleep(1200, 1400);
-			client.getMouse().move();
-			return true;
+		}
+		catch(Exception e) {
+			return false;
 		}
 	}
 

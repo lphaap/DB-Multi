@@ -48,7 +48,7 @@ public class SmelterModule extends ScriptModule {
 	public void run() {
 
 		while(!this.killThread) {
-			RandomProvider.sleep(2000, 3000);
+			RandomProvider.sleep(1500, 2200);
 			
 			if(!script.getLocalPlayer().isAnimating()) {
 				if(!(script.getInventory().count(f -> f != null && f.getName().contains(bar.getOreName1())) >= bar.getOreCost1()) ||

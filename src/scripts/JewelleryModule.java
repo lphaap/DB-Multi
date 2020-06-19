@@ -71,7 +71,7 @@ public class JewelleryModule extends ScriptModule {
 		
 		while(!killThread) {
 			
-			RandomProvider.sleep(2000, 3000);
+			RandomProvider.sleep(1500, 2200);
 			
 			if(!script.getLocalPlayer().isAnimating()) {
 				
@@ -86,6 +86,9 @@ public class JewelleryModule extends ScriptModule {
 					
 					while(controller.requestKeyboardAccess()) {RandomProvider.sleep(10);}
 					while(controller.requestMouseAccess()) {RandomProvider.sleep(10);}
+					
+					controller.debug("Mouse control: JewelleryModule");
+					controller.debug("Keyboard control: JewelleryModule");
 					
 					if(!script.getInventory().isEmpty()) {
 						script.getBank().depositAllExcept(f -> f != null && f.getName().equals(mouldName));	
@@ -160,6 +163,9 @@ public class JewelleryModule extends ScriptModule {
 					
 					while(controller.requestKeyboardAccess()) {RandomProvider.sleep(10);}
 					while(controller.requestMouseAccess()) {RandomProvider.sleep(10);}
+					
+					controller.debug("Mouse control: JewelleryModule");
+					controller.debug("Keyboard control: JewelleryModule");
 					
 					controller.getGraphicHandler().setInfo("Jewellery: Smelting Jeweles - " + this.materialEnum + " - " + this.typeEnum);
 					GameObject furnace = script.getGameObjects().closest(f -> f != null && f.getName().toLowerCase().contains("furnace"));
@@ -266,6 +272,9 @@ public class JewelleryModule extends ScriptModule {
 			
 		while(controller.requestKeyboardAccess()) {RandomProvider.sleep(10);}
 		while(controller.requestMouseAccess()) {RandomProvider.sleep(10);}
+		
+		controller.debug("Mouse control: JewelleryModule");
+		controller.debug("Keyboard control: JewelleryModule");
 		
 			if(!script.getWalking().isRunEnabled() && script.getWalking().getRunEnergy() > 0) {
 				script.getWalking().toggleRun();
@@ -390,8 +399,11 @@ public class JewelleryModule extends ScriptModule {
 					}
 					else if(materialEnum == JewelleryMaterial.DRAGONSTONE) {
 					}
-				}/*
+				}
 				else if(typeEnum == JewelleryType.BRACELET) {
+					
+					this.killThread = true; //TODO:
+					/*
 					if(materialEnum == JewelleryMaterial.GOLD) {
 					}
 					else if(materialEnum == JewelleryMaterial.SAPPHIRE) {
@@ -403,8 +415,8 @@ public class JewelleryModule extends ScriptModule {
 					else if(materialEnum == JewelleryMaterial.DIAMOND) {
 					}
 					else if(materialEnum == JewelleryMaterial.DRAGONSTONE) {
-					}
-				}*/
+					}*/
+				}
 				
 			}
 			catch(Exception e) {}

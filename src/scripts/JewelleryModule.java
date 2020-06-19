@@ -163,32 +163,29 @@ public class JewelleryModule extends ScriptModule {
 					
 					controller.getGraphicHandler().setInfo("Jewellery: Smelting Jeweles - " + this.materialEnum + " - " + this.typeEnum);
 					GameObject furnace = script.getGameObjects().closest(f -> f != null && f.getName().toLowerCase().contains("furnace"));
-					int tester = RandomProvider.randomInt(2);
-					if(tester == 0) {
-						furnace.interact("Smelt");
-						script.getMouse().move();
-					}
-					else {
-						furnace.interact();
-						script.getMouse().move();
-					}
-					if(this.firsInteract) {
-						int failSafe = 0;
-						if(this.widgetSet) {
-							while(!this.setWidget() || failSafe > 5){
-								failSafe++;	
-							}
-							if(failSafe < 5) {
-								widgetSet = false;
-							}
-							
-						}
-	
-						RandomProvider.sleep(1400, 2600);
-						widget.interact();
-						script.getMouse().move();
-					}
 					
+					if(furnace != null) {
+						int tester = RandomProvider.randomInt(2);
+						
+						if(RandomProvider.fiftyfifty()) {
+							script.getCamera().rotateToEntity(furnace);
+							RandomProvider.sleep(750, 1000);
+						}
+						
+						if(tester == 0) {
+							furnace.interact("Smelt");
+							script.getMouse().move();
+						}
+						else {
+							furnace.interact();
+							script.getMouse().move();
+						}
+						
+						
+						RandomProvider.sleep(1300, 1600);
+						this.interactWithWidget();
+						
+					}
 					controller.returnKeyboardAccess();
 					controller.returnMouseAccess();
 					
@@ -328,90 +325,98 @@ public class JewelleryModule extends ScriptModule {
 		return Skill.CRAFTING;
 	}
 	
-	public boolean setWidget() {
-		RandomProvider.sleep(3000, 3750);
-		if(this.widget != null) {
-			return true;
-		}
-		try {
-			if(typeEnum == JewelleryType.RING) {
-				if(materialEnum == JewelleryMaterial.GOLD) {
-					this.widget = script.getWidgets().getWidget(446).getChild(7);
+	public void interactWithWidget() {
+		int failsafe = 0;
+		this.widget = null;
+		
+		while(!killThread && failsafe < 5) {
+			RandomProvider.sleep(1000, 1250);
+			failsafe++;
+			try {
+				if(typeEnum == JewelleryType.RING) {
+					if(materialEnum == JewelleryMaterial.GOLD) {
+						this.widget = script.getWidgets().getWidget(446).getChild(7);
+					}
+					else if(materialEnum == JewelleryMaterial.SAPPHIRE) {
+						this.widget = script.getWidgets().getWidget(446).getChild(8);
+					}
+					else if(materialEnum == JewelleryMaterial.EMERALD) {
+						this.widget = script.getWidgets().getWidget(446).getChild(9);
+					}
+					else if(materialEnum == JewelleryMaterial.RUBY) {
+						this.widget = script.getWidgets().getWidget(446).getChild(10);
+					}
+					else if(materialEnum == JewelleryMaterial.DIAMOND) {
+						this.widget = script.getWidgets().getWidget(446).getChild(11);
+					}
+					else if(materialEnum == JewelleryMaterial.DRAGONSTONE) {
+					}
+					
 				}
-				else if(materialEnum == JewelleryMaterial.SAPPHIRE) {
-					this.widget = script.getWidgets().getWidget(446).getChild(8);
+				else if(typeEnum == JewelleryType.NECKLACE) {
+					if(materialEnum == JewelleryMaterial.GOLD) {
+						this.widget = script.getWidgets().getWidget(446).getChild(21);
+					}
+					else if(materialEnum == JewelleryMaterial.SAPPHIRE) {
+						this.widget = script.getWidgets().getWidget(446).getChild(22);
+					}
+					else if(materialEnum == JewelleryMaterial.EMERALD) {
+						this.widget = script.getWidgets().getWidget(446).getChild(23);
+					}
+					else if(materialEnum == JewelleryMaterial.RUBY) {
+						this.widget = script.getWidgets().getWidget(446).getChild(24);
+					}
+					else if(materialEnum == JewelleryMaterial.DIAMOND) {
+						this.widget = script.getWidgets().getWidget(446).getChild(25);
+					}
+					else if(materialEnum == JewelleryMaterial.DRAGONSTONE) {
+					}
 				}
-				else if(materialEnum == JewelleryMaterial.EMERALD) {
-					this.widget = script.getWidgets().getWidget(446).getChild(9);
-				}
-				else if(materialEnum == JewelleryMaterial.RUBY) {
-					this.widget = script.getWidgets().getWidget(446).getChild(10);
-				}
-				else if(materialEnum == JewelleryMaterial.DIAMOND) {
-					this.widget = script.getWidgets().getWidget(446).getChild(11);
-				}
-				else if(materialEnum == JewelleryMaterial.DRAGONSTONE) {
-				}
+				else if(typeEnum == JewelleryType.AMULET) {
+					if(materialEnum == JewelleryMaterial.GOLD) {
+						this.widget = script.getWidgets().getWidget(446).getChild(34);
+					}
+					else if(materialEnum == JewelleryMaterial.SAPPHIRE) {
+						this.widget = script.getWidgets().getWidget(446).getChild(35);
+					}
+					else if(materialEnum == JewelleryMaterial.EMERALD) {
+						this.widget = script.getWidgets().getWidget(446).getChild(36);
+					}
+					else if(materialEnum == JewelleryMaterial.RUBY) {
+						this.widget = script.getWidgets().getWidget(446).getChild(37);
+					}
+					else if(materialEnum == JewelleryMaterial.DIAMOND) {
+						this.widget = script.getWidgets().getWidget(446).getChild(38);
+					}
+					else if(materialEnum == JewelleryMaterial.DRAGONSTONE) {
+					}
+				}/*
+				else if(typeEnum == JewelleryType.BRACELET) {
+					if(materialEnum == JewelleryMaterial.GOLD) {
+					}
+					else if(materialEnum == JewelleryMaterial.SAPPHIRE) {
+					}
+					else if(materialEnum == JewelleryMaterial.EMERALD) {
+					}
+					else if(materialEnum == JewelleryMaterial.RUBY) {
+					}
+					else if(materialEnum == JewelleryMaterial.DIAMOND) {
+					}
+					else if(materialEnum == JewelleryMaterial.DRAGONSTONE) {
+					}
+				}*/
 				
 			}
-			else if(typeEnum == JewelleryType.NECKLACE) {
-				if(materialEnum == JewelleryMaterial.GOLD) {
-					this.widget = script.getWidgets().getWidget(446).getChild(21);
-				}
-				else if(materialEnum == JewelleryMaterial.SAPPHIRE) {
-					this.widget = script.getWidgets().getWidget(446).getChild(22);
-				}
-				else if(materialEnum == JewelleryMaterial.EMERALD) {
-					this.widget = script.getWidgets().getWidget(446).getChild(23);
-				}
-				else if(materialEnum == JewelleryMaterial.RUBY) {
-					this.widget = script.getWidgets().getWidget(446).getChild(24);
-				}
-				else if(materialEnum == JewelleryMaterial.DIAMOND) {
-					this.widget = script.getWidgets().getWidget(446).getChild(25);
-				}
-				else if(materialEnum == JewelleryMaterial.DRAGONSTONE) {
-				}
+			catch(Exception e) {}
+			if(this.widget != null) {
+				widget.interact();
+				RandomProvider.sleep(500, 750);
+				script.getMouse().move();
+				RandomProvider.sleep(500, 750);
+				return;
 			}
-			else if(typeEnum == JewelleryType.AMULET) {
-				if(materialEnum == JewelleryMaterial.GOLD) {
-					this.widget = script.getWidgets().getWidget(446).getChild(34);
-				}
-				else if(materialEnum == JewelleryMaterial.SAPPHIRE) {
-					this.widget = script.getWidgets().getWidget(446).getChild(35);
-				}
-				else if(materialEnum == JewelleryMaterial.EMERALD) {
-					this.widget = script.getWidgets().getWidget(446).getChild(36);
-				}
-				else if(materialEnum == JewelleryMaterial.RUBY) {
-					this.widget = script.getWidgets().getWidget(446).getChild(37);
-				}
-				else if(materialEnum == JewelleryMaterial.DIAMOND) {
-					this.widget = script.getWidgets().getWidget(446).getChild(38);
-				}
-				else if(materialEnum == JewelleryMaterial.DRAGONSTONE) {
-				}
-			}
-			else if(typeEnum == JewelleryType.BRACELET) {
-				if(materialEnum == JewelleryMaterial.GOLD) {
-				}
-				else if(materialEnum == JewelleryMaterial.SAPPHIRE) {
-				}
-				else if(materialEnum == JewelleryMaterial.EMERALD) {
-				}
-				else if(materialEnum == JewelleryMaterial.RUBY) {
-				}
-				else if(materialEnum == JewelleryMaterial.DIAMOND) {
-				}
-				else if(materialEnum == JewelleryMaterial.DRAGONSTONE) {
-				}
-			}
-
+			
 		}
-		catch(Exception e) {
-			return false;
-		}
-		return false;
 	}
 
 	@Override

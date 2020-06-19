@@ -117,23 +117,35 @@ public class SmelterModule extends ScriptModule {
 				else if(!script.getLocalPlayer().isAnimating()) {
 					controller.getGraphicHandler().setInfo("Smelter: Smelting - " + barEnum);
 					GameObject furnace = script.getGameObjects().closest(f -> f != null && f.getName().toLowerCase().contains("furnace"));
+					
 					int tester = RandomProvider.randomInt(2);
+					int tester2 = RandomProvider.randomInt(2);
 	
 					while(controller.requestKeyboardAccess()) {RandomProvider.sleep(10);}
 					while(controller.requestMouseAccess()) {RandomProvider.sleep(10);}
 					
-					if(tester == 0) {
-						furnace.interact("Smelt");
-						script.getMouse().move();
-					}
-					else {
-						furnace.interact();
-						script.getMouse().move();
-					}
-					RandomProvider.sleep(950, 1750);
-					script.getKeyboard().type(bar.getKeyboardNumber(),false);
+					if(furnace != null) {
+						
+						if(tester2 == 0) {
+							script.getCamera().rotateToEntity(furnace);
+							RandomProvider.sleep(750, 1000);
+						}
+						
+						if(tester == 0) {
+							furnace.interact("Smelt");
+							script.getMouse().move();
+						}
+						else {
+							furnace.interact();
+							script.getMouse().move();
+						}
+						RandomProvider.sleep(1150, 1750);
+						script.getKeyboard().type(bar.getKeyboardNumber(),false);
+						
+						RandomProvider.sleep(750, 1750);
 					
-					RandomProvider.sleep(750, 1750);
+					}
+					
 					controller.returnKeyboardAccess();
 					controller.returnMouseAccess();
 				}

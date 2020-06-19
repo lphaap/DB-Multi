@@ -1,5 +1,6 @@
 package client;
 
+import java.awt.Point;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
@@ -73,8 +74,11 @@ public class ThreadController implements KillableThread{
 		
 		//---Modules---//
 		modules.add(null); //DO NOT REMOVE - Needed for the start with nextModule();
-		//modules.add(new MinerModule(client, this, LocationFactory.GameLocation.MINER_WEST_VARROCK, MinerModule.Ore.TIN_ORE, false, 1));
+		//modules.add(new ClientTester(this, client));
+		
 		modules.add(new MinerModule(client, this, LocationFactory.GameLocation.MINER_WEST_VARROCK, MinerModule.Ore.TIN_ORE, true, 1));
+		
+		//modules.add(new MinerModule(client, this, LocationFactory.GameLocation.MINER_EAST_VARROCK, MinerModule.Ore.COPPER_ORE, true, 2));
 		//modules.add(new MinerModule(client, this, LocationFactory.GameLocation.MINER_WEST_VARROCK, MinerModule.Ore.COPPER_ORE, 2));
 		//modules.add(new CombatModule(this, client, Monster.GIANT_FROG, Food.TROUT, 2, true, Training.STRENGTH));
 		//---Modules---//
@@ -151,41 +155,76 @@ public class ThreadController implements KillableThread{
 		}
 	}
 	
+	//Returns false to break asking loop if access granted otherwise true
+	//Ask control -> while(controller.requestKeyboardAccess()) {RandomProvider.sleep(10);}
 	public synchronized boolean requestKeyboardAccess() {
 		if(keyboardInUse || client.getKeyboard().isTyping()) {
-			return false;
+			return true;
 		}
 		else {
 			keyboardInUse = true;
-			return true; 
+			return false; 
 		}
 		
 	}
 	
+	//Returns false to break asking loop if access granted otherwise true
+	//Ask control -> while(controller.requestMouseAccess()) {RandomProvider.sleep(10);}
 	public synchronized boolean requestMouseAccess() {
-		if(mouseInUse) {
-			return false;
+		if(mouseInUse) { //Reduces mouse access request to 10per/second
+			return true;
 		}
 		else {
 			mouseInUse = true;
-			return true; 
+			return false; 
 		}
 	}
+
 	
 	public synchronized void returnKeyboardAccess() {
 		this.keyboardInUseFor = 0;
-		RandomProvider.sleep(950, 1050);
+		//RandomProvider.sleep(950, 1050);
+		sleep(300);
 		this.keyboardInUse = false;
 		
 		debug("Keyboard control returned");
 	}
 	
 	public synchronized void returnMouseAccess() {
-		this.mouseInUseFor = 0;
-		RandomProvider.sleep(950, 1050);
-		this.mouseInUse = false;
 		
-		debug("Mouse control returned");
+		
+		new Thread( () -> {
+			Point p = client.getMouse().getPosition();
+			//RandomProvider.sleep(950, 1050);
+			while(true && !this.killThread) {
+				sleep(300);
+				if(p.equals(client.getMouse().getPosition())) {
+					break;
+				}
+				debug("MOUSE MOVED SINCE RELEASE");
+			}
+			this.mouseInUse = false;
+			this.mouseInUseFor = 0;
+			debug("Mouse control returned");
+		}).start();
+		
+		
+		
+	}
+	
+	//Samples if mouse is moving
+	//return true if moving else false
+	public synchronized boolean mouseInUse() {
+		Point p = client.getMouse().getPosition();
+		
+		for(int i = 0; i < 20; i++) {
+			sleep(10);
+			if(!p.equals(client.getMouse().getPosition())) {
+				return true;
+			}
+		}
+		
+		return false;
 	}
 	
 	public synchronized void restartModule() {

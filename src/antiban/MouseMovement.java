@@ -31,12 +31,17 @@ public class MouseMovement implements KillableThread, PauseableThread {
 				
 				while(controller.requestMouseAccess()) {RandomProvider.sleep(10);}
 				
+				if(killThread) {
+					controller.returnMouseAccess();
+					break;
+				}
+				
 				controller.debug("Mouese control: MouseMovement");
 				
 				controller.getGraphicHandler().setInfo("Random: Moving Mouse On Screen");
 				
 				int repeat = RandomProvider.randomInt(1,4);
-				controller.debug(""+repeat);
+				//controller.debug(""+repeat);
 				
 				for(int i = 0; i < repeat; i++) {
 					client.getMouse().move(new Point(RandomProvider.randomInt(RandomProvider.randomInt(40, 100),RandomProvider.randomInt(700, 750)),

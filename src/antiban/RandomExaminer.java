@@ -39,6 +39,11 @@ public class RandomExaminer implements KillableThread, PauseableThread {
 				 
 				while(controller.requestMouseAccess()) {RandomProvider.sleep(10);}
 				
+				if(killThread) {
+					controller.returnMouseAccess();
+					break;
+				}
+				
 				controller.debug("Mouse control: EntityExaminer");
 				
 				controller.getGraphicHandler().setInfo("Random: Examining random target");

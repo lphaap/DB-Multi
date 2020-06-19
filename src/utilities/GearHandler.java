@@ -48,12 +48,18 @@ public class GearHandler implements KillableHandler {
 	 * Handles its own accsess control
 	 */
 	public void handleGearSwap(Gear gear) {
-		if(this.currentGear == gear) {
+		if(this.currentGear == gear ) {
 			return;
 		}
 		else {
+			
 			this.setGearList(gear);
 			this.currentGear = gear;
+			
+			if(manualGearCheck()) {
+				return;
+			}
+			
 		}
 		
 		while(controller.requestKeyboardAccess());
@@ -112,8 +118,16 @@ public class GearHandler implements KillableHandler {
 		debugArea = null;
 	}
 	
+	private boolean manualGearCheck() {
+		for(String gear : this.gear) {
+			if(!script.getEquipment().contains(f -> f != null && f.getName().equals(gear))) {
+				return false;
+			}
+		}
+		return true;
+	}
 	
-	
+
 	private void setGearList(Gear gear) {
 		switch(gear) {
 		

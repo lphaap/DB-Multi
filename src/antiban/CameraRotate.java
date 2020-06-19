@@ -33,6 +33,11 @@ public class CameraRotate implements KillableThread, PauseableThread {
 				if(random == 0) {
 					while(controller.requestKeyboardAccess()) {RandomProvider.sleep(10);}
 					
+					if(killThread) {
+						controller.returnKeyboardAccess();
+						break;
+					}
+					
 					controller.debug("Keyboard control: CameraRotate");
 					
 					controller.getGraphicHandler().setInfo("Random: Rotating Camera");
@@ -42,6 +47,11 @@ public class CameraRotate implements KillableThread, PauseableThread {
 				}
 				else{
 					while(controller.requestMouseAccess()) {RandomProvider.sleep(10);}
+					
+					if(killThread) {
+						controller.returnMouseAccess();
+						break;
+					}
 					
 					controller.debug("Mouse control: CameraRotate");
 					

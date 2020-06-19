@@ -64,7 +64,7 @@ public class Location {
 			this.phase1Complete = false;
 		}
 		
-		if(phase1 != null && !this.phase1Complete) {
+		if(phase1 != null && !this.phase1Complete) { //
 			script.sleep(RandomProvider.randomInt(1000)+2500);
 			while(!phase1.contains(script.getWalking().getDestination()) && !phase1.contains(script.getLocalPlayer())) {
 				script.getWalking().walk(phase1.getRandomTile());
@@ -180,6 +180,8 @@ public class Location {
 	}
 	
 	public void reTravelToBank(){
+		rePhase1Complete = false;
+		
 		int runEnergyTest = RandomProvider.randomInt(10) + 1;
 		script.sleep(RandomProvider.randomInt(1000)+2000);
 		while(!script.getBank().isOpen()) {
@@ -202,7 +204,7 @@ public class Location {
 	
 	public void reTravelPhase2() {
 		int runEnergyTest = RandomProvider.randomInt(10) + 1;
-		if(phase2 != null && rePhase2 != null) {
+		if(phase2 != null && rePhase2 != null && !this.rePhase2Complete) {
 			script.sleep(RandomProvider.randomInt(1000)+2000);
 			int failSafe1 = 0;
 			while(!rePhase2.contains(script.getWalking().getDestination()) && !rePhase2.contains(script.getLocalPlayer())) {
@@ -234,7 +236,7 @@ public class Location {
 	}
 	public void reTravelPhase3() {
 		int runEnergyTest = RandomProvider.randomInt(10) + 1;
-		if(phase3 != null && rePhase3 != null) {
+		if(phase3 != null && rePhase3 != null && !this.rePhase3Complete) {
 			script.sleep(RandomProvider.randomInt(1000)+2000);
 			int failSafe2 = 0;
 			while(!rePhase3.contains(script.getWalking().getDestination()) && !rePhase3.contains(script.getLocalPlayer())) {
@@ -486,10 +488,9 @@ public class Location {
 		}
 	}
 	public boolean isReBankingDone() {
-		
-			return this.phase1Complete;
-	
+			return this.rePhase1Complete;
 	}
+	
 	public boolean isRePhase2Done() {
 		if(this.rePhase2 != null) {
 			return this.rePhase2Complete;
@@ -498,6 +499,7 @@ public class Location {
 			return true;
 		}
 	}
+	
 	public boolean isTeleportInProgress() {
 		return this.teleportInProgress;
 	}

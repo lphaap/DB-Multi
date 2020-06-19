@@ -130,9 +130,10 @@ public class SmelterModule extends ScriptModule {
 						furnace.interact();
 						script.getMouse().move();
 					}
-					RandomProvider.sleep(750, 1750);
+					RandomProvider.sleep(950, 1750);
 					script.getKeyboard().type(bar.getKeyboardNumber(),false);
 					
+					RandomProvider.sleep(750, 1750);
 					controller.returnKeyboardAccess();
 					controller.returnMouseAccess();
 				}

@@ -15,7 +15,7 @@ public class MouseOffScreenMovement extends MouseMovement {
 	public void run() {
 		while(!killThread) {
 			RandomProvider.sleep(100000, 180000);
-			
+			//RandomProvider.sleep(1000, 2000);
 			if(killThread) {
 				break;
 			}
@@ -23,6 +23,11 @@ public class MouseOffScreenMovement extends MouseMovement {
 			if(!pauseThread) {
 
 				while(controller.requestMouseAccess()) {RandomProvider.sleep(10);}
+				
+				if(killThread) {
+					controller.returnMouseAccess();
+					break;
+				}
 				
 				controller.debug("Mouse control: MouseOffScreen");
 				

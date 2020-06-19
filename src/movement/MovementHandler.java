@@ -36,6 +36,7 @@ public class MovementHandler implements KillableHandler {
 		
 		controller.debug("Mouse control: MovementHandler");
 		controller.debug("Keyboard control: MovementHandler");
+		
 		this.inControll = true;
 		
 		new Thread( () -> location.travelPhase3()).start();
@@ -74,6 +75,11 @@ public class MovementHandler implements KillableHandler {
 		}
 		resetMonitor();
 		
+		RandomProvider.sleep(2000, 3000);
+		
+		controller.debug("MOVEMENT HANDLER RETURNED ACCESS");
+		controller.debug("MOVEMENT HANDLER RETURNED ACCESS");
+		
 		this.inControll = false;
 		controller.returnKeyboardAccess();
 		controller.returnMouseAccess();
@@ -87,6 +93,10 @@ public class MovementHandler implements KillableHandler {
 	public void moveToBank() {
 		while(controller.requestKeyboardAccess()) {RandomProvider.sleep(10);};
 		while(controller.requestMouseAccess()) {RandomProvider.sleep(10);};
+		
+		controller.debug("Mouse control: MovementHandler");
+		controller.debug("Keyboard control: MovementHandler");
+		
 		this.inControll = true;
 		
 		new Thread( () -> location.reTravelPhase2()).start();
@@ -124,6 +134,9 @@ public class MovementHandler implements KillableHandler {
 		
 		RandomProvider.sleep(2000, 3000);
 		
+		controller.debug("MOVEMENT HANDLER RETURNED ACCESS");
+		controller.debug("MOVEMENT HANDLER RETURNED ACCESS");
+		
 		this.inControll = false;
 		controller.returnKeyboardAccess();
 		controller.returnMouseAccess();
@@ -132,6 +145,10 @@ public class MovementHandler implements KillableHandler {
 	public void teleportToLocation() {
 		while(controller.requestKeyboardAccess()) {RandomProvider.sleep(10);};
 		while(controller.requestMouseAccess()) {RandomProvider.sleep(10);};
+		
+		controller.debug("Mouse control: MovementHandler");
+		controller.debug("Keyboard control: MovementHandler");
+		
 		this.inControll = true;
 		
 		new Thread( () -> location.teleportToLocation()).start();
@@ -149,6 +166,9 @@ public class MovementHandler implements KillableHandler {
 		resetMonitor();
 		
 		RandomProvider.sleep(2000, 3000);
+		
+		controller.debug("MOVEMENT HANDLER RETURNED ACCESS");
+		controller.debug("MOVEMENT HANDLER RETURNED ACCESS");
 		
 		this.inControll = false;
 		controller.returnKeyboardAccess();

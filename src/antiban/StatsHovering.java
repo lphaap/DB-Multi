@@ -34,6 +34,12 @@ public class StatsHovering implements KillableThread, PauseableThread {
 				while(controller.requestKeyboardAccess()) {RandomProvider.sleep(10);}
 				while(controller.requestMouseAccess()) {RandomProvider.sleep(10);}
 				
+				if(killThread) {
+					controller.returnKeyboardAccess();
+					controller.returnMouseAccess();
+					break;
+				}
+				
 				controller.debug("Keyboard control: StatsHovering");
 				controller.debug("Mouse control: StatsHovering");
 					

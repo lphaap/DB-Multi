@@ -153,9 +153,9 @@ public class GearHandler implements KillableHandler {
 	private void initGearLists() {
 		ArrayList<String> meleeTraining = new ArrayList<String>();
 		meleeTraining.add("Purple partyhat");
-		meleeTraining.add("Iron platebody");
-		meleeTraining.add("Black plateskirt");
-		meleeTraining.add("Black kiteshield");
+		meleeTraining.add("Adamant platebody");
+		meleeTraining.add("Adamant plateskirt");
+		meleeTraining.add("Adamant kiteshield");
 		meleeTraining.add("Amulet of strength");
 		meleeTraining.add("Mithril scimitar");
 		//meleeTraining.add("Purple gloves");
@@ -178,7 +178,7 @@ public class GearHandler implements KillableHandler {
 		this.range = rangeTraining;
 		
 		ArrayList<String> skillTraining = new ArrayList<String>();
-		skillTraining.add("Black kiteshield");
+		skillTraining.add("Adamant kiteshield");
 		skillTraining.add("Amulet of strength");
 		skillTraining.add("Mithril scimitar");
 		skillTraining.add("Purple partyhat");

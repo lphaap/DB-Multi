@@ -423,8 +423,14 @@ public class JewelleryModule extends ScriptModule {
 			if(this.widget != null) {
 				widget.interact();
 				RandomProvider.sleep(500, 750);
-				script.getMouse().move();
-				RandomProvider.sleep(500, 750);
+				if(RandomProvider.fiftyfifty()) {
+					script.getMouse().move();
+					RandomProvider.sleep(500, 750);
+				}
+				else {
+					script.getMouse().moveMouseOutsideScreen();
+					RandomProvider.sleep(500, 750);
+				}
 				return;
 			}
 			

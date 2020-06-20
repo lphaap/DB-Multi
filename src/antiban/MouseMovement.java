@@ -46,7 +46,7 @@ public class MouseMovement implements KillableThread, PauseableThread {
 				for(int i = 0; i < repeat; i++) {
 					client.getMouse().move(new Point(RandomProvider.randomInt(RandomProvider.randomInt(40, 100),RandomProvider.randomInt(700, 750)),
 													 RandomProvider.randomInt(RandomProvider.randomInt(40, 100),RandomProvider.randomInt(440, 490))));
-					RandomProvider.sleep(200,400);
+					RandomProvider.sleep(200,300);
 				}
 
 				RandomProvider.sleep(1200, 1400);

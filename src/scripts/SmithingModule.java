@@ -58,6 +58,7 @@ public class SmithingModule extends ScriptModule {
 		this.error = false;
 		
 		this.actionTester = 0;
+		this.limit = limit;
 		
 		this.locationEnum = location;
 		this.materialEnum = material;
@@ -70,14 +71,14 @@ public class SmithingModule extends ScriptModule {
 		
 		while(!this.killThread) {
 			
-			RandomProvider.sleep(2000, 3000);
+			RandomProvider.sleep(1500, 2200);
 		
 			if(!script.getLocalPlayer().isAnimating()) {
 				if(script.getInventory().count(f -> f != null && f.getName().equals(barText)) < barsRequired) {
 					
 					controller.getGraphicHandler().setInfo("Smither: Inventory Done - Banking");
 					
-					this.actionsCompleted++;
+					
 					
 					controller.getMovementHandler().moveToBank();
 					
@@ -88,7 +89,7 @@ public class SmithingModule extends ScriptModule {
 					RandomProvider.sleep(1000, 1750);
 					
 					if(script.getBank().count(f -> f != null && f.getName().equals(barText)) > barsRequired) {
-						RandomProvider.sleep(1000, 1750);
+						RandomProvider.sleep(500, 750);
 						
 						script.getBank().withdrawAll(f -> f != null && f.getName().equals(barText));
 					}
@@ -105,6 +106,8 @@ public class SmithingModule extends ScriptModule {
 					RandomProvider.sleep(500, 1250);
 	
 					script.getMouse().move();
+					
+					this.actionsCompleted++;
 					
 					controller.returnKeyboardAccess();
 					controller.returnMouseAccess();
@@ -146,36 +149,47 @@ public class SmithingModule extends ScriptModule {
 					while(controller.requestKeyboardAccess()) {RandomProvider.sleep(10);}
 					while(controller.requestMouseAccess()) {RandomProvider.sleep(10);}
 					
-					if(tester == 0) {
-						anvil.interact("Smith");
-						script.getMouse().move();
-					}
-					else {
-						anvil.interact();
-						script.getMouse().move();
-					}
+					if(anvil != null) {
 					
-					
-					if(this.firsInteract) {
-						int failSafe = 0;
-						if(this.widgetSet) {
-							while(!this.setWidget() || failSafe > 5){
-								failSafe++;	
-							}
-							if(failSafe < 5) {
-								widgetSet = false;
-							}
-							
+						if(RandomProvider.fiftyfifty()) {
+							script.getCamera().rotateToEntity(anvil);
+							RandomProvider.sleep(750, 1000);
 						}
-	
-						RandomProvider.sleep(1500, 2500);
-						if(interactWith != null) {
-							widget.interact(interactWith);
+						
+						if(tester == 0) {
+							anvil.interact("Smith");
+							script.getMouse().move();
 						}
 						else {
-							this.setWidget();
+							anvil.interact();
+							script.getMouse().move();
 						}
-						script.getMouse().move();
+						
+						RandomProvider.sleep(1300, 1600);
+						this.interactWithWidget();
+						
+						/*
+						if(this.firsInteract) {
+							int failSafe = 0;
+							if(this.widgetSet) {
+								while(!this.setWidget() || failSafe > 5){
+									failSafe++;	
+								}
+								if(failSafe < 5) {
+									widgetSet = false;
+								}
+								
+							}
+		
+							RandomProvider.sleep(1500, 2500);
+							if(interactWith != null) {
+								widget.interact(interactWith);
+							}
+							else {
+								this.setWidget();
+							}
+							script.getMouse().move();
+						}*/
 					}
 					
 					controller.returnKeyboardAccess();
@@ -301,65 +315,78 @@ public class SmithingModule extends ScriptModule {
 			}
 		}
 		
-		public boolean setWidget() {
-			RandomProvider.sleep(3000, 3750);
-			if(this.widget != null) {
-				return true;
-			}
-			try {
-				if(type == SmithingType.PLATEBODY) {
-					this.widget = script.getWidgets().getWidget(312).getChild(22);
-					this.interactWith = "Smith";
-					return true;
-					
-				}
-				else if(type == SmithingType.PLATELEGS) {
-					this.widget = script.getWidgets().getWidget(312).getChild(20);
-					this.interactWith = "Smith";
-					return true;
-	
-				}
-				else if(type == SmithingType.NAILS) {
-					this.widget = script.getWidgets().getWidget(312).getChild(23);
-					this.interactWith = "Smith set";
-					return true;
+		public void interactWithWidget() {
+			int failsafe = 0;
+			this.widget = null;
+			
+			while(!killThread && failsafe < 5) {
+				RandomProvider.sleep(1000, 1250);
+				failsafe++;
 				
-				}
-				else if(type == SmithingType.SCIMITAR) {
-					this.widget = script.getWidgets().getWidget(312).getChild(11);
-					this.interactWith = "Smith";
-					return true;
+				try {
+					if(type == SmithingType.PLATEBODY) {
+						this.widget = script.getWidgets().getWidget(312).getChild(22);
+						this.interactWith = "Smith";
+						
+					}
+					else if(type == SmithingType.PLATELEGS) {
+						this.widget = script.getWidgets().getWidget(312).getChild(20);
+						this.interactWith = "Smith";
 					
-				}
-				else if(type == SmithingType.FULL_HELM) {
-					this.widget = script.getWidgets().getWidget(312).getChild(25);
-					this.interactWith = "Smith";
-					return true;
+		
+					}
+					else if(type == SmithingType.NAILS) {
+						this.widget = script.getWidgets().getWidget(312).getChild(23);
+						this.interactWith = "Smith set";
 					
-				}
-				else if(type == SmithingType.ARROW_HEAD) {
-					this.widget = script.getWidgets().getWidget(312).getChild(30);
-					this.interactWith = "Smith set";
-					return true;
 					
-				}
-				else if(type == SmithingType.KITE_SHIELD) {
-					this.widget = script.getWidgets().getWidget(312).getChild(27);
-					this.interactWith = "Smith";
-					return true;
+					}
+					else if(type == SmithingType.SCIMITAR) {
+						this.widget = script.getWidgets().getWidget(312).getChild(11);
+						this.interactWith = "Smith";
 					
-				}
-				else if(type == SmithingType.KNIVES) {
-					this.widget = script.getWidgets().getWidget(312).getChild(31);
-					this.interactWith = "Smith set";
-					return true;
+						
+					}
+					else if(type == SmithingType.FULL_HELM) {
+						this.widget = script.getWidgets().getWidget(312).getChild(25);
+						this.interactWith = "Smith";
 					
+						
+					}
+					else if(type == SmithingType.ARROW_HEAD) {
+						this.widget = script.getWidgets().getWidget(312).getChild(30);
+						this.interactWith = "Smith set";
+						
+						
+					}
+					else if(type == SmithingType.KITE_SHIELD) {
+						this.widget = script.getWidgets().getWidget(312).getChild(27);
+						this.interactWith = "Smith";
+					
+						
+					}
+					else if(type == SmithingType.KNIVES) {
+						this.widget = script.getWidgets().getWidget(312).getChild(31);
+						this.interactWith = "Smith set";
+					
+					}
 				}
+				catch(Exception e) {}
+				if(this.widget != null) {
+					widget.interact();
+					RandomProvider.sleep(500, 750);
+					if(RandomProvider.fiftyfifty()) {
+						script.getMouse().move();
+						RandomProvider.sleep(500, 750);
+					}
+					else {
+						script.getMouse().moveMouseOutsideScreen();
+						RandomProvider.sleep(500, 750);
+					}
+					return;
+				}
+			
 			}
-			catch(Exception e) {
-				return false;
-			}
-			return false;
 		}
 
 		@Override

@@ -31,8 +31,12 @@ public class MovementHandler implements KillableHandler {
 	 * @throws IllegalArgumentException
 	 */
 	public void moveToLocation() {
+		
+		
 		while(controller.requestKeyboardAccess()) {RandomProvider.sleep(10);};
 		while(controller.requestMouseAccess()) {RandomProvider.sleep(10);};
+		
+		RandomProvider.sleep(600, 1000);
 		
 		controller.debug("Mouse control: MovementHandler");
 		controller.debug("Keyboard control: MovementHandler");
@@ -91,8 +95,12 @@ public class MovementHandler implements KillableHandler {
 	 * @throws IllegalArgumentException
 	 */
 	public void moveToBank() {
+		
+		
 		while(controller.requestKeyboardAccess()) {RandomProvider.sleep(10);};
 		while(controller.requestMouseAccess()) {RandomProvider.sleep(10);};
+		
+		RandomProvider.sleep(600, 1000);
 		
 		controller.debug("Mouse control: MovementHandler");
 		controller.debug("Keyboard control: MovementHandler");
@@ -145,6 +153,8 @@ public class MovementHandler implements KillableHandler {
 	public void teleportToLocation() {
 		while(controller.requestKeyboardAccess()) {RandomProvider.sleep(10);};
 		while(controller.requestMouseAccess()) {RandomProvider.sleep(10);};
+		
+		RandomProvider.sleep(600, 1000);
 		
 		controller.debug("Mouse control: MovementHandler");
 		controller.debug("Keyboard control: MovementHandler");

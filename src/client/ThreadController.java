@@ -77,8 +77,10 @@ public class ThreadController implements KillableThread{
 		modules.add(null); //DO NOT REMOVE - Needed for the start with nextModule();
 		//modules.add(new ClientTester(this, client));
 		
+		modules.add(new SmithingModule(this, client, SmithingModule.SmithingType.SCIMITAR, SmithingModule.SmithingMaterial.IRON, LocationFactory.GameLocation.SMITHING_WEST_VARROCK, 4));
+		
 		//modules.add(new CookerModule(this, client, LocationFactory.GameLocation.COOKING_AL_KHARID, Cook.SHRIMP, 8));
-		modules.add(new CombatModule(this, client, Monster.GIANT_FROG, Food.TROUT, 1, true, Training.STRENGTH));
+		//modules.add(new CombatModule(this, client, Monster.GIANT_FROG, Food.TROUT, 1, true, Training.STRENGTH));
 		//modules.add(new FishingModule(this, client, FishingModule.Fish.HERRING, 2, false));
 		
 		//modules.add(new JewelleryModule(this, client, LocationFactory.GameLocation.SMELTER_AL_KHARID,
@@ -111,7 +113,7 @@ public class ThreadController implements KillableThread{
 		
 		while(!this.killThread) {
 			sleep(1000); //Tics every 1 second
-
+			
 			
 			//--Checks when to change Module--//
 			if(currentModule.isReady() || !currentModule.isAlive()) {
@@ -124,7 +126,7 @@ public class ThreadController implements KillableThread{
 			//--PauseTimer--//
 				this.pauseTimer--;
 				if(pauseTimer <= 0) {
-					pauseBot();
+					//pauseBot();
 					pauseTimer = RandomProvider.randomInt(90*60, 125*60);
 				}
 			//--PauseTimer--//

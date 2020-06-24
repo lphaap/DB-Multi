@@ -120,7 +120,8 @@ public class ClientThread extends AbstractScript implements AdvancedMessageListe
 		}
 		sleep(RandomProvider.randomInt(300,500));
 		getWidgets().getWidget(182).getChild(12).interact();
-		sleep(RandomProvider.randomInt(300,500));
+		sleep(RandomProvider.randomInt(600,1000));
+		getMouse().moveMouseOutsideScreen();
 		controller.debug("Log Out Completed");
 	}
 	

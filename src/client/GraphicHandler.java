@@ -11,17 +11,22 @@ public class GraphicHandler {
 	private String scriptTimer;
 	private Font generalFont;
 	private boolean isOnPause;
+	private ThreadController controller;
 	
-	public GraphicHandler() {
+	public GraphicHandler(ThreadController controller) {
 		this.generalFont = new Font("Arial", Font.BOLD, 15);
 		this.info = "";
 		this.pause = "";
 		this.pauseTimer = "";
 		this.scriptTimer = "";
+		this.controller = controller;
 	}
 	
 	public void handleGraphics(Graphics g) {
 		if(!isOnPause) {
+			this.scriptTimer = "Time left in Script: " + controller.timeLeftInScript() + " Minutes";
+			this.pauseTimer = "Time Until Pause: " + controller.timeLeftUntillPause() + " Minutes";
+			
 			g.setColor(Color.YELLOW);
 			g.setFont(generalFont);
 			g.drawString(this.info,5,334);

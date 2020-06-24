@@ -60,7 +60,7 @@ public class ThreadController implements KillableThread{
 		debug("Controller Start");
 		
 		//---Setup Handlers---//
-		this.graphicHandler = new GraphicHandler();
+		this.graphicHandler = new GraphicHandler(this);
 		this.inGameMsgHandler = new InGameMsgHandler(client, this);
 		this.movementHandler = new MovementHandler(client, this);
 		this.gearHandler = new GearHandler(client, this);
@@ -77,7 +77,7 @@ public class ThreadController implements KillableThread{
 		modules.add(null); //DO NOT REMOVE - Needed for the start with nextModule();
 		//modules.add(new ClientTester(this, client));
 		
-		modules.add(new SmithingModule(this, client, SmithingModule.SmithingType.SCIMITAR, SmithingModule.SmithingMaterial.IRON, LocationFactory.GameLocation.SMITHING_WEST_VARROCK, 4));
+		//modules.add(new SmithingModule(this, client, SmithingModule.SmithingType.SCIMITAR, SmithingModule.SmithingMaterial.IRON, LocationFactory.GameLocation.SMITHING_WEST_VARROCK, 4));
 		
 		//modules.add(new CookerModule(this, client, LocationFactory.GameLocation.COOKING_AL_KHARID, Cook.SHRIMP, 8));
 		//modules.add(new CombatModule(this, client, Monster.GIANT_FROG, Food.TROUT, 1, true, Training.STRENGTH));
@@ -91,7 +91,7 @@ public class ThreadController implements KillableThread{
 		
 		//modules.add(new MinerModule(client, this, LocationFactory.GameLocation.MINER_EAST_VARROCK, MinerModule.Ore.COPPER_ORE, true, 2));
 		//modules.add(new MinerModule(client, this, LocationFactory.GameLocation.MINER_WEST_VARROCK, MinerModule.Ore.COPPER_ORE, 2));
-		//modules.add(new CombatModule(this, client, Monster.GIANT_FROG, Food.TROUT, 2, true, Training.STRENGTH));
+		modules.add(new CombatModule(this, client, Monster.GIANT_FROG, Food.TROUT, 2, 40, true, Training.STRENGTH));
 		//---Modules---//
 		
 		//---Antiban StartUp---//
@@ -111,6 +111,8 @@ public class ThreadController implements KillableThread{
 		nextModule();
 		//---Manual Start of 1st Module---//
 		
+		//this.pauseTimer = 70;
+		
 		while(!this.killThread) {
 			sleep(1000); //Tics every 1 second
 			
@@ -126,7 +128,7 @@ public class ThreadController implements KillableThread{
 			//--PauseTimer--//
 				this.pauseTimer--;
 				if(pauseTimer <= 0) {
-					//pauseBot();
+					pauseBot();
 					pauseTimer = RandomProvider.randomInt(90*60, 125*60);
 				}
 			//--PauseTimer--//
@@ -386,12 +388,16 @@ public class ThreadController implements KillableThread{
 		
 		client.logIn();
 		
+		RandomProvider.sleep(4000, 6000);
+		
 		this.returnKeyboardAccess();
 		this.returnMouseAccess();
 		
 		this.graphicHandler.togglePause();
 		
 		Thread.currentThread().setPriority(Thread.NORM_PRIORITY);
+		
+		
 	}
 	
 	public void killBot() {

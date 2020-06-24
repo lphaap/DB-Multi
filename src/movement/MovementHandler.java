@@ -123,7 +123,7 @@ public class MovementHandler implements KillableHandler {
 			if(monitorMovement()) {
 				return;
 			}
-			try {
+			try { 
 				Thread.sleep(1000);
 			} catch (InterruptedException e) {e.printStackTrace();}
 		}

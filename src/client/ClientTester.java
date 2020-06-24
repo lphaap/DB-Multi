@@ -6,6 +6,7 @@ import org.dreambot.api.methods.skills.Skill;
 
 import antiban.RandomProvider;
 import scripts.ScriptModule;
+import utilities.WorldHandler;
 
 public class ClientTester extends ScriptModule {
 	boolean killThread;
@@ -31,7 +32,27 @@ public class ClientTester extends ScriptModule {
 
 	@Override
 	public void run() {
+		WorldHandler w = controller.getWorldHandler();
+		
+		w.hopWorlds();
+		
+		RandomProvider.sleep(1000, 2000);
+		
+		w.hopWorlds();
+		
+		w.setToActive();
+		w.setToBanking();
+		w.setPlayerLimit(1);
+		RandomProvider.sleep(9500,10000);
+		
+		w.setToUnBanking();
+		
 		while(!killThread) {
+			
+			
+			
+			
+			/*
 			RandomProvider.sleep(1000, 2000);
 			
 			while(controller.requestKeyboardAccess()) {RandomProvider.sleep(10);};
@@ -49,6 +70,7 @@ public class ClientTester extends ScriptModule {
 			controller.returnKeyboardAccess();
 			controller.returnMouseAccess();
 			controller.debug("TESTER CONTROL RETURN");
+			*/
 		}
 
 	}

@@ -180,14 +180,14 @@ public class MageTrainerModule extends ScriptModule{
 						controller.returnKeyboardAccess();
 						controller.returnMouseAccess();
 						
-						controller.hopWorlds();
+						controller.getWorldHandler().hopWorlds();
 					}
 					else if(target.isInteractedWith() && !target.isInteracting(script.getLocalPlayer())) {
 						
 						controller.returnKeyboardAccess();
 						controller.returnMouseAccess();
 						
-						controller.hopWorlds();
+						controller.getWorldHandler().hopWorlds();
 					}
 				}
 				int failSafe = 0;

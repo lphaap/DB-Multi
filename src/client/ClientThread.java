@@ -80,33 +80,6 @@ public class ClientThread extends AbstractScript implements AdvancedMessageListe
 	
 
 	//--Usseful methods that fit this class the most--//
-	void hopWorlds() {
-		
-		World w;
-		if(this.getClient().isMembers()) {
-			w = getWorlds().getRandomWorld(f -> f != null && f.isMembers() && !f.isDeadmanMode() && !f.isPVP() && f.getMinimumLevel() == 0);
-		}
-		else {
-			w = getWorlds().getRandomWorld(f -> f != null && !f.isMembers() && !f.isDeadmanMode() && !f.isPVP() && f.getMinimumLevel() == 0);
-		}
-		
-		while(getPlayers().localPlayer().isInCombat()) {
-			sleep(RandomProvider.randomInt(500, 1000));
-		}
-		sleep(RandomProvider.randomInt(12000, 14000));
-		
-		getWorldHopper().openWorldHopper();
-		getWorldHopper().hopWorld(w);
-		sleep(Calculations.random(3000, 4000));
-		
-		getWorldHopper().closeWorldHopper();
-		sleep(1000);
-		
-		getTabs().open(Tab.INVENTORY);
-		getMouse().move();
-		
-	}
-	
 	
 	void logOut() {
 		getRandomManager().disableSolver(RandomEvent.LOGIN);

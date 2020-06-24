@@ -1,8 +1,10 @@
-package client;
+package utilities;
 
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
+
+import client.ThreadController;
 
 public class GraphicHandler {
 	private String info; 

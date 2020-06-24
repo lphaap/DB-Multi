@@ -51,12 +51,12 @@ public class InGameMsgHandler {
 	
 	private void processPlayer(Message msg) {
 		if(filterSpaceAndCaps(msg.getMessage()).contains("bot")) {
-			controller.hopWorlds();
+			controller.getWorldHandler().hopWorlds();
 		}
 		else if(autoReact) {
 			sendMsgInGame(greetingMsg.get(RandomProvider.randomInt(greetingMsg.size())));
 			sendMsgInGame(worldSwapMsg.get(RandomProvider.randomInt(greetingMsg.size())));
-			controller.hopWorlds();
+			controller.getWorldHandler().hopWorlds();
 		}
 		else {
 			controller.debug("Msg From " + msg.getUsername() + ": " +  msg.getMessage());

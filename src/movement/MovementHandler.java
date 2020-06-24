@@ -142,8 +142,8 @@ public class MovementHandler implements KillableHandler {
 		
 		RandomProvider.sleep(1000, 1500);
 		
-		controller.debug("MOVEMENT HANDLER RETURNED ACCESS");
-		controller.debug("MOVEMENT HANDLER RETURNED ACCESS");
+		//controller.debug("MOVEMENT HANDLER RETURNED ACCESS");
+	//	controller.debug("MOVEMENT HANDLER RETURNED ACCESS");
 		
 		this.inControll = false;
 		controller.returnKeyboardAccess();
@@ -177,8 +177,8 @@ public class MovementHandler implements KillableHandler {
 		
 		RandomProvider.sleep(1000, 1500);
 		
-		controller.debug("MOVEMENT HANDLER RETURNED ACCESS");
-		controller.debug("MOVEMENT HANDLER RETURNED ACCESS");
+		//controller.debug("MOVEMENT HANDLER RETURNED ACCESS");
+	//	controller.debug("MOVEMENT HANDLER RETURNED ACCESS");
 		
 		this.inControll = false;
 		controller.returnKeyboardAccess();

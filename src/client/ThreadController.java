@@ -17,6 +17,7 @@ import antiban.AntibanHandler;
 import antiban.AntibanHandler.AntiBanThread;
 import antiban.RandomProvider;
 import utilities.InGameMsgHandler;
+import utilities.WorldHandler;
 import movement.LocationFactory;
 import movement.MovementHandler;
 
@@ -26,6 +27,7 @@ import scripts.CombatModule.Monster;
 import scripts.CombatModule.Training;
 import scripts.CookerModule.Cook;
 import utilities.GearHandler;
+import utilities.GraphicHandler;
 
 public class ThreadController implements KillableThread{
 	private ClientThread client; //-> Will be passed to other classes since it's used so reqularly
@@ -44,6 +46,7 @@ public class ThreadController implements KillableThread{
 	private MovementHandler movementHandler;
 	private GearHandler gearHandler;
 	private AntibanHandler antibanHandler;
+	private WorldHandler worldHandler;
 	
 	private int keyboardInUseFor;
 	private int mouseInUseFor;
@@ -65,6 +68,7 @@ public class ThreadController implements KillableThread{
 		this.movementHandler = new MovementHandler(client, this);
 		this.gearHandler = new GearHandler(client, this);
 		this.antibanHandler = new AntibanHandler(client, this);
+		this.worldHandler = new WorldHandler(this, client);
 		debug("Handlers loaded");
 		//---Setup Handlers---//
 		
@@ -75,7 +79,7 @@ public class ThreadController implements KillableThread{
 		
 		//---Modules---//
 		modules.add(null); //DO NOT REMOVE - Needed for the start with nextModule();
-		//modules.add(new ClientTester(this, client));
+		modules.add(new ClientTester(this, client));
 		
 		//modules.add(new SmithingModule(this, client, SmithingModule.SmithingType.SCIMITAR, SmithingModule.SmithingMaterial.IRON, LocationFactory.GameLocation.SMITHING_WEST_VARROCK, 4));
 		
@@ -91,12 +95,14 @@ public class ThreadController implements KillableThread{
 		
 		//modules.add(new MinerModule(client, this, LocationFactory.GameLocation.MINER_EAST_VARROCK, MinerModule.Ore.COPPER_ORE, true, 2));
 		//modules.add(new MinerModule(client, this, LocationFactory.GameLocation.MINER_WEST_VARROCK, MinerModule.Ore.COPPER_ORE, 2));
-		modules.add(new CombatModule(this, client, Monster.GIANT_FROG, Food.TROUT, 2, 40, true, Training.STRENGTH));
+		//modules.add(new CombatModule(this, client, Monster.GIANT_FROG, Food.TROUT, 2, 40, true, Training.STRENGTH));
+		
 		//---Modules---//
 		
-		//---Antiban StartUp---//
+		//---Active Handler StartUp---//
 		this.antibanHandler.startAllAntibanThreads();
-		//---Antiban StartUp---//
+		this.worldHandler.start();
+		//---Active Handler StartUp---//
 		
 		debug("Controller Loaded");
 
@@ -106,6 +112,7 @@ public class ThreadController implements KillableThread{
 	public void run() {
 		
 		Thread.currentThread().setPriority(Thread.NORM_PRIORITY + 1);
+		
 		
 		//---Manual Start of 1st Module---//
 		nextModule();
@@ -433,23 +440,7 @@ public class ThreadController implements KillableThread{
 		this.currentModule.killThread();
 		this.killThread();
 	}
-	
-	public void hopWorlds() {
-		
-		debug("Hopping Worlds..");
-		graphicHandler.setInfo("Hopping Worlds..");
-		
-		Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
-		while(this.requestKeyboardAccess()) {RandomProvider.sleep(10);}
-		while(this.requestMouseAccess()) {RandomProvider.sleep(10);}
-		
-		client.hopWorlds();
-		
-		this.returnKeyboardAccess();
-		this.returnMouseAccess();
-		
-		Thread.currentThread().setPriority(Thread.NORM_PRIORITY);
-	}
+
 	
 	public void nextModule() {
 		
@@ -513,6 +504,9 @@ public class ThreadController implements KillableThread{
 	
 	public GearHandler getGearHandler() {
 		return this.gearHandler;
+	}
+	public WorldHandler getWorldHandler() {
+		return this.worldHandler;
 	}
 	
 }

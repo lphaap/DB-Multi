@@ -36,6 +36,7 @@ public class CombatModule extends ScriptModule {
 	private int limit;
 	private int timeLimit;
 	private int actionsCompleted;
+	private int playerLimit;
 	
 	private Training skill;
 	private Monster monsterEnum;
@@ -106,6 +107,10 @@ public class CombatModule extends ScriptModule {
 				
 				if(!script.getInventory().contains(f -> f != null && f.getName().equals(food))) {
 					
+					if(!this.controller.getWorldHandler().isBanking()) {
+						this.controller.getWorldHandler().setToBanking();
+					}
+					
 					controller.getGraphicHandler().setInfo("Combat trainer: No Food Left - Banking");
 					
 					controller.getMovementHandler().moveToBank();
@@ -145,11 +150,18 @@ public class CombatModule extends ScriptModule {
 				}
 				
 				else if(!controller.getMovementHandler().isPlayerInLocation()) {
+					if(!this.controller.getWorldHandler().isBanking()) {
+						this.controller.getWorldHandler().setToBanking();
+					}
+					
 					controller.getGraphicHandler().setInfo("Combat trainer: Moving to Location - " + locationEnum);
 					controller.getMovementHandler().moveToLocation();
 				}
 				
 				else if(!script.getLocalPlayer().isAnimating() && !script.getLocalPlayer().isInCombat()) {
+					if(this.controller.getWorldHandler().isBanking()) {
+						this.controller.getWorldHandler().setToUnBanking();
+					}
 					
 					if(script.getEquipment().getItemInSlot(EquipmentSlot.WEAPON.getSlot()) == null) {
 						controller.debug("CombatTrainer - Module ERROR");
@@ -205,6 +217,9 @@ public class CombatModule extends ScriptModule {
 		this.controller.getMovementHandler().teleportToLocation();
 		
 		this.controller.getGearHandler().handleGearSwap(this.getGearToSwap());
+		
+		this.controller.getWorldHandler().setToActive();
+		this.controller.getWorldHandler().setPlayerLimit(this.playerLimit);
 		
 		controller.getGraphicHandler().setInfo("Combat trainer: Setting up module");
 		if(!script.getInventory().contains(f -> f != null && f.getName().equals(food))) {
@@ -308,17 +323,18 @@ public class CombatModule extends ScriptModule {
 			this.monsterName = "Giant frog";
 			this.collect.add("Big bones");
 			this.locationEnum = LocationFactory.GameLocation.COMBAT_GIANT_FROG;
-			controller.debug("Loaction set");
+			this.playerLimit = 3;
 		}
 		else if(monster == Monster.BARBARIAN) {
 			this.monsterName = "Barbarian";
 			this.locationEnum = LocationFactory.GameLocation.COMBAT_BARBARIAN;
+			this.playerLimit = 3000;
 			
 		}
 		else if(monster == Monster.EXPERIMENT) {
 			this.monsterName = "Experiment";
 			this.locationEnum = LocationFactory.GameLocation.COMBAT_EXPERIMENTS;
-			
+			this.playerLimit = 1;
 		}
 	}
 	

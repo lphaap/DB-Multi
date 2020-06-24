@@ -5,6 +5,7 @@ import java.awt.Point;
 import org.dreambot.api.methods.skills.Skill;
 
 import antiban.RandomProvider;
+import movement.LocationFactory.GameLocation;
 import scripts.ScriptModule;
 import utilities.WorldHandler;
 
@@ -32,29 +33,19 @@ public class ClientTester extends ScriptModule {
 
 	@Override
 	public void run() {
-		WorldHandler w = controller.getWorldHandler();
-		
-		w.hopWorlds();
-		
-		RandomProvider.sleep(1000, 2000);
-		
-		w.hopWorlds();
-		
-		w.setToActive();
-		w.setToBanking();
-		w.setPlayerLimit(1);
-		RandomProvider.sleep(9500,10000);
-		
-		w.setToUnBanking();
+
 		
 		while(!killThread) {
 			
 			
-			
-			
-			/*
 			RandomProvider.sleep(1000, 2000);
-			
+			controller.getMovementHandler().newLocation(GameLocation.COMBAT_GIANT_FROG);
+			try {
+				controller.debug("Players:"+client.getPlayers().all(f -> f != null && controller.getMovementHandler().getMainLocation().contains(f)).size());
+			}catch(Exception e) {
+				e.printStackTrace();
+			}
+			/*
 			while(controller.requestKeyboardAccess()) {RandomProvider.sleep(10);};
 			controller.debug("TESTER KEY CONTROL");
 			while(controller.requestMouseAccess()) {RandomProvider.sleep(10);};

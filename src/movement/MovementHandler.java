@@ -232,6 +232,10 @@ public class MovementHandler implements KillableHandler {
 	public Tile getRandomLocationTile() {
 		return this.location.randomTragetTile();
 	}
+	
+	public Area getMainLocation() {
+		return this.location.getMainArea();
+	}
 
 	@Override
 	public void killHandler() {

@@ -324,7 +324,7 @@ public class ThreadController implements KillableThread{
 		this.telegramHandler = telegram;
 	}*/
 	
-	public void pauseBot(int seconds) {
+	private void pauseBot(int seconds) {
 		debug("Pausing Bot...");
 		debug("Pausing Bot...");
 		debug("Pausing Bot...");
@@ -416,6 +416,7 @@ public class ThreadController implements KillableThread{
 		this.antibanHandler.killHandler();
 		this.gearHandler.killHandler();
 		this.movementHandler.killHandler();
+		this.worldHandler.killHandler();
 		this.killThread();
 		client.stop();
 	}
@@ -429,6 +430,7 @@ public class ThreadController implements KillableThread{
 		this.gearHandler.killHandler();
 		this.antibanHandler.killHandler();
 		this.movementHandler.killHandler();
+		this.worldHandler.killHandler();
 		this.killThread();
 		client.stop();
 		System.exit(0);
@@ -436,8 +438,11 @@ public class ThreadController implements KillableThread{
 	
 	//Avoid infinite loop if called from ClientThread().stop();
 	public void killController() {
-		this.antibanHandler.killHandler();
 		this.currentModule.killThread();
+		this.gearHandler.killHandler();
+		this.antibanHandler.killHandler();
+		this.movementHandler.killHandler();
+		this.worldHandler.killHandler();
 		this.killThread();
 	}
 
@@ -458,6 +463,7 @@ public class ThreadController implements KillableThread{
 		else {
 			this.currentModule = modules.get(0);
 			debug("Loading new module: " + this.currentModule.getModuleName());
+			this.worldHandler.resetHandler();
 			if(!this.currentModule.setupModule()) {
 				debug("Module Loading Failed");
 				nextModule(); 

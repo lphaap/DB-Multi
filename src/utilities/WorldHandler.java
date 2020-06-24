@@ -39,7 +39,8 @@ public class WorldHandler implements KillableHandler {
 				RandomProvider.sleep(4000,5000);
 				
 				if(active && !banking && hopCounter <= 0) {//IF1
-					if(client.getPlayerCount() > playerLimit) {//IF2
+					if((client.getPlayers().all(f -> f != null && ! f.equals(client.getLocalPlayer()) && 
+						controller.getMovementHandler().getMainLocation().contains(f)).size()) > playerLimit) {//IF2
 						
 						while(controller.requestKeyboardAccess()) {RandomProvider.sleep(10);}
 						while(controller.requestMouseAccess()) {RandomProvider.sleep(10);}

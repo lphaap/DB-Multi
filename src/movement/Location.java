@@ -438,6 +438,10 @@ public class Location {
 		return phase1.contains(script.getLocalPlayer());
 	}
 	
+	public Area getMainArea() {
+		return this.phase1;
+	}
+	
 	public void killCurrentAction() {
 		this.killCurrentAction = true;
 	}

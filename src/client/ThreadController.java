@@ -47,6 +47,7 @@ public class ThreadController implements KillableThread{
 	private GearHandler gearHandler;
 	private AntibanHandler antibanHandler;
 	private WorldHandler worldHandler;
+	private ScriptExceptionHandler exceptionHandler;
 	
 	private int keyboardInUseFor;
 	private int mouseInUseFor;
@@ -69,6 +70,7 @@ public class ThreadController implements KillableThread{
 		this.gearHandler = new GearHandler(client, this);
 		this.antibanHandler = new AntibanHandler(client, this);
 		this.worldHandler = new WorldHandler(this, client);
+		this.exceptionHandler = new ScriptExceptionHandler(this);
 		debug("Handlers loaded");
 		//---Setup Handlers---//
 		
@@ -79,7 +81,9 @@ public class ThreadController implements KillableThread{
 		
 		//---Modules---//
 		modules.add(null); //DO NOT REMOVE - Needed for the start with nextModule();
-		modules.add(new ClientTester(this, client));
+		//modules.add(new ClientTester(this, client));
+		
+		modules.add(new CombatModule(this, client, Monster.GIANT_FROG, Food.TROUT, 2, 120, true, Training.RANGE));
 		
 		//modules.add(new SmithingModule(this, client, SmithingModule.SmithingType.SCIMITAR, SmithingModule.SmithingMaterial.IRON, LocationFactory.GameLocation.SMITHING_WEST_VARROCK, 4));
 		
@@ -88,7 +92,7 @@ public class ThreadController implements KillableThread{
 		//modules.add(new FishingModule(this, client, FishingModule.Fish.HERRING, 2, false));
 		
 		//modules.add(new JewelleryModule(this, client, LocationFactory.GameLocation.SMELTER_AL_KHARID,
-			//		JewelleryModule.JewelleryMaterial.GOLD, JewelleryModule.JewelleryType.NECKLACE, 10));
+			//	JewelleryModule.JewelleryMaterial.GOLD, JewelleryModule.JewelleryType.NECKLACE, 20));
 		
 		//modules.add( new SmelterModule(client, this, LocationFactory.GameLocation.SMELTER_AL_KHARID, 10, SmelterModule.Bars.BRONZE));
 		//modules.add(new MinerModule(client, this, LocationFactory.GameLocation.MINER_WEST_VARROCK, MinerModule.Ore.TIN_ORE, true, 1));
@@ -418,6 +422,9 @@ public class ThreadController implements KillableThread{
 		this.movementHandler.killHandler();
 		this.worldHandler.killHandler();
 		this.killThread();
+		
+		client.getMouse().moveMouseOutsideScreen();
+		
 		client.stop();
 	}
 	
@@ -432,6 +439,7 @@ public class ThreadController implements KillableThread{
 		this.movementHandler.killHandler();
 		this.worldHandler.killHandler();
 		this.killThread();
+		
 		client.stop();
 		System.exit(0);
 	}
@@ -470,6 +478,7 @@ public class ThreadController implements KillableThread{
 				return;
 			}
 			Thread t = new Thread(this.currentModule);
+			this.exceptionHandler.handleNewThread(this.currentModule, t);
 			t.start();
 		}
 		
@@ -514,5 +523,6 @@ public class ThreadController implements KillableThread{
 	public WorldHandler getWorldHandler() {
 		return this.worldHandler;
 	}
+	
 	
 }

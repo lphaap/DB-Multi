@@ -159,20 +159,20 @@ public class GearHandler implements KillableHandler {
 		meleeTraining.add("Amulet of strength");
 		meleeTraining.add("Mithril scimitar");
 		//meleeTraining.add("Purple gloves");
-		meleeTraining.add("Black cape");
+		meleeTraining.add("Cabbage cape");
 		meleeTraining.add("Leather boots");
 		Collections.shuffle(meleeTraining);
 		this.melee = meleeTraining;
 		
 		ArrayList<String> rangeTraining = new ArrayList<String>();
-		rangeTraining.add("Leather cowl");
-		rangeTraining.add("Blue d'hide chaps");
-		rangeTraining.add("Blue d'hide vamb");
-		rangeTraining.add("Leather body");
-		rangeTraining.add("Amulet of glory");
-		rangeTraining.add("Maple shortbow");
+		rangeTraining.add("Adamant full helm");
+		rangeTraining.add("Studded chaps");
+		rangeTraining.add("Leather vambraces");
+		rangeTraining.add("Studded body");
+		rangeTraining.add("Amulet of power");
+		rangeTraining.add("Oak shortbow");
 		rangeTraining.add("Iron arrow");
-		rangeTraining.add("Team-48 cape");
+		rangeTraining.add("Cabbage cape");
 		rangeTraining.add("Leather boots");
 		Collections.shuffle(rangeTraining);
 		this.range = rangeTraining;
@@ -183,7 +183,7 @@ public class GearHandler implements KillableHandler {
 		skillTraining.add("Mithril scimitar");
 		skillTraining.add("Purple partyhat");
 		//skillTraining.add("Purple gloves");
-		skillTraining.add("Black cape");
+		skillTraining.add("Cabbage cape");
 		skillTraining.add("Leather boots");
 		//skillTraining.add("Brown apron");
 		Collections.shuffle(skillTraining);

@@ -48,6 +48,8 @@ public class CombatModule extends ScriptModule {
 	private boolean error;
 	private boolean killThread;
 	
+	private boolean test;
+	
 	//Leave timeLimitMins == 0, for unlimited time, 60mins timer ~ 70mins real time
 	public CombatModule(ThreadController controller, ClientThread client, CombatModule.Monster monster, CombatModule.Food food, int limit, int timeLimitMins, Boolean pickUp, Training skill) {
 		this.script = client;
@@ -75,7 +77,7 @@ public class CombatModule extends ScriptModule {
 		threadloop: while(!killThread) {
 			
 			this.timeLimit = (this.timeLimit - delay);
-			controller.debug("" + timeLimit);
+			//controller.debug("" + timeLimit);
 			if(timeLimit < 0) {
 				this.killThread = true;
 				break threadloop;
@@ -83,8 +85,7 @@ public class CombatModule extends ScriptModule {
 			
 			sleep(delay);
 			delay = RandomProvider.randomInt(1000) + 2000;
-			
-			
+		
 			
 			if(!script.getLocalPlayer().isAnimating() && !script.getLocalPlayer().isInCombat()) {
 				if(!script.getInventory().isFull() && pickUp && controller.getMovementHandler().isPlayerInLocation()) {

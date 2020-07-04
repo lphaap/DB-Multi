@@ -6,6 +6,7 @@ import org.dreambot.api.methods.skills.Skill;
 
 import antiban.RandomProvider;
 import movement.LocationFactory.GameLocation;
+import movement.LocationFactory;
 import scripts.ScriptModule;
 import utilities.WorldHandler;
 
@@ -32,36 +33,10 @@ public class ClientTester extends ScriptModule {
 	}
 
 	@Override
-	public void run() {
-
-		
+	public void run() {	
+		setup();
 		while(!killThread) {
-			
-			
-			RandomProvider.sleep(1000, 2000);
-			controller.getMovementHandler().newLocation(GameLocation.COMBAT_GIANT_FROG);
-			try {
-				controller.debug("Players:"+client.getPlayers().all(f -> f != null && controller.getMovementHandler().getMainLocation().contains(f)).size());
-			}catch(Exception e) {
-				e.printStackTrace();
-			}
-			/*
-			while(controller.requestKeyboardAccess()) {RandomProvider.sleep(10);};
-			controller.debug("TESTER KEY CONTROL");
-			while(controller.requestMouseAccess()) {RandomProvider.sleep(10);};
-			controller.debug("TESTER MOUSE CONTROL");
-			
-			int repeat = RandomProvider.randomInt(1,4);
-			for(int i = 0; i < repeat; i++) {
-				client.getMouse().move(new Point(RandomProvider.randomInt(RandomProvider.randomInt(40, 100),RandomProvider.randomInt(700, 750)),
-												 RandomProvider.randomInt(RandomProvider.randomInt(40, 100),RandomProvider.randomInt(440, 490))));
-				RandomProvider.sleep(200,400);
-			}
-			
-			controller.returnKeyboardAccess();
-			controller.returnMouseAccess();
-			controller.debug("TESTER CONTROL RETURN");
-			*/
+			RandomProvider.sleep(1000,1500);
 		}
 
 	}
@@ -79,6 +54,26 @@ public class ClientTester extends ScriptModule {
 	@Override
 	public Skill getSkillToHover() {
 		return Skill.HITPOINTS;
+	}
+	
+	private void setup() {
+		new Thread( () -> {
+			while(!killThread) {
+				RandomProvider.sleep(50,100);
+				controller.getGraphicHandler().setInfo(
+						"Tile: " + client.getLocalPlayer().getTile() +
+						" Animating: " + client.getLocalPlayer().isAnimating());
+				controller.getGraphicHandler().setScriptTimer(
+						"InCombat: " + client.getLocalPlayer().isInCombat() +
+						" Players: " + client.getPlayerCount());
+				controller.getGraphicHandler().setPauseTimer(
+						"NPC: " + client.getNpcs().closest(f -> f != null).getName() +
+						" G-O: " + client.getGameObjects().closest(f -> f != null).getName()
+	 					);
+			}
+			}).start();
+		controller.getGraphicHandler().toggleTester();
+		controller.getAntiBanHandler().pauseAllAntibanThreads();
 	}
 
 }

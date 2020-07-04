@@ -26,7 +26,8 @@ public class ScriptExceptionHandler {
 		this.handler = new Thread.UncaughtExceptionHandler() {
 		    public void uncaughtException(Thread th, Throwable ex) {
 		        controller.debug("ERROR IN SCRIPT");
-		        controller.debug("" + ex.getMessage());
+		        controller.debug("" + ex + " At: " + ex.getStackTrace()[0]);
+		        ex.printStackTrace();
 		        controller.debug("ERROR IN SCRIPT");
 		        
 		        controller.returnKeyboardAccess();

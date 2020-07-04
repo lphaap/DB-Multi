@@ -5,6 +5,7 @@ import java.util.Random;
 import org.dreambot.api.methods.container.impl.equipment.EquipmentSlot;
 import org.dreambot.api.methods.map.Area;
 import org.dreambot.api.methods.skills.Skill;
+import org.dreambot.api.methods.tabs.Tab;
 import org.dreambot.api.wrappers.interactive.NPC;
 import org.dreambot.api.wrappers.items.GroundItem;
 import org.dreambot.api.wrappers.items.Item;
@@ -37,6 +38,7 @@ public class CombatModule extends ScriptModule {
 	private int timeLimit;
 	private int actionsCompleted;
 	private int playerLimit;
+	private int foodLimit;
 	
 	private Training skill;
 	private Monster monsterEnum;
@@ -47,15 +49,20 @@ public class CombatModule extends ScriptModule {
 	private boolean pickUp;
 	private boolean error;
 	private boolean killThread;
+	private boolean timeLimited;
 	
 	private boolean test;
 	
 	//Leave timeLimitMins == 0, for unlimited time, 60mins timer ~ 70mins real time
-	public CombatModule(ThreadController controller, ClientThread client, CombatModule.Monster monster, CombatModule.Food food, int limit, int timeLimitMins, Boolean pickUp, Training skill) {
+	public CombatModule(ThreadController controller, ClientThread client, CombatModule.Monster monster, CombatModule.Food food, 
+				 	 	int limit, int timeLimitMins, int foodLimit, Boolean pickUp, Training skill) {
 		this.script = client;
 		eatAt = RandomProvider.randomInt(6) + 10;
 		this.limit = limit;
 		this.timeLimit = (timeLimitMins*60*1000);
+		
+		this.foodLimit = foodLimit;
+		
 		controller.debug(""+timeLimit);
 		this.controller = controller;
 		setMonsterVariables(monster);
@@ -66,6 +73,11 @@ public class CombatModule extends ScriptModule {
 		this.error = false;
 		this.skill = skill;
 		this.moduleName = "CombatModule: " + monster;
+		
+		if(timeLimitMins > 0) {
+			this.timeLimited = true;
+		}
+		
 		getSkillToHover();
 		
 		
@@ -78,7 +90,16 @@ public class CombatModule extends ScriptModule {
 			
 			this.timeLimit = (this.timeLimit - delay);
 			//controller.debug("" + timeLimit);
-			if(timeLimit < 0) {
+			if(timeLimit < 0 && timeLimited) {
+				if(!this.controller.getWorldHandler().isBanking()) {
+					this.controller.getWorldHandler().setToBanking();
+				}
+				
+				controller.getGraphicHandler().setInfo("Combat trainer: Time limit reached - Banking");
+				
+				controller.getMovementHandler().moveToBank();
+				
+				RandomProvider.sleep(1500, 2000);
 				this.killThread = true;
 				break threadloop;
 			}
@@ -132,7 +153,12 @@ public class CombatModule extends ScriptModule {
 					}
 					
 					if(script.getBank().contains(food)) {
-						script.getBank().withdrawAll(f -> f != null && f.getName().equals(food));
+						if(this.foodLimit <= 0) {
+							script.getBank().withdrawAll(f -> f != null && f.getName().equals(food));
+						}
+						else {
+							script.getBank().withdraw(f -> f != null && f.getName().equals(food), this.foodLimit);
+						}
 						sleep(RandomProvider.randomInt(750)+ 700);
 						script.getBank().close();
 						sleep(RandomProvider.randomInt(750)+ 400);
@@ -169,16 +195,32 @@ public class CombatModule extends ScriptModule {
 						controller.debug("No Weapon Found - Changing Module");
 						this.error = true;
 						sleep(2000);
-						this.killThread();
+						
+						controller.getGraphicHandler().setInfo("Combat trainer: No Arrows left - Banking");
+						
+						controller.getMovementHandler().moveToBank();
+						
+						RandomProvider.sleep(1500, 2000);
+						this.killThread = true;
+						
+						break threadloop;
 						
 					}
 					if(script.getEquipment().getItemInSlot(EquipmentSlot.WEAPON.getSlot()).getName().toLowerCase().contains("bow")) {
-						if(script.getEquipment().getItemInSlot(EquipmentSlot.WEAPON.getSlot()) == null) {
+						if(script.getEquipment().getItemInSlot(EquipmentSlot.ARROWS.getSlot()) == null) {
 							controller.debug("CombatTrainer - Module ERROR");
 							controller.debug("No Arrows Found - Changing Module");
 							this.error = true;
 							sleep(2000);
-							this.killThread();
+							
+							controller.getGraphicHandler().setInfo("Combat trainer: No Arrows left - Banking");
+							
+							controller.getMovementHandler().moveToBank();
+							
+							RandomProvider.sleep(1500, 2000);
+							this.killThread = true;
+							
+							break threadloop;
 						}
 						
 					}
@@ -189,11 +231,18 @@ public class CombatModule extends ScriptModule {
 					
 					NPC monster = script.getNpcs().closest(f -> f.getName().equals(monsterName) && f != null && !f.isInCombat() && f.getLevel()!=51);
 					int randomizer = RandomProvider.randomInt(2);
-					if(randomizer == 0) {
-						monster.interact();
-					}
-					else {
-						monster.interact("Attack");
+					
+					if(monster != null) {
+						if(RandomProvider.fiftyfifty()) {
+							script.getCamera().rotateToEntity(monster);
+						}
+						
+						if(randomizer == 0) {
+							monster.interact();
+						}
+						else {
+							monster.interact("Attack");
+						}
 					}
 					script.getMouse().move();
 					
@@ -261,7 +310,12 @@ public class CombatModule extends ScriptModule {
 			}
 			
 			if(script.getBank().contains(food)) {
-				script.getBank().withdrawAll(f -> f != null && f.getName().equals(food));
+				if(this.foodLimit <= 0) {
+					script.getBank().withdrawAll(f -> f != null && f.getName().equals(food));
+				}
+				else {
+					script.getBank().withdraw(f -> f != null && f.getName().equals(food), this.foodLimit);
+				}
 				sleep(RandomProvider.randomInt(750)+ 700);
 				script.getBank().close();
 				sleep(RandomProvider.randomInt(750)+ 400);
@@ -324,7 +378,7 @@ public class CombatModule extends ScriptModule {
 			this.monsterName = "Giant frog";
 			this.collect.add("Big bones");
 			this.locationEnum = LocationFactory.GameLocation.COMBAT_GIANT_FROG;
-			this.playerLimit = 3;
+			this.playerLimit = 2;
 		}
 		else if(monster == Monster.BARBARIAN) {
 			this.monsterName = "Barbarian";
@@ -398,6 +452,11 @@ public class CombatModule extends ScriptModule {
 						while(controller.requestMouseAccess()) {RandomProvider.sleep(10);}
 						
 						controller.debug("Mouse control: Combat module healing");
+
+						if(!script.getTabs().isOpen(Tab.INVENTORY)) {
+							script.getTabs().open(Tab.INVENTORY);
+							RandomProvider.sleep(100, 150);
+						}
 						
 						Item eat = script.getInventory().get(f -> f != null && f.getName().equals(food));
 						eat.interact();

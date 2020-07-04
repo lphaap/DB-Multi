@@ -43,43 +43,24 @@ public class MovementHandler implements KillableHandler {
 		
 		this.inControll = true;
 		
-		new Thread( () -> location.travelPhase3()).start();
-		while(!location.isPhase3Done()) {
-			if(monitorMovement()) {
-				this.inControll = false;
-				return;
-			}
-			try {
-				Thread.sleep(1000);
-			} catch (InterruptedException e) {e.printStackTrace();}
-		}
-		resetMonitor();
-		
-		new Thread( () -> location.travelPhase2()).start();
-		while(!location.isPhase2Done()) {
-			if(monitorMovement()) {
-				this.inControll = false;
-				return;
-			}
-			try {
-				Thread.sleep(1000);
-			} catch (InterruptedException e) {e.printStackTrace();}
-		}
-		resetMonitor();
-		
-		new Thread( () -> location.travelPhase1()).start();
-		while(!location.isPhase1Done()) {
-			if(monitorMovement()) {
-				this.inControll = false;
-				return;
-			}
-			try {
-				Thread.sleep(1000);
-			} catch (InterruptedException e) {e.printStackTrace();}
-		}
-		resetMonitor();
-		
+		new Thread(() -> {location.travelToLocation();}).start();
 		RandomProvider.sleep(1000, 1500);
+		while(location.isMovementInProgress()) {
+			RandomProvider.sleep(900, 1100);
+			int indexInUse = location.getIndexOfMovement();
+			controller.debug("index: " +indexInUse);
+			if(monitorMovement()) {
+				return;
+			}
+			controller.debug("" + new Tile(2991, 3341, 1).getArea(1).contains(client.getLocalPlayer()));
+			
+			if(indexInUse != location.getIndexOfMovement()) {
+				indexInUse = location.getIndexOfMovement();
+				this.resetMonitor();
+			}
+			
+		}
+		this.resetMonitor();
 		
 		controller.debug("MOVEMENT HANDLER RETURNED ACCESS");
 		controller.debug("MOVEMENT HANDLER RETURNED ACCESS");
@@ -107,40 +88,24 @@ public class MovementHandler implements KillableHandler {
 		
 		this.inControll = true;
 		
-		new Thread( () -> location.reTravelPhase2()).start();
-		while(!location.isRePhase2Done()) {
-			if(monitorMovement()) {
-				return;
-			}
-			try {
-				Thread.sleep(1000);
-			} catch (InterruptedException e) {e.printStackTrace();}
-		}
-		resetMonitor();
-		
-		new Thread( () -> location.reTravelPhase3()).start();
-		while(!location.isRePhase3Done()) {
-			if(monitorMovement()) {
-				return;
-			}
-			try { 
-				Thread.sleep(1000);
-			} catch (InterruptedException e) {e.printStackTrace();}
-		}
-		resetMonitor();
-		
-		new Thread( () -> location.reTravelToBank()).start();
-		while(!location.isReBankingDone()) {
-			if(monitorMovement()) {
-				return;
-			}
-			try {
-				Thread.sleep(1000);
-			} catch (InterruptedException e) {e.printStackTrace();}
-		}
-		resetMonitor();
-		
+		new Thread(() -> {location.travelToBank();}).start();
 		RandomProvider.sleep(1000, 1500);
+		while(location.isMovementInProgress()) {
+			
+			RandomProvider.sleep(900, 1100);
+			int indexInUse = location.getIndexOfMovement();
+			controller.debug("index: "+ indexInUse);
+			if(monitorMovement()) {
+				return;
+			}
+			
+			if(indexInUse != location.getIndexOfMovement()) {
+				indexInUse = location.getIndexOfMovement();
+				this.resetMonitor();
+			}
+			
+		}
+		this.resetMonitor();
 		
 		//controller.debug("MOVEMENT HANDLER RETURNED ACCESS");
 	//	controller.debug("MOVEMENT HANDLER RETURNED ACCESS");
@@ -210,7 +175,9 @@ public class MovementHandler implements KillableHandler {
 		debugCounter++;
 		
 		if(this.killHandler) {
-			this.location.killCurrentAction();
+			if(this.location != null) {
+				this.location.killCurrentAction();
+			}
 			return true;
 		}
 		else {
@@ -254,5 +221,39 @@ public class MovementHandler implements KillableHandler {
 			return false;
 		}
 	}
+	
+	public void locateBank() {
+		while(controller.requestKeyboardAccess()) {RandomProvider.sleep(10);};
+		while(controller.requestMouseAccess()) {RandomProvider.sleep(10);};
+		
+		RandomProvider.sleep(600, 1000);
+		
+		this.inControll = true;
+		
+		controller.debug("Mouse control: MovementHandler");
+		controller.debug("Keyboard control: MovementHandler");
+		
+			int runEnergyTest = RandomProvider.randomInt(10) + 1;
+			client.sleep(RandomProvider.randomInt(1000)+2000);
+			while(!client.getBank().isOpen() && !this.monitorMovement()) {
+				client.getBank().open(client.getBank().getClosestBankLocation());
+				client.sleep(RandomProvider.randomInt(1000)+2000);
+				
+				if(client.getWalking().getRunEnergy() >= runEnergyTest && !client.getWalking().isRunEnabled()) {
+					client.getWalking().toggleRun();
+					client.sleep(RandomProvider.randomInt(1000)+2000);
+					runEnergyTest = RandomProvider.randomInt(10) + 1;
+				}
+				
+			}
+			
+		this.controller.returnKeyboardAccess();
+		this.controller.returnMouseAccess();
+		this.inControll = false;
+		this.resetMonitor();
 
+		
+	}
+
+	
 }

@@ -246,7 +246,7 @@ public class MinerModule extends ScriptModule{
 
 	
 	public enum Ore {
-		COPPER_ORE, TIN_ORE, IRON_ORE, GOLD_ORE, COAL, ADAMANTITE_ORE, RUNITE_ORE
+		COPPER_ORE, TIN_ORE, IRON_ORE, GOLD_ORE, COAL, ADAMANTITE_ORE, RUNITE_ORE, SILVER_ORE
 	}
 	
 	public int getOreID(MinerModule.Ore ore) {
@@ -267,6 +267,9 @@ public class MinerModule extends ScriptModule{
 		}
 		else if(ore == Ore.ADAMANTITE_ORE) {
 			return 21662;
+		}
+		else if(ore == Ore.SILVER_ORE) {
+			return 74;
 		}
 		else {
 			return -1;

@@ -157,7 +157,7 @@ public class GearHandler implements KillableHandler {
 		meleeTraining.add("Adamant plateskirt");
 		meleeTraining.add("Adamant kiteshield");
 		meleeTraining.add("Amulet of strength");
-		meleeTraining.add("Mithril scimitar");
+		meleeTraining.add("Rune scimitar");
 		//meleeTraining.add("Purple gloves");
 		meleeTraining.add("Cabbage cape");
 		meleeTraining.add("Leather boots");
@@ -165,12 +165,12 @@ public class GearHandler implements KillableHandler {
 		this.melee = meleeTraining;
 		
 		ArrayList<String> rangeTraining = new ArrayList<String>();
-		rangeTraining.add("Adamant full helm");
-		rangeTraining.add("Studded chaps");
-		rangeTraining.add("Leather vambraces");
-		rangeTraining.add("Studded body");
+		rangeTraining.add("Purple partyhat");
+		rangeTraining.add("Green d'hide chaps");
+		rangeTraining.add("Green d'hide vambraces");
+		rangeTraining.add("Green d'hide body");
 		rangeTraining.add("Amulet of power");
-		rangeTraining.add("Oak shortbow");
+		rangeTraining.add("Maple shortbow");
 		rangeTraining.add("Iron arrow");
 		rangeTraining.add("Cabbage cape");
 		rangeTraining.add("Leather boots");
@@ -178,9 +178,9 @@ public class GearHandler implements KillableHandler {
 		this.range = rangeTraining;
 		
 		ArrayList<String> skillTraining = new ArrayList<String>();
-		skillTraining.add("Adamant kiteshield");
+		//skillTraining.add("Adamant kiteshield");
 		skillTraining.add("Amulet of strength");
-		skillTraining.add("Mithril scimitar");
+		skillTraining.add("Rune scimitar");
 		skillTraining.add("Purple partyhat");
 		//skillTraining.add("Purple gloves");
 		skillTraining.add("Cabbage cape");
@@ -190,13 +190,13 @@ public class GearHandler implements KillableHandler {
 		this.utility = skillTraining;
 		
 		ArrayList<String> mageTraining = new ArrayList<String>();
-		mageTraining.add("Staff of fire");
-		mageTraining.add("Blue d'hide vamb");
-		mageTraining.add("Team-48 cape");
+		//mageTraining.add("Staff of fire");
+		mageTraining.add("Green d'hide vambraces");
+		mageTraining.add("Cabbage cape");
 		mageTraining.add("Leather boots");
 		mageTraining.add("Iron full helm");
 		mageTraining.add("Iron platebody");
-		mageTraining.add("Iron platelegs");
+		mageTraining.add("Iron plateskirt");
 		mageTraining.add("Iron kiteshield");
 		Collections.shuffle(mageTraining);
 		this.magic = mageTraining;
@@ -233,7 +233,7 @@ public class GearHandler implements KillableHandler {
 
 			while(!script.getBank().isOpen()) {
 				script.getBank().open(script.getBank().getClosestBankLocation());
-				RandomProvider.sleep(1000, 1800);
+				RandomProvider.sleep(1200, 2000);
 				if(this.killThread) {
 					return false;
 				}

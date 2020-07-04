@@ -1,6 +1,7 @@
 package client;
 import java.awt.AWTException;
 import java.awt.Color;
+import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Robot;
@@ -34,7 +35,7 @@ import org.dreambot.api.wrappers.widgets.WidgetChild;
 import org.dreambot.api.wrappers.widgets.message.Message;
 
 import antiban.RandomProvider;
-
+import gui.GUIMainWindow;
 import scripts.MinerModule;
 import scripts.ScriptModule;
 import scripts.SmelterModule;
@@ -59,6 +60,19 @@ public class ClientThread extends AbstractScript implements AdvancedMessageListe
 		this.controller = new ThreadController(this);
 		Thread thread = new Thread(controller);
 		thread.start();
+		
+		/*EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				try {
+					GUIMainWindow gui = new GUIMainWindow();
+					gui.setVisible(true);
+				} catch (Exception e) {
+					log("FAILED TO INIT GUI");
+					log(e.getMessage());
+				}
+			}
+		});*/
+
 	}
 	//--Called in the begining of the script--//
 	

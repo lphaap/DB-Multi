@@ -34,6 +34,7 @@ public class ModuleTemplate extends ScriptModule {
 		
 		while(!killThread) {
 			//TODO: MODULE LOOP HERE
+			//-> Every script needs to end in bank location so other scripts can handle location movement
 			
 			/*
 				TEMPLATE:
@@ -80,6 +81,7 @@ public class ModuleTemplate extends ScriptModule {
 		controller.getGraphicHandler().setInfo("Module-X: Setting up module"); //TODO: CUSTOMIZE MESSAGE
 		
 		//TODO: MODULE SETUP HERE
+		//-> Get needed gear food, pickaxe ..
 		
 		return false;
 	}

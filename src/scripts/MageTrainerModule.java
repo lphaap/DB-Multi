@@ -19,6 +19,7 @@ import client.ClientThread;
 import client.ThreadController;
 import movement.Location;
 import movement.LocationFactory;
+import movement.LocationFactory.GameLocation;
 import utilities.GearHandler.Gear;
 
 public class MageTrainerModule extends ScriptModule{
@@ -33,6 +34,7 @@ public class MageTrainerModule extends ScriptModule{
 	
 	private Spell alchemy;
 	private Spell curse;
+	private Curse curseEnum;
 	
 	private WidgetChild curseArea;
 	private WidgetChild alchemyArea;
@@ -52,7 +54,7 @@ public class MageTrainerModule extends ScriptModule{
 	private Rectangle itemArea;
 	
 	
-	public MageTrainerModule(ThreadController controller, ClientThread script, int limit, Spell curse, 
+	public MageTrainerModule(ThreadController controller, ClientThread script, int limit, MageTrainerModule.Curse curse, 
 							 boolean trainAlchemy, MageTrainerModule.alchemyItem item) {
 		
 		this.script = script;
@@ -68,6 +70,7 @@ public class MageTrainerModule extends ScriptModule{
 		this.alchemyArea = script.getWidget(218, 38);
 		
 		this.moduleName = "MageTrainerModule";
+		this.locationEnum = GameLocation.SPLASHING_BEAR;
 		this.targetName = "Grizzly bear";
 
 		setCurseVariables(curse);
@@ -86,10 +89,12 @@ public class MageTrainerModule extends ScriptModule{
 				controller.getMovementHandler().moveToLocation();
 			}
 			else {
-				itemPoint = new Point(RandomProvider.randomInt((int)itemArea.getX(), (int)itemArea.getX() + (int)itemArea.getWidth()),
-						  			  RandomProvider.randomInt((int)itemArea.getY(), (int)itemArea.getY() + (int)itemArea.getHeight()) );
-				alchemyPoint = new Point(RandomProvider.randomInt(alchemyArea.getX(), alchemyArea.getX() + alchemyArea.getWidth()),
-						 			     RandomProvider.randomInt(alchemyArea.getY(), alchemyArea.getY() + alchemyArea.getHeight()));
+				if(trainAlchemy) {
+					itemPoint = new Point(RandomProvider.randomInt((int)itemArea.getX(), (int)itemArea.getX() + (int)itemArea.getWidth()),
+							  			  RandomProvider.randomInt((int)itemArea.getY(), (int)itemArea.getY() + (int)itemArea.getHeight()) );
+					alchemyPoint = new Point(RandomProvider.randomInt(alchemyArea.getX(), alchemyArea.getX() + alchemyArea.getWidth()),
+							 			     RandomProvider.randomInt(alchemyArea.getY(), alchemyArea.getY() + alchemyArea.getHeight()));
+				}
 				cursePoint = new Point(RandomProvider.randomInt(curseArea.getX(), curseArea.getX() + curseArea.getWidth()),
 						   			   RandomProvider.randomInt(curseArea.getY(), curseArea.getY() + curseArea.getHeight()));
 				
@@ -118,10 +123,12 @@ public class MageTrainerModule extends ScriptModule{
 					}
 					controller.debug("Module Restart Complete");
 					this.error = true;
+					controller.returnKeyboardAccess();
+					controller.returnMouseAccess();
 				}
 				
-				if(script.getEquipment().getItemInSlot(EquipmentSlot.WEAPON.getSlot()) == null || 
-														(!script.getEquipment().getItemInSlot(EquipmentSlot.WEAPON.getSlot()).getName().equals("Staff of fire") && trainAlchemy)) {
+				if(script.getEquipment().getItemInSlot(EquipmentSlot.WEAPON.getSlot()) != null && 
+						!script.getEquipment().getItemInSlot(EquipmentSlot.WEAPON.getSlot()).getName().equals("Staff of fire") && trainAlchemy) {
 					if(script.getEquipment().getItemInSlot(EquipmentSlot.WEAPON.getSlot()) == null) {
 						controller.debug("MageTrainer - Module ERROR");
 						controller.debug("No Fire staff Found - Changing Module");
@@ -130,6 +137,14 @@ public class MageTrainerModule extends ScriptModule{
 						controller.returnKeyboardAccess();
 						controller.returnMouseAccess();
 					}
+				}
+				else if(script.getEquipment().getItemInSlot(EquipmentSlot.WEAPON.getSlot()) == null && trainAlchemy) {
+					controller.debug("MageTrainer - Module ERROR");
+					controller.debug("No Fire staff Found - Changing Module");
+					this.killThread = true;
+					
+					controller.returnKeyboardAccess();
+					controller.returnMouseAccess();
 				}
 				
 				if(trainAlchemy) {
@@ -167,7 +182,14 @@ public class MageTrainerModule extends ScriptModule{
 				
 				if(target != null) {
 					target.interact();
-					script.getMouse().move();
+					if(RandomProvider.fiftyfifty()) {
+						script.getMouse().move();
+					}
+					else {
+						script.getMouse().move();
+						RandomProvider.sleep(40, 80);
+						script.getMouse().move();
+					}
 					this.actionsCompleted++;
 					
 					controller.returnKeyboardAccess();
@@ -224,41 +246,45 @@ public class MageTrainerModule extends ScriptModule{
 		RandomProvider.sleep(200, 400);
 	}
 	
-	public void setCurseVariables(Spell curse) {
+	public void setCurseVariables(Curse curse) {
 		
-		if(curse == Normal.CONFUSE) {
-			this.curseArea = script.getWidgets().getWidget(218).getChild(6);
-			this.curse = curse;
+		if(curse == Curse.CONFUSE) {
+			this.curseArea = script.getWidgets().getWidget(218).getChild(7);
+			this.curse = Normal.CONFUSE;
 		}
-		else if(curse == Normal.WEAKEN) {
-			this.curseArea = script.getWidgets().getWidget(218).getChild(11);
-			this.curse = curse;
+		else if(curse == Curse.WEAKEN) {
+			this.curseArea = script.getWidgets().getWidget(218).getChild(12);
+			this.curse = Normal.WEAKEN;
 		}
-		else if(curse == Normal.CURSE) {
-			this.curseArea = script.getWidget(218, 15);
-			this.curse = curse;
+		else if(curse == Curse.CURSE) {
+			this.curseArea = script.getWidget(218, 16);
+			this.curse = Normal.CURSE;
 		}
-		else if(curse == Normal.SNARE) {
-			this.curseArea = script.getWidgets().getWidget(218).getChild(34);
-			this.curse = curse;
+		else if(curse == Curse.SNARE) {
+			this.curseArea = script.getWidgets().getWidget(218).getChild(35);
+			this.curse = Normal.SNARE;
 		}
-		else if(curse == Normal.VULNERABILITY) {
-			this.curseArea = script.getWidgets().getWidget(218).getChild(54);
-			this.curse = curse;
+		else if(curse == Curse.VULNERABILITY) {
+			this.curseArea = script.getWidgets().getWidget(218).getChild(55);
+			this.curse = Normal.VULNERABILITY;
 		}
-		else if(curse == Normal.ENFEEBLE) {
-			this.curseArea = script.getWidgets().getWidget(218).getChild(58);	
-			this.curse = curse;
+		else if(curse == Curse.ENFEEBLE) {
+			this.curseArea = script.getWidgets().getWidget(218).getChild(59);	
+			this.curse = Normal.ENFEEBLE;
 		}
-		else if(curse == Normal.ENTANGLE) {
-			this.curseArea = script.getWidgets().getWidget(218).getChild(61);
-			this.curse = curse;
-		}
-		else if(curse == Normal.STUN) {
+		else if(curse == Curse.ENTANGLE) {
 			this.curseArea = script.getWidgets().getWidget(218).getChild(62);
-			this.curse = curse;
+			this.curse = Normal.ENTANGLE;
+		}
+		else if(curse == Curse.STUN) {
+			this.curseArea = script.getWidgets().getWidget(218).getChild(63);
+			this.curse = Normal.STUN;
 		}
 
+	}
+	
+	public enum Curse {
+		CONFUSE, WEAKEN, CURSE, SNARE, VULNERABILITY, ENFEEBLE, ENTANGLE, STUN
 	}
 	
 	public void setItemName(alchemyItem item) {
@@ -281,7 +307,8 @@ public class MageTrainerModule extends ScriptModule{
 		while(controller.requestKeyboardAccess()) {RandomProvider.sleep(10);}
 		while(controller.requestMouseAccess()) {RandomProvider.sleep(10);}
 		
-		if(!script.getMagic().canCast(curse) || !script.getInventory().contains(f -> f != null && f.getName().equals("Nature rune"))) {
+		if(!script.getMagic().canCast(curse) || ((!script.getInventory().contains(f -> f != null && f.getName().equals("Nature rune")) || 
+						 						  !script.getInventory().contains(f -> f != null && f.getName().equals(this.itemName))) && trainAlchemy)) {
 			
 			if(!script.getWalking().isRunEnabled() && script.getWalking().getRunEnergy() > 0) {
 				script.getWalking().toggleRun();
@@ -319,27 +346,29 @@ public class MageTrainerModule extends ScriptModule{
 					controller.returnMouseAccess();
 					return false;
 				}
-			}
-			
-			if(script.getBank().contains(itemName)) {
-				script.getBank().withdrawAll(f -> f != null && f.getName().equals(itemName));
-				RandomProvider.sleep(500, 1000);
-			}
-			else {
-				controller.returnKeyboardAccess();
-				controller.returnMouseAccess();
-				return false;
-			}
-			
-			script.getBank().close();
 			
 			
-			Item i = script.getInventory().get(f -> f != null && f.getName().equals(itemName));
-			if(script.getInventory().getItemInSlot(15) == null || (i != null && !script.getInventory().getItemInSlot(15).getName().equals(itemName))) {
-				script.getMouse().move(i.getDestination());
-				RandomProvider.sleep(500, 1000);
-				script.getMouse().drag(script.getInventory().slotBounds(15));
-				script.getMouse().move();
+				if(script.getBank().contains(itemName)) {
+					script.getBank().withdrawAll(f -> f != null && f.getName().equals(itemName));
+					RandomProvider.sleep(500, 1000);
+				}
+				else {
+					controller.returnKeyboardAccess();
+					controller.returnMouseAccess();
+					return false;
+				}
+				
+				script.getBank().close();
+				
+				
+				Item i = script.getInventory().get(f -> f != null && f.getName().equals(itemName));
+				if(script.getInventory().getItemInSlot(15) == null || (i != null && !script.getInventory().getItemInSlot(15).getName().equals(itemName))) {
+					script.getMouse().move(i.getDestination());
+					RandomProvider.sleep(500, 1000);
+					script.getMouse().drag(script.getInventory().slotBounds(15));
+					script.getMouse().move();
+				}
+			
 			}
 			
 			controller.returnKeyboardAccess();
@@ -353,12 +382,14 @@ public class MageTrainerModule extends ScriptModule{
 				RandomProvider.sleep(1000, 2000);
 			}
 			
-			Item i = script.getInventory().get(f -> f != null && f.getName().equals(itemName));
-			if(script.getInventory().getItemInSlot(15) == null || (i != null && !script.getInventory().getItemInSlot(15).getName().equals(itemName))) {
-				script.getMouse().move(i.getDestination());
-				RandomProvider.sleep(300, 600);
-				script.getMouse().drag(script.getInventory().slotBounds(15));
-				script.getMouse().move();
+			if(trainAlchemy) {
+				Item i = script.getInventory().get(f -> f != null && f.getName().equals(itemName));
+				if(script.getInventory().getItemInSlot(15) == null || (i != null && !script.getInventory().getItemInSlot(15).getName().equals(itemName))) {
+					script.getMouse().move(i.getDestination());
+					RandomProvider.sleep(300, 600);
+					script.getMouse().drag(script.getInventory().slotBounds(15));
+					script.getMouse().move();
+				}
 			}
 			
 			controller.returnKeyboardAccess();

@@ -81,7 +81,7 @@ public class RandomExaminer implements KillableThread, PauseableThread {
 			}
 			else {
 				if(RandomProvider.fiftyfifty()) {
-					controller.debug("NPC: 1");
+					//controller.debug("NPC: 1");
 					client.getCamera().rotateToEntity(lastNPC);
 					RandomProvider.sleep(100, 200);
 					client.getMouse().click(lastObject, true);
@@ -90,7 +90,7 @@ public class RandomExaminer implements KillableThread, PauseableThread {
 					//client.getMouse().move();
 				}
 				else {
-					controller.debug("NPC: 2");
+					//controller.debug("NPC: 2");
 					client.getCamera().rotateToEntity(lastNPC);
 					RandomProvider.sleep(100, 200);
 					this.lastNPC.interactForceRight("Examine");
@@ -117,7 +117,7 @@ public class RandomExaminer implements KillableThread, PauseableThread {
 			}
 			else {
 				if(RandomProvider.fiftyfifty()) {
-					controller.debug("Object: 1");
+					//controller.debug("Object: 1");
 					client.getCamera().rotateToEntity(lastObject);
 					RandomProvider.sleep(100, 200);
 					client.getMouse().click(lastObject, true);
@@ -126,7 +126,7 @@ public class RandomExaminer implements KillableThread, PauseableThread {
 	
 				}
 				else {
-					controller.debug("Object: 2");
+					//controller.debug("Object: 2");
 					client.getCamera().rotateToEntity(lastObject);
 					RandomProvider.sleep(100, 200);
 					this.lastObject.interactForceRight("Examine");

@@ -8,6 +8,7 @@ import java.util.List;
 
 import javax.security.auth.login.LoginException;
 
+import org.dreambot.api.methods.magic.Spell;
 import org.dreambot.api.methods.skills.Skill;
 import org.telegram.telegrambots.ApiContextInitializer;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
@@ -20,12 +21,13 @@ import utilities.InGameMsgHandler;
 import utilities.WorldHandler;
 import movement.LocationFactory;
 import movement.MovementHandler;
-
+import movement.MovementHandler;
 import scripts.*;
 import scripts.CombatModule.Food;
 import scripts.CombatModule.Monster;
 import scripts.CombatModule.Training;
 import scripts.CookerModule.Cook;
+import scripts.MageTrainerModule.Curse;
 import utilities.GearHandler;
 import utilities.GraphicHandler;
 
@@ -66,6 +68,7 @@ public class ThreadController implements KillableThread{
 		//---Setup Handlers---//
 		this.graphicHandler = new GraphicHandler(this);
 		this.inGameMsgHandler = new InGameMsgHandler(client, this);
+		//this.movementHandler = new MovementHandler(client, this);
 		this.movementHandler = new MovementHandler(client, this);
 		this.gearHandler = new GearHandler(client, this);
 		this.antibanHandler = new AntibanHandler(client, this);
@@ -81,18 +84,23 @@ public class ThreadController implements KillableThread{
 		
 		//---Modules---//
 		modules.add(null); //DO NOT REMOVE - Needed for the start with nextModule();
-		//modules.add(new ClientTester(this, client));
+		modules.add(new ClientTester(this, client));
+		//modules.add(new MageTrainerModule(this, client, 168, Curse.CURSE, false, MageTrainerModule.alchemyItem.DRAGOSTONE_BOLT_TIPS));
+		//modules.add(new MinerModule(client, this, LocationFactory.GameLocation.MINER_WEST_VARROCK, MinerModule.Ore.IRON_ORE, false, 11));
+		//modules.add(new JewelleryModule(this, client, LocationFactory.GameLocation.SMELTER_AL_KHARID,
+			//	JewelleryModule.JewelleryMaterial.GOLD, JewelleryModule.JewelleryType.NECKLACE, 45));
+		//modules.add(new CombatModule(this, client, Monster.GIANT_FROG, Food.TROUT, 2, 43, 6, true, Training.RANGE));
+		//modules.add(new MageTrainerModule(this, client, 700, Curse.CURSE, false, MageTrainerModule.alchemyItem.DRAGOSTONE_BOLT_TIPS));
 		
-		modules.add(new CombatModule(this, client, Monster.GIANT_FROG, Food.TROUT, 2, 120, true, Training.RANGE));
+		//modules.add(new CombatModule(this, client, Monster.GIANT_FROG, Food.TROUT, 2, 30, true, Training.RANGE));
+		//modules.add(new CombatModule(this, client, Monster.GIANT_FROG, Food.TROUT, 2, 78, true, Training.STRENGTH));
+		//modules.add(new MinerModule(client, this, LocationFactory.GameLocation.MINER_EAST_VARROCK, MinerModule.Ore.COPPER_ORE, false, 18));
 		
 		//modules.add(new SmithingModule(this, client, SmithingModule.SmithingType.SCIMITAR, SmithingModule.SmithingMaterial.IRON, LocationFactory.GameLocation.SMITHING_WEST_VARROCK, 4));
 		
 		//modules.add(new CookerModule(this, client, LocationFactory.GameLocation.COOKING_AL_KHARID, Cook.SHRIMP, 8));
-		//modules.add(new CombatModule(this, client, Monster.GIANT_FROG, Food.TROUT, 1, true, Training.STRENGTH));
 		//modules.add(new FishingModule(this, client, FishingModule.Fish.HERRING, 2, false));
 		
-		//modules.add(new JewelleryModule(this, client, LocationFactory.GameLocation.SMELTER_AL_KHARID,
-			//	JewelleryModule.JewelleryMaterial.GOLD, JewelleryModule.JewelleryType.NECKLACE, 20));
 		
 		//modules.add( new SmelterModule(client, this, LocationFactory.GameLocation.SMELTER_AL_KHARID, 10, SmelterModule.Bars.BRONZE));
 		//modules.add(new MinerModule(client, this, LocationFactory.GameLocation.MINER_WEST_VARROCK, MinerModule.Ore.TIN_ORE, true, 1));
@@ -275,8 +283,8 @@ public class ThreadController implements KillableThread{
 		return this.currentModule.getSkillToHover();
 	}
 	
-	private ScriptModule getCurrentTask() {
-		return this.currentModule;
+	private void getCurrentTask(ScriptModule module) {
+		this.modules.add(module);
 	}
 	
 	public GraphicHandler getGraphicHandler() {
@@ -513,6 +521,7 @@ public class ThreadController implements KillableThread{
 		return !(killThread);
 	}
 
+	
 	public MovementHandler getMovementHandler() {
 		return this.movementHandler;
 	}
@@ -522,6 +531,13 @@ public class ThreadController implements KillableThread{
 	}
 	public WorldHandler getWorldHandler() {
 		return this.worldHandler;
+	}
+	public AntibanHandler getAntiBanHandler() {
+		return this.antibanHandler;
+	}
+	
+	public void addModule(ScriptModule module) {
+		this.modules.add(module);
 	}
 	
 	

@@ -13,6 +13,7 @@ public class GraphicHandler {
 	private String scriptTimer;
 	private Font generalFont;
 	private boolean isOnPause;
+	private boolean useTester;
 	private ThreadController controller;
 	
 	public GraphicHandler(ThreadController controller) {
@@ -25,7 +26,14 @@ public class GraphicHandler {
 	}
 	
 	public void handleGraphics(Graphics g) {
-		if(!isOnPause) {
+		if(useTester) {
+			g.setColor(Color.PINK);
+			g.setFont(generalFont);
+			g.drawString(this.info,5,334);
+			g.drawString(this.scriptTimer, 5, 314);
+			g.drawString(this.pauseTimer, 5, 294);
+		}
+		else if(!isOnPause) {
 			this.scriptTimer = "Time left in Script: " + controller.timeLeftInScript() + " Minutes";
 			this.pauseTimer = "Time Until Pause: " + controller.timeLeftUntillPause() + " Minutes";
 			
@@ -74,6 +82,9 @@ public class GraphicHandler {
 		this.isOnPause = !this.isOnPause;
 	}
 	
+	public void toggleTester() {
+		this.useTester = !useTester;
+	}
 	
 	
 	

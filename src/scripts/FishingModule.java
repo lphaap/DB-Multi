@@ -324,20 +324,14 @@ public class FishingModule extends ScriptModule {
 		if(!script.getInventory().contains(f -> f != null && f.getName().equals(fishingGear))
 				||  (!script.getInventory().contains(f -> f != null && f.getName().equals(bait) && useBait))){
 			
+			controller.getMovementHandler().locateBank();
+			
 			while(controller.requestKeyboardAccess()) {RandomProvider.sleep(10);}
 			while(controller.requestMouseAccess()) {RandomProvider.sleep(10);}
 			
 			controller.debug("Mouse control: FishingModule");
 			controller.debug("Keyboard control: FishingModule");
 			
-			if(!script.getWalking().isRunEnabled() && script.getWalking().getRunEnergy() > 0) {
-				script.getWalking().toggleRun();
-			}
-
-			while(!script.getBank().isOpen()) {
-				script.getBank().open(script.getBank().getClosestBankLocation());
-				RandomProvider.sleep(2000, 3000);
-			}
 			if(!script.getInventory().isEmpty()) {
 				script.getBank().depositAllItems();	
 			}

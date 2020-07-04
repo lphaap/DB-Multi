@@ -200,21 +200,13 @@ public class CookerModule extends ScriptModule {
 		
 		if(!script.getInventory().contains(f -> f != null && f.getName().equals(this.cookTarget))) {
 			
+			controller.getMovementHandler().locateBank();
+			
 			while(controller.requestKeyboardAccess()) {RandomProvider.sleep(10);}
 			while(controller.requestMouseAccess()) {RandomProvider.sleep(10);}
 			
 			controller.debug("Mouse control: CookerModule");
 			controller.debug("Keyboard control: CookerModule");
-			
-			if(!script.getWalking().isRunEnabled() && script.getWalking().getRunEnergy() > 0) {
-				script.getWalking().toggleRun();
-			}
-	
-			while(!script.getBank().isOpen()) {
-				script.getBank().open(script.getBank().getClosestBankLocation());
-				RandomProvider.sleep(2000, 3000);
-			}
-			
 			
 			if(!script.getInventory().isEmpty()) {
 				script.getBank().depositAllItems();

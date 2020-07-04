@@ -270,20 +270,13 @@ public class JewelleryModule extends ScriptModule {
 		
 		controller.getGraphicHandler().setInfo("Jeweller: Setting Up Module");
 			
+		controller.getMovementHandler().locateBank();
+		
 		while(controller.requestKeyboardAccess()) {RandomProvider.sleep(10);}
 		while(controller.requestMouseAccess()) {RandomProvider.sleep(10);}
 		
 		controller.debug("Mouse control: JewelleryModule");
 		controller.debug("Keyboard control: JewelleryModule");
-		
-			if(!script.getWalking().isRunEnabled() && script.getWalking().getRunEnergy() > 0) {
-				script.getWalking().toggleRun();
-			}
-
-			while(!script.getBank().isOpen()) {
-				script.getBank().open(script.getBank().getClosestBankLocation());
-				RandomProvider.sleep(2000, 3000);
-			}
 			
 			if(!script.getInventory().isEmpty()) {
 				script.getBank().depositAllItems();

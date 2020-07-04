@@ -304,20 +304,16 @@ public class MageTrainerModule extends ScriptModule{
 		
 		controller.getGraphicHandler().setInfo("Mage trainer: Setting Up Module");
 		
-		while(controller.requestKeyboardAccess()) {RandomProvider.sleep(10);}
-		while(controller.requestMouseAccess()) {RandomProvider.sleep(10);}
-		
 		if(!script.getMagic().canCast(curse) || ((!script.getInventory().contains(f -> f != null && f.getName().equals("Nature rune")) || 
 						 						  !script.getInventory().contains(f -> f != null && f.getName().equals(this.itemName))) && trainAlchemy)) {
 			
-			if(!script.getWalking().isRunEnabled() && script.getWalking().getRunEnergy() > 0) {
-				script.getWalking().toggleRun();
-			}
-	
-			while(!script.getBank().isOpen()) {
-				script.getBank().open(script.getBank().getClosestBankLocation());
-				RandomProvider.sleep(2000, 3000);
-			}
+			controller.getMovementHandler().locateBank();
+			
+			while(controller.requestKeyboardAccess()) {RandomProvider.sleep(10);}
+			while(controller.requestMouseAccess()) {RandomProvider.sleep(10);}
+			
+			controller.debug("Mouse control: MageTrainerModule");
+			controller.debug("Keyboard control: MageTrainerModule");
 			
 			if(!script.getInventory().isEmpty()) {
 				script.getBank().depositAllItems();
@@ -377,6 +373,9 @@ public class MageTrainerModule extends ScriptModule{
 
 		}
 		else {
+			while(controller.requestKeyboardAccess()) {RandomProvider.sleep(10);}
+			while(controller.requestMouseAccess()) {RandomProvider.sleep(10);}
+			
 			if(script.getBank().isOpen()) {
 				script.getBank().close();
 				RandomProvider.sleep(1000, 2000);

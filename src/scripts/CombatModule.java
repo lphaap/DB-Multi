@@ -274,35 +274,13 @@ public class CombatModule extends ScriptModule {
 		controller.getGraphicHandler().setInfo("Combat trainer: Setting up module");
 		if(!script.getInventory().contains(f -> f != null && f.getName().equals(food))) {
 			
+			controller.getMovementHandler().locateBank();
+			
 			while(controller.requestKeyboardAccess()) {RandomProvider.sleep(10);}
 			while(controller.requestMouseAccess()) {RandomProvider.sleep(10);}
 			
-			controller.debug("Mouse control: Combat module setup");
-			controller.debug("Keyboard control: Combat module setup");
-			
-			if(!script.getWalking().isRunEnabled() && script.getWalking().getRunEnergy() > 0) {
-				script.getWalking().toggleRun();
-			}
-	
-			Area debugArea = null;
-			int failsafe = 0;
-			while(!script.getBank().isOpen()) {
-				script.getBank().open(script.getBank().getClosestBankLocation());
-				sleep(RandomProvider.randomInt(1000)+2000);
-				if(debugArea == null || !debugArea.contains(script.getLocalPlayer())) {
-					debugArea = script.getLocalPlayer().getTile().getArea(6);
-					failsafe = 0;
-				}
-				else {
-					failsafe++;
-				}
-				//TODO: Test if failsafe lvl is alright
-				if(failsafe > 15) {
-					controller.returnKeyboardAccess();
-					controller.returnMouseAccess();
-					return false;
-				}
-			}
+			controller.debug("Mouse control: CombatModule");
+			controller.debug("Keyboard control: CombatModule");
 			
 			if(!script.getInventory().isEmpty()) {
 				script.getBank().depositAllItems();

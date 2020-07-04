@@ -340,37 +340,18 @@ public class MinerModule extends ScriptModule{
 		
 		controller.getGraphicHandler().setInfo("Miner: Setting Up Module");
 		
-		choosePickaxe(); //NOTE! Doesn't give a choice for
+		choosePickaxe(); 
 		
 		if(!script.getInventory().contains(f -> f != null && f.getName().toLowerCase().contains("pickaxe") )) {
+			
+			controller.getMovementHandler().locateBank();
+			
 			while(controller.requestKeyboardAccess()) {RandomProvider.sleep(10);}
 			while(controller.requestMouseAccess()) {RandomProvider.sleep(10);}
 			
-			if(!script.getWalking().isRunEnabled() && script.getWalking().getRunEnergy() > 0) {
-				script.getWalking().toggleRun();
-			}
-
-			Area debugArea = null;
-			int failsafe = 0;
-			while(!script.getBank().isOpen()) {
-				script.getBank().open(script.getBank().getClosestBankLocation());
-				
-				RandomProvider.sleep(2000, 3000);
-				
-				if(debugArea == null || !debugArea.contains(script.getLocalPlayer())) {
-					debugArea = script.getLocalPlayer().getTile().getArea(6);
-					failsafe = 0;
-				}
-				else {
-					failsafe++;
-				}
-				//TODO: Test if failsafe lvl is alright
-				if(failsafe > 15) {
-					controller.returnKeyboardAccess();
-					controller.returnMouseAccess();
-					return false;
-				}
-			}
+			controller.debug("Mouse control: MinerModule");
+			controller.debug("Keyboard control: MinerModule");
+			
 			if(!script.getInventory().isEmpty()) {
 				script.getBank().depositAllItems();	
 			}

@@ -19,6 +19,7 @@ public class AntibanHandler implements KillableHandler{
 	private MouseOffScreenMovement mouseOffMove;
 	private MouseMovement mouseMove;
 	private CameraRotate cameraMove;
+	private RunEnergyListener runEnergyListener;
 	private ArrayList<KillableThread> threads = new ArrayList<KillableThread>();
 	
 	private boolean killHandler;
@@ -32,7 +33,9 @@ public class AntibanHandler implements KillableHandler{
 		this.examiner = new RandomExaminer(client, controller);
 		this.hoverer = new StatsHovering(client, controller);
 		this.mouseMove = new MouseMovement(client, controller);
+		this.runEnergyListener = new RunEnergyListener(controller,client);
 		
+		threads.add(runEnergyListener);
 		threads.add(cameraMove);
 		threads.add(mouseOffMove);
 		threads.add(examiner);
@@ -43,7 +46,7 @@ public class AntibanHandler implements KillableHandler{
 	}
 	
 	public enum AntiBanThread {
-		STATS_HOVERING, MOUSE_MOVEMENT, MOUSE_MOVEMENT_OFF_SCREEN, ENTITY_EXAMINER, CAMERA_MOVEMENT
+		STATS_HOVERING, MOUSE_MOVEMENT, MOUSE_MOVEMENT_OFF_SCREEN, ENTITY_EXAMINER, CAMERA_MOVEMENT, ENERGY_LISTENER
 	}
 	
 	public void pauseAntibanThread(AntiBanThread thread) {
@@ -61,6 +64,9 @@ public class AntibanHandler implements KillableHandler{
 		}
 		else if(thread == AntiBanThread.ENTITY_EXAMINER) {
 			this.examiner.pauseThread();
+		}
+		else if(thread == AntiBanThread.ENERGY_LISTENER) {
+			this.runEnergyListener.pauseThread();
 		}
 	}
 	
@@ -80,6 +86,9 @@ public class AntibanHandler implements KillableHandler{
 		else if(thread == AntiBanThread.ENTITY_EXAMINER) {
 			this.examiner.resumeThread();
 		}
+		else if(thread == AntiBanThread.ENERGY_LISTENER) {
+			this.runEnergyListener.resumeThread();
+		}
 	}
 	
 	public void pauseAllAntibanThreads() {
@@ -88,6 +97,7 @@ public class AntibanHandler implements KillableHandler{
 			this.mouseOffMove.pauseThread();
 			this.cameraMove.pauseThread();
 			this.examiner.pauseThread();
+			this.runEnergyListener.pauseThread();
 	}
 	
 	public void resumeAllAntibanThreads() {
@@ -96,13 +106,14 @@ public class AntibanHandler implements KillableHandler{
 			this.mouseOffMove.resumeThread();
 			this.cameraMove.resumeThread();
 			this.examiner.resumeThread();
+			this.runEnergyListener.resumeThread();
 	}
 	
 	public void startAllAntibanThreads() {
 		
 		new Thread(() -> { 
 			for(KillableThread thread : threads) {
-				RandomProvider.sleep(25000, 45000);
+				RandomProvider.sleep(23000, 42000);
 				if(this.killHandler) {
 					break;
 				}

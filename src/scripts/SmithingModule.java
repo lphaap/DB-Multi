@@ -219,17 +219,14 @@ public class SmithingModule extends ScriptModule {
 		
 		if(!script.getInventory().contains(f -> f != null && f.getName().toLowerCase().contains("hammer") )) {
 			
+			controller.getMovementHandler().locateBank();
+			
 			while(controller.requestKeyboardAccess()) {RandomProvider.sleep(10);}
 			while(controller.requestMouseAccess()) {RandomProvider.sleep(10);}
 			
-			if(!script.getWalking().isRunEnabled() && script.getWalking().getRunEnergy() > 0) {
-				script.getWalking().toggleRun();
-			}
-
-			while(!script.getBank().isOpen()) {
-				script.getBank().open(script.getBank().getClosestBankLocation());
-				RandomProvider.sleep(2000, 3000);
-			}
+			controller.debug("Mouse control: SmithingModule");
+			controller.debug("Keyboard control: SmithingModule");
+			
 			if(!script.getInventory().isEmpty()) {
 				script.getBank().depositAllItems();	
 			}

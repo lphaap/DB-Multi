@@ -62,6 +62,10 @@ public class GearHandler implements KillableHandler {
 			
 		}
 		
+		if(!this.script.getBank().isOpen()) {
+			controller.getMovementHandler().locateBank();
+		}
+		
 		while(controller.requestKeyboardAccess());
 		while(controller.requestMouseAccess());
 		
@@ -179,8 +183,8 @@ public class GearHandler implements KillableHandler {
 		
 		ArrayList<String> skillTraining = new ArrayList<String>();
 		//skillTraining.add("Adamant kiteshield");
-		skillTraining.add("Amulet of strength");
-		skillTraining.add("Rune scimitar");
+		skillTraining.add("Amulet of glory");
+		skillTraining.add("Candy cane");
 		skillTraining.add("Purple partyhat");
 		//skillTraining.add("Purple gloves");
 		skillTraining.add("Cabbage cape");
@@ -226,17 +230,10 @@ public class GearHandler implements KillableHandler {
 		private boolean swapGear() {
 			this.swapInProggress = true;
 			controller.getGraphicHandler().setInfo("Gear Switcher: Switching gear");
-			
-			if(!script.getWalking().isRunEnabled() && script.getWalking().getRunEnergy() > 0 && !killThread) {
-				script.getWalking().toggleRun();
-			}
 
-			while(!script.getBank().isOpen()) {
+			if(!script.getBank().isOpen()) {
 				script.getBank().open(script.getBank().getClosestBankLocation());
 				RandomProvider.sleep(1200, 2000);
-				if(this.killThread) {
-					return false;
-				}
 			}
 			
 			if(!script.getInventory().isEmpty() && !killThread) {
@@ -253,7 +250,7 @@ public class GearHandler implements KillableHandler {
 					return false;
 				}
 				found.add(false);
-				script.log("" + found.size());
+				//script.log("" + found.size());
 				if(script.getBank().contains(f -> f != null && f.getName().equals(piece))) {
 					if(piece.toLowerCase().contains("arrow") || piece.toLowerCase().contains("dart") || piece.toLowerCase().contains("knife")) {
 						script.getBank().withdrawAll(f -> f != null && f.getName().equals(piece));
@@ -261,7 +258,7 @@ public class GearHandler implements KillableHandler {
 					else {
 						script.getBank().withdraw(f -> f != null && f.getName().equals(piece));
 					}
-					script.log("" + gear.indexOf(piece));
+					//script.log("" + gear.indexOf(piece));
 					found.set(gear.indexOf(piece), true);
 					RandomProvider.sleep(100, 400);
 				}

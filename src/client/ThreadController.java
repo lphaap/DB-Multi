@@ -84,11 +84,14 @@ public class ThreadController implements KillableThread{
 		
 		//---Modules---//
 		modules.add(null); //DO NOT REMOVE - Needed for the start with nextModule();
-		modules.add(new ClientTester(this, client));
+		//modules.add(new ClientTester(this, client));
 		//modules.add(new MageTrainerModule(this, client, 168, Curse.CURSE, false, MageTrainerModule.alchemyItem.DRAGOSTONE_BOLT_TIPS));
-		//modules.add(new MinerModule(client, this, LocationFactory.GameLocation.MINER_WEST_VARROCK, MinerModule.Ore.IRON_ORE, false, 11));
-		//modules.add(new JewelleryModule(this, client, LocationFactory.GameLocation.SMELTER_AL_KHARID,
-			//	JewelleryModule.JewelleryMaterial.GOLD, JewelleryModule.JewelleryType.NECKLACE, 45));
+		modules.add(new FishingModule(this, client, FishingModule.Fish.TROUT_SALMON, 22, false));
+		modules.add(new JewelleryModule(this, client, LocationFactory.GameLocation.SMELTER_EDGEVILLE,
+			JewelleryModule.JewelleryMaterial.GOLD, JewelleryModule.JewelleryType.NECKLACE, 21));
+		modules.add(new MinerModule(client, this, LocationFactory.GameLocation.MINER_EAST_VARROCK, MinerModule.Ore.IRON_ORE, false, 24));
+		modules.add(new JewelleryModule(this, client, LocationFactory.GameLocation.SMELTER_EDGEVILLE,
+				JewelleryModule.JewelleryMaterial.GOLD, JewelleryModule.JewelleryType.NECKLACE, 30));
 		//modules.add(new CombatModule(this, client, Monster.GIANT_FROG, Food.TROUT, 2, 43, 6, true, Training.RANGE));
 		//modules.add(new MageTrainerModule(this, client, 700, Curse.CURSE, false, MageTrainerModule.alchemyItem.DRAGOSTONE_BOLT_TIPS));
 		
@@ -103,10 +106,6 @@ public class ThreadController implements KillableThread{
 		
 		
 		//modules.add( new SmelterModule(client, this, LocationFactory.GameLocation.SMELTER_AL_KHARID, 10, SmelterModule.Bars.BRONZE));
-		//modules.add(new MinerModule(client, this, LocationFactory.GameLocation.MINER_WEST_VARROCK, MinerModule.Ore.TIN_ORE, true, 1));
-		
-		//modules.add(new MinerModule(client, this, LocationFactory.GameLocation.MINER_EAST_VARROCK, MinerModule.Ore.COPPER_ORE, true, 2));
-		//modules.add(new MinerModule(client, this, LocationFactory.GameLocation.MINER_WEST_VARROCK, MinerModule.Ore.COPPER_ORE, 2));
 		//modules.add(new CombatModule(this, client, Monster.GIANT_FROG, Food.TROUT, 2, 40, true, Training.STRENGTH));
 		
 		//---Modules---//

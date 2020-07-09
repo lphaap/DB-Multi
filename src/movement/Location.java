@@ -24,44 +24,52 @@ public class Location {
 	private boolean killAction;
 	private boolean error;
 	
-	private int indexOfMovement;
+	
+	private int minusControl = -100000;
+	private int plusControl = 100000;
+	private int indexOfMovement = minusControl;
 	
 	public boolean travelToLocation() {
 		this.movementInProgress = true;
 		
-		for(Obstacle obstacle : obstacles) {
-			this.indexOfMovement = obstacles.indexOf(obstacle);
-			if(killAction) {
-				return false;
+		if(this.indexOfMovement != this.plusControl) {
+			for(Obstacle obstacle : obstacles) {
+				this.indexOfMovement = obstacles.indexOf(obstacle);
+				if(killAction) {
+					return false;
+				}
+				moveToArea(obstacle.getGoingLocation());
+				if(!obstacle.handleBeforeInteraction()) {
+					return false;
+				}
+				RandomProvider.sleep(100,220);
 			}
-			moveToArea(obstacle.getGoingLocation());
-			if(!obstacle.handleBeforeInteraction()) {
-				return false;
-			}
-			RandomProvider.sleep(100,220);
+			this.indexOfMovement = plusControl;
 		}
-		this.indexOfMovement = -1;
-
-		moveToArea(targetArea);
 		
+		moveToArea(targetArea);
 		this.movementInProgress = false;
 		return true;
 	}
 	
 	public boolean travelToBank() {
 		this.movementInProgress = true;
-		for(Obstacle obstacle : obstaclesReversed) {
-			this.indexOfMovement = obstaclesReversed.indexOf(obstacle);
-			if(killAction) {
-				return false;
+		
+		if(this.indexOfMovement != this.minusControl) {
+			for(Obstacle obstacle : obstaclesReversed) {
+				this.indexOfMovement = (obstaclesReversed.indexOf(obstacle) * (-1));
+				if(killAction) {
+					return false;
+				}
+				moveToArea(obstacle.getReturnLocation());
+				if(!obstacle.handleAfterInteraction()) {
+					return false;
+				}
+				RandomProvider.sleep(100,220);
 			}
-			moveToArea(obstacle.getReturnLocation());
-			if(!obstacle.handleAfterInteraction()) {
-				return false;
-			}
-			RandomProvider.sleep(100,220);
+			this.indexOfMovement = this.minusControl;
 		}
-		this.indexOfMovement = -1;
+		
 		moveToBank();
 		this.movementInProgress = false;
 		return true;
@@ -116,7 +124,7 @@ public class Location {
 	public void teleportToLocation() {
 		this.teleportInProgress = true;
 		if(script.getClient().isMembers()) {
-			teleporter.teleport();
+			//TODO: teleporter.teleport();
 		}
 		this.teleportInProgress = false;
 		

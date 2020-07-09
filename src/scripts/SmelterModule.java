@@ -62,6 +62,8 @@ public class SmelterModule extends ScriptModule {
 					while(controller.requestKeyboardAccess()) {RandomProvider.sleep(10);}
 					while(controller.requestMouseAccess()) {RandomProvider.sleep(10);}
 					
+					this.actionsCompleted++;
+					
 					if(!script.getInventory().isEmpty()) {
 						
 						script.getBank().depositAllExcept(f -> f != null && f.getName().equals("Ammo mould"));	
@@ -98,7 +100,6 @@ public class SmelterModule extends ScriptModule {
 					script.getBank().close();
 					RandomProvider.sleep(500, 1250);
 					script.getMouse().move();
-					this.actionsCompleted++;
 					
 					controller.returnKeyboardAccess();
 					controller.returnMouseAccess();

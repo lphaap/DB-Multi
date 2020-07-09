@@ -87,7 +87,7 @@ public class MovementHandler implements KillableHandler {
 		controller.debug("Keyboard control: MovementHandler");
 		
 		this.inControll = true;
-		
+	
 		new Thread(() -> {location.travelToBank();}).start();
 		RandomProvider.sleep(1000, 1500);
 		while(location.isMovementInProgress()) {
@@ -106,6 +106,8 @@ public class MovementHandler implements KillableHandler {
 			
 		}
 		this.resetMonitor();
+		
+
 		
 		//controller.debug("MOVEMENT HANDLER RETURNED ACCESS");
 	//	controller.debug("MOVEMENT HANDLER RETURNED ACCESS");

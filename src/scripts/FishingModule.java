@@ -58,13 +58,20 @@ public class FishingModule extends ScriptModule {
 			
 			
 			if(this.error > 5) {
+				this.controller.getMovementHandler().moveToBank();
+				RandomProvider.sleep(800,1200);
 				this.killThread();
+				continue;
 			}
 			
 			
 			if(!script.getInventory().contains(f -> f != null && f.getName().equals(fishingGear))
 				||  (!script.getInventory().contains(f -> f != null && f.getName().equals(bait)) && useBait)) {
+
+				this.controller.getMovementHandler().moveToBank();
+				RandomProvider.sleep(800,1200);
 				this.killThread();
+				continue;
 			}
 			
 			if(!script.getLocalPlayer().isAnimating()) {
@@ -107,6 +114,11 @@ public class FishingModule extends ScriptModule {
 
 						script.getInventory().dropAllExcept(f -> f != null && (f.getName().equals(this.bait) || f.getName().equals(this.fishingGear)));
 						
+						if(limit <= (this.actionsCompleted + 1)) {
+							controller.getMovementHandler().moveToBank();
+							RandomProvider.sleep(800,1200);
+							this.killThread = true;
+						}
 						this.actionsCompleted++;
 						
 						controller.returnKeyboardAccess();
@@ -177,12 +189,14 @@ public class FishingModule extends ScriptModule {
 	
 	public void bank() {
 		controller.getGraphicHandler().setInfo("Fisher: Inventory Full - Banking");
-		this.actionsCompleted++;
+		
 		controller.getMovementHandler().moveToBank();
 		RandomProvider.sleep(1000, 2000);
 		
 		while(controller.requestKeyboardAccess()) {RandomProvider.sleep(10);}
 		while(controller.requestMouseAccess()) {RandomProvider.sleep(10);}
+		
+		this.actionsCompleted++;
 		
 		controller.debug("Mouse control: FishingModule");
 		controller.debug("Keyboard control: FishingModule");

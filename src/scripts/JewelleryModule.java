@@ -87,6 +87,8 @@ public class JewelleryModule extends ScriptModule {
 					while(controller.requestKeyboardAccess()) {RandomProvider.sleep(10);}
 					while(controller.requestMouseAccess()) {RandomProvider.sleep(10);}
 					
+					this.actionsCompleted++;
+					
 					controller.debug("Mouse control: JewelleryModule");
 					controller.debug("Keyboard control: JewelleryModule");
 					
@@ -131,7 +133,6 @@ public class JewelleryModule extends ScriptModule {
 					script.getBank().close();
 					RandomProvider.sleep(500, 1250);
 					script.getMouse().move();
-					this.actionsCompleted++;
 					
 					controller.returnKeyboardAccess();
 					controller.returnMouseAccess();

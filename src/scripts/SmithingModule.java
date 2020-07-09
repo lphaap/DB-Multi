@@ -78,12 +78,12 @@ public class SmithingModule extends ScriptModule {
 					
 					controller.getGraphicHandler().setInfo("Smither: Inventory Done - Banking");
 					
-					
-					
 					controller.getMovementHandler().moveToBank();
 					
 					while(controller.requestKeyboardAccess()) {RandomProvider.sleep(10);}
 					while(controller.requestMouseAccess()) {RandomProvider.sleep(10);}
+					
+					this.actionsCompleted++;
 					
 					script.getBank().depositAllExcept(f -> f != null && f.getName().toLowerCase().equals("hammer") || f.getName().toLowerCase().equals(barText));
 					RandomProvider.sleep(1000, 1750);
@@ -106,8 +106,6 @@ public class SmithingModule extends ScriptModule {
 					RandomProvider.sleep(500, 1250);
 	
 					script.getMouse().move();
-					
-					this.actionsCompleted++;
 					
 					controller.returnKeyboardAccess();
 					controller.returnMouseAccess();

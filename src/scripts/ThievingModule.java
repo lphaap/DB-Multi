@@ -1,6 +1,7 @@
 package scripts;
 
 import org.dreambot.api.methods.skills.Skill;
+import org.dreambot.api.wrappers.interactive.NPC;
 
 import antiban.RandomProvider;
 import client.ClientThread;
@@ -8,7 +9,7 @@ import client.ThreadController;
 import movement.LocationFactory;
 import utilities.GearHandler.Gear;
 
-public class ModuleTemplate extends ScriptModule {
+public class ThievingModule extends ScriptModule {
 	//CLASS OBJECTS HERE:
 	
 	private ThreadController controller;
@@ -25,7 +26,7 @@ public class ModuleTemplate extends ScriptModule {
 	private ThievingTarget targetEnum;
 	
 	//MODULE CONSTRUCTOR:
-	public ModuleTemplate(ThreadController controller, ClientThread client, LocationFactory.GameLocation locationEnum, 
+	public ThievingModule(ThreadController controller, ClientThread client, LocationFactory.GameLocation locationEnum, 
 						 ThievingTarget target, int limit) { //<-- ADD REQUIRED OBJECTS HERE
 		this.controller = controller; 
 		this.client = client;
@@ -43,15 +44,11 @@ public class ModuleTemplate extends ScriptModule {
 
 			if(!client.getLocalPlayer().isAnimating()){
 				controller.getGraphicHandler().setInfo("ThievingModule: Thieving");
-				NPC npc = client.getNPCs().closest( f -> f != null && f.getName().equals(this.targetName));
-				if(RandomProvider.fiftyfifty()){
-					npc.interact();
-					client.getMouse().move();
-				}
-				else{
-					npc.interact("Pickpocket");
-					client.getMouse().move();
-				}
+				NPC npc = client.getNpcs().closest( f -> f != null && f.getName().equals(this.targetName));
+				
+				npc.interact("Pickpocket");
+				client.getMouse().move();
+				
 
 			}
 

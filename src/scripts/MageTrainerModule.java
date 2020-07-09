@@ -70,8 +70,9 @@ public class MageTrainerModule extends ScriptModule{
 		this.alchemyArea = script.getWidget(218, 38);
 		
 		this.moduleName = "MageTrainerModule";
-		this.locationEnum = GameLocation.SPLASHING_BEAR;
 		this.targetName = "Grizzly bear";
+		
+		this.locationEnum = GameLocation.SPLASHING_BEAR;
 
 		setCurseVariables(curse);
 		setItemName(item);
@@ -98,54 +99,46 @@ public class MageTrainerModule extends ScriptModule{
 				cursePoint = new Point(RandomProvider.randomInt(curseArea.getX(), curseArea.getX() + curseArea.getWidth()),
 						   			   RandomProvider.randomInt(curseArea.getY(), curseArea.getY() + curseArea.getHeight()));
 				
+				if(this.trainAlchemy) {
+
+					if((!script.getInventory().contains(f -> f != null && f.getName().equals("Nature rune")))) { //Can cast alchemy
+						controller.debug("MageTrainer - No Nature Runes In Inventory");
+						this.controller.getMovementHandler().moveToBank();
+						RandomProvider.sleep(800,1200);
+						this.killThread();
+						continue;
+					}
+					if(!script.getInventory().contains(f -> f != null && f.getName().equals(itemName))) { //Has Alchemy Item
+						controller.debug("MageTrainer - No Alchemy Item In Inventory");
+						this.controller.getMovementHandler().moveToBank();
+						RandomProvider.sleep(800,1200);
+						this.killThread();
+						continue;
+					}
+					if(script.getEquipment().getItemInSlot(EquipmentSlot.WEAPON.getSlot()) == null || 
+					  !script.getEquipment().getItemInSlot(EquipmentSlot.WEAPON.getSlot()).getName().equals("Staff of fire")) { //Has Staff of fire 
+						controller.debug("MageTrainer - No Staff of Fire In Inventory");
+						this.controller.getMovementHandler().moveToBank();
+						RandomProvider.sleep(800,1200);
+						this.killThread();
+						continue;
+					}
+				}
+				if(!script.getMagic().canCast(curse)) { //Can Cast Curse
+					controller.debug("MageTrainer - No Curse Runes In Inventory");
+					this.controller.getMovementHandler().moveToBank();
+					RandomProvider.sleep(800,1200);
+					this.killThread();
+					continue;
+				}
+				
 				while(controller.requestKeyboardAccess()) {RandomProvider.sleep(10);}
 				while(controller.requestMouseAccess()) {RandomProvider.sleep(10);}
 				
 				if(!script.getTabs().isOpen(Tab.MAGIC)) {
 					script.getTabs().open(Tab.MAGIC);
 					script.sleep(30);
-				}
-				
-				
-				if(!script.getMagic().canCast(curse) || ((!script.getInventory().contains(f -> f != null && f.getName().equals("Nature rune")) || 
-						!script.getInventory().contains(f -> f != null && f.getName().equals(itemName))) && trainAlchemy)) {
-					
-					//|| script.getMagic().canCast(alchemy)
-					controller.debug("MageTrainer - Module ERROR");
-					controller.debug("Trying to Restart Module...");
-					if(!setupModule() || error) {
-						controller.debug("MageTrainer - Module ERROR");
-						controller.debug("Changing Module.");
-						this.killThread = true;
-						
-						controller.returnKeyboardAccess();
-						controller.returnMouseAccess();
-					}
-					controller.debug("Module Restart Complete");
-					this.error = true;
-					controller.returnKeyboardAccess();
-					controller.returnMouseAccess();
-				}
-				
-				if(script.getEquipment().getItemInSlot(EquipmentSlot.WEAPON.getSlot()) != null && 
-						!script.getEquipment().getItemInSlot(EquipmentSlot.WEAPON.getSlot()).getName().equals("Staff of fire") && trainAlchemy) {
-					if(script.getEquipment().getItemInSlot(EquipmentSlot.WEAPON.getSlot()) == null) {
-						controller.debug("MageTrainer - Module ERROR");
-						controller.debug("No Fire staff Found - Changing Module");
-						this.killThread = true;
-						
-						controller.returnKeyboardAccess();
-						controller.returnMouseAccess();
-					}
-				}
-				else if(script.getEquipment().getItemInSlot(EquipmentSlot.WEAPON.getSlot()) == null && trainAlchemy) {
-					controller.debug("MageTrainer - Module ERROR");
-					controller.debug("No Fire staff Found - Changing Module");
-					this.killThread = true;
-					
-					controller.returnKeyboardAccess();
-					controller.returnMouseAccess();
-				}
+				}	
 				
 				if(trainAlchemy) {
 					
@@ -189,6 +182,12 @@ public class MageTrainerModule extends ScriptModule{
 						script.getMouse().move();
 						RandomProvider.sleep(40, 80);
 						script.getMouse().move();
+					}
+					
+					if(limit <= (this.actionsCompleted + 1)) {
+						controller.getMovementHandler().moveToBank();
+						RandomProvider.sleep(800,1200);
+						this.killThread = true;
 					}
 					this.actionsCompleted++;
 					
@@ -245,6 +244,7 @@ public class MageTrainerModule extends ScriptModule{
 		}
 		RandomProvider.sleep(200, 400);
 	}
+	
 	
 	public void setCurseVariables(Curse curse) {
 		
@@ -323,7 +323,7 @@ public class MageTrainerModule extends ScriptModule{
 			for(Rune rune : curse.getCost()) {
 				if(script.getBank().contains(f -> f != null && f.getName().equals(rune.getName()))) {
 					script.getBank().withdrawAll(f -> f != null && f.getName().equals(rune.getName()));
-					RandomProvider.sleep(500, 1000);
+					RandomProvider.sleep(600, 950);
 				}
 				else {
 					controller.returnKeyboardAccess();
@@ -335,7 +335,7 @@ public class MageTrainerModule extends ScriptModule{
 			if(this.trainAlchemy) {
 				if(script.getBank().contains("Nature rune")) {
 					script.getBank().withdrawAll(f -> f != null && f.getName().equals("Nature rune"));
-					RandomProvider.sleep(500, 1000);
+					RandomProvider.sleep(600, 950);
 				}
 				else {
 					controller.returnKeyboardAccess();
@@ -346,7 +346,7 @@ public class MageTrainerModule extends ScriptModule{
 			
 				if(script.getBank().contains(itemName)) {
 					script.getBank().withdrawAll(f -> f != null && f.getName().equals(itemName));
-					RandomProvider.sleep(500, 1000);
+					RandomProvider.sleep(600, 950);
 				}
 				else {
 					controller.returnKeyboardAccess();

@@ -77,6 +77,8 @@ public class MinerModule extends ScriptModule{
 						while(controller.requestKeyboardAccess()) {RandomProvider.sleep(10);}
 						while(controller.requestMouseAccess()) {RandomProvider.sleep(10);}
 						
+						completedActions++;
+						
 						controller.debug("Mouse control: MinerModule");
 						controller.debug("Keyboard control: MinerModule");
 						
@@ -86,7 +88,6 @@ public class MinerModule extends ScriptModule{
 						script.getBank().close();
 						sleep(RandomProvider.randomInt(750)+ 500);
 						script.getMouse().move();
-						completedActions++;
 						
 						controller.returnKeyboardAccess();
 						controller.returnMouseAccess();
@@ -98,6 +99,12 @@ public class MinerModule extends ScriptModule{
 						while(controller.requestMouseAccess()) {RandomProvider.sleep(10);}
 						
 						script.getInventory().dropAllExcept(f -> f != null && f.getName().toLowerCase().contains("pickaxe"));
+						
+						if(limit <= (this.completedActions + 1)) {
+							controller.getMovementHandler().moveToBank();
+							RandomProvider.sleep(800,1200);
+							this.killThread = true;
+						}
 						this.completedActions++;
 						
 						controller.returnKeyboardAccess();
@@ -113,17 +120,12 @@ public class MinerModule extends ScriptModule{
 						
 				}
 				else if(!script.getLocalPlayer().isAnimating()) {
-					
 					if(!script.getInventory().contains(f -> f != null && f.getName().toLowerCase().contains("pickaxe"))) {
-						controller.debug("Miner - Module ERROR");
-						controller.debug("Trying to Restart Module...");
-						if(!setupModule() || error) {
-							controller.debug("Miner - Module ERROR");
-							controller.debug("Changing Module.");
-							this.killThread = true;
-						}
-						controller.debug("Restart Completed");
-						this.error = true;
+						controller.debug("Miner - No Pickaxe In Inventory");
+						controller.getMovementHandler().moveToBank();
+						RandomProvider.sleep(800,1200);
+						this.killThread = true;
+						continue mainLoop;
 					}
 					
 					controller.getGraphicHandler().setInfo("Miner: Mining - " + oreEnum);
@@ -147,7 +149,9 @@ public class MinerModule extends ScriptModule{
 						
 						if(nullCounter > 10) {
 							controller.debug("ERROR: Ore Not Found");
-							this.killThread();
+							controller.getMovementHandler().moveToBank();
+							RandomProvider.sleep(800,1200);
+							this.killThread = true;
 						}
 						
 						controller.returnKeyboardAccess();

@@ -56,14 +56,14 @@ public class CookerModule extends ScriptModule {
 					
 					controller.getGraphicHandler().setInfo("Cooker: Inventory Done - Banking");
 					
-					this.actionsCompleted++;
-					
 					controller.getMovementHandler().moveToBank();
 					
 					RandomProvider.sleep(700, 1450);
 					
 					while(controller.requestKeyboardAccess()) {RandomProvider.sleep(10);}
 					while(controller.requestMouseAccess()) {RandomProvider.sleep(10);}
+					
+					this.actionsCompleted++;
 					
 					controller.debug("Mouse control: CookerModule");
 					controller.debug("Keyboard control: CookerModule");

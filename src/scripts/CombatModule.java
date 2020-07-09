@@ -137,12 +137,12 @@ public class CombatModule extends ScriptModule {
 					
 					controller.getMovementHandler().moveToBank();
 					
-					this.actionsCompleted++;
-					
 					sleep(RandomProvider.randomInt(750)+ 700);
 					
 					while(controller.requestMouseAccess()) {RandomProvider.sleep(10);}
 					while(controller.requestKeyboardAccess()) {RandomProvider.sleep(10);}
+					
+					this.actionsCompleted++;
 					
 					controller.debug("Mouse control: CombatModule");
 					controller.debug("Keyboard control: CombatModule");

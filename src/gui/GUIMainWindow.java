@@ -100,7 +100,7 @@ public class GUIMainWindow extends JFrame {
 		
 		listScript = new List();
 		listScript.setBounds(10, 108, 394, 449);
-		
+		listScript.setFont(new Font("Tahoma", Font.BOLD, 14));
 		contentPane.add(listScript);
 		
 		this.pauseSpinnerMin = new JSpinner();
@@ -184,25 +184,32 @@ public class GUIMainWindow extends JFrame {
 			window.show();
 		}
 		else if(((String)this.comboBoxScriptEditor.getSelectedItem()).equals("MagicModule")) {
-			System.out.println("TODO: MagicModule");
+			GUIMagicModuleWindow window = new GUIMagicModuleWindow(controller, client, this);
+			window.show();
 		}
 		else if(((String)this.comboBoxScriptEditor.getSelectedItem()).equals("MiningModule")) {
-			System.out.println("TODO: MiningModule");
+			GUIMinerModuleWindow window = new GUIMinerModuleWindow(controller, client, this);
+			window.show();
 		}
 		else if(((String)this.comboBoxScriptEditor.getSelectedItem()).equals("SmithingModule")) {
-			System.out.println("TODO: SmithingModule");
+			GUISmithingModuleWindow window = new GUISmithingModuleWindow(controller, client, this);
+			window.show();
 		}
 		else if(((String)this.comboBoxScriptEditor.getSelectedItem()).equals("SmeltingModule")) {
-			System.out.println("TODO: SmeltingModule");
+			GUISmeltingModuleWindow window = new GUISmeltingModuleWindow(controller, client, this);
+			window.show();
 		}
 		else if(((String)this.comboBoxScriptEditor.getSelectedItem()).equals("JewelleryModule")) {
-			System.out.println("TODO: JewelleryModule");
+			GUIJewelleryModuleWindow window = new GUIJewelleryModuleWindow(controller, client, this);
+			window.show();
 		}
 		else if(((String)this.comboBoxScriptEditor.getSelectedItem()).equals("FishingModule")) {
-			System.out.println("TODO: FishingModule");
+			GUIFishingModuleWindow window = new GUIFishingModuleWindow(controller, client, this);
+			window.show();
 		}
 		else if(((String)this.comboBoxScriptEditor.getSelectedItem()).equals("CookingModule")) {
-			System.out.println("TODO: CookingModule");
+			GUICookerModuleWindow window = new GUICookerModuleWindow(controller, client, this);
+			window.show();
 		}
 	}
 	
@@ -210,8 +217,8 @@ public class GUIMainWindow extends JFrame {
 		System.out.println("TODO: GearEditor");
 	}
 	
-	public List getModuleList() {
-		return this.listScript;
+	public void addToList(String item) {
+		this.listScript.add("" + (this.listScript.getItemCount()+1) + ". " + item);
 	}
 	
 

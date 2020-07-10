@@ -30,6 +30,7 @@ public class GUICombatModuleWindow extends JFrame {
 
 	private JSpinner limit;
 	private JSpinner timeLimit;
+	private JSpinner foodLimit;
 	
 	private JComboBox comboBoxMonster;
 	private JComboBox comboBoxFood;
@@ -74,25 +75,38 @@ public class GUICombatModuleWindow extends JFrame {
 		
 		JLabel lblLimit = new JLabel("Action limit:");
 		lblLimit.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		lblLimit.setBounds(40, 59, 168, 22);
+		lblLimit.setBounds(10, 59, 168, 22);
 		contentPane.add(lblLimit);
 		
 		limit = new JSpinner();
-		limit.setBounds(40, 82, 71, 22);
+		limit.setBounds(10, 82, 71, 22);
 		limit.addChangeListener(e -> {
-			checkLimit();
+			checkLimit(limit);
 		});
+		limit.setValue(1);
 		contentPane.add(limit);
 
+		JLabel lblFoodLimit = new JLabel("Food limit:");
+		lblFoodLimit.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		lblFoodLimit.setBounds(229, 59, 168, 22);
+		contentPane.add(lblFoodLimit);
+		
+		foodLimit = new JSpinner();
+		foodLimit.setBounds(229, 82, 71, 22);
+		foodLimit.addChangeListener(e -> {
+			checkFoodTimerLimit(foodLimit);
+		});
+		contentPane.add(foodLimit);
+		
 		JLabel lblTimeLimit = new JLabel("Time limit:");
 		lblTimeLimit.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		lblTimeLimit.setBounds(207, 59, 168, 22);
+		lblTimeLimit.setBounds(120, 59, 168, 22);
 		contentPane.add(lblTimeLimit);
 		
 		timeLimit = new JSpinner();
-		timeLimit.setBounds(207, 82, 71, 22);
+		timeLimit.setBounds(120, 82, 71, 22);
 		timeLimit.addChangeListener(e -> {
-				//handlePauseSpinners();
+			checkFoodTimerLimit(timeLimit);
 		});
 		contentPane.add(timeLimit);
 		
@@ -128,7 +142,7 @@ public class GUICombatModuleWindow extends JFrame {
 		comboBoxTrain.setModel(new DefaultComboBoxModel(CombatModule.Training.values()));
 		contentPane.add(comboBoxTrain);
 		
-		JLabel lblPickup = new JLabel("Pickup Items:");
+		JLabel lblPickup = new JLabel("Collect Items:");
 		lblPickup.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		lblPickup.setBounds(170, 256, 94, 22);
 		contentPane.add(lblPickup);
@@ -142,9 +156,9 @@ public class GUICombatModuleWindow extends JFrame {
 		btnStart.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				Thread t = new Thread(() -> {
-					parseModule();
-					parseInfo();
+					close();
 				});
+				t.start();
 	
 			}
 		});
@@ -153,17 +167,30 @@ public class GUICombatModuleWindow extends JFrame {
 	}
 	
 	public void parseModule() {
-		//controller.addModule(new CombatModule(controller, client, ((CombatModule.Monster)(this.comboBoxMonster.getSelectedItem())), ((CombatModule.Food)(this.comboBoxFood.getSelectedItem())), 
-			//				((int)this.limit.getValue()), ((int)this.timeLimit.getValue()), this.pickupCheck.isSelected(), ((CombatModule.Training)this.comboBoxTrain.getSelectedItem())));
+		controller.addModule(new CombatModule(controller, client, ((CombatModule.Monster)(this.comboBoxMonster.getSelectedItem())), 
+							((CombatModule.Food)(this.comboBoxFood.getSelectedItem())), 
+							((int)this.limit.getValue()), ((int)this.timeLimit.getValue()), ((int)this.foodLimit.getValue()), 
+							this.pickupCheck.isSelected(), ((CombatModule.Training)this.comboBoxTrain.getSelectedItem())));
 	}
 	
 	public void parseInfo() {
-		mainWindow.getModuleList().add("CombatModule: " + (this.comboBoxMonster.getSelectedItem().toString()));
+		mainWindow.addToList("CombatModule: " + (this.comboBoxMonster.getSelectedItem().toString()));
 	}
 	
-	public void checkLimit() {
-		if(((int)this.limit.getValue()) < 1) {
-			this.limit.setValue("1");
+	public void close() {
+		parseModule();
+		parseInfo();
+		this.dispose();
+	}
+	
+	public void checkFoodTimerLimit(JSpinner spinner) {
+		if((int)spinner.getValue() < 0) {
+			spinner.setValue(0);
+		}
+	}
+	public void checkLimit(JSpinner spinner) {
+		if((int)spinner.getValue() < 1) {
+			spinner.setValue(1);
 		}
 	}
 

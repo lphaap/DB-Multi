@@ -54,8 +54,8 @@ public class MageTrainerModule extends ScriptModule{
 	private Rectangle itemArea;
 	
 	
-	public MageTrainerModule(ThreadController controller, ClientThread script, int limit, MageTrainerModule.Curse curse, 
-							 boolean trainAlchemy, MageTrainerModule.alchemyItem item) {
+	public MageTrainerModule(ThreadController controller, ClientThread script, int limit, LocationFactory.GameLocation locationEnum, 
+							 MageTrainerModule.Curse curse, boolean trainAlchemy, MageTrainerModule.AlchemyItem item) {
 		
 		this.script = script;
 		this.controller = controller;
@@ -69,9 +69,12 @@ public class MageTrainerModule extends ScriptModule{
 		
 		this.alchemyArea = script.getWidget(218, 38);
 		
-		this.moduleName = "MageTrainerModule";
-		this.targetName = "Grizzly bear";
+		this.locationEnum = locationEnum;
+		this.setTargetName(locationEnum);
 		
+		this.moduleName = "MageTrainerModule";
+		
+		this.targetName = "Grizzly bear";
 		this.locationEnum = GameLocation.SPLASHING_BEAR;
 
 		setCurseVariables(curse);
@@ -287,9 +290,15 @@ public class MageTrainerModule extends ScriptModule{
 		CONFUSE, WEAKEN, CURSE, SNARE, VULNERABILITY, ENFEEBLE, ENTANGLE, STUN
 	}
 	
-	public void setItemName(alchemyItem item) {
-		if(item == alchemyItem.DRAGOSTONE_BOLT_TIPS) {
+	public void setItemName(AlchemyItem item) {
+		if(item == AlchemyItem.DRAGOSTONE_BOLT_TIPS) {
 			this.itemName = "Dragonstone bolt tips";
+		}
+	}
+	
+	public void setTargetName(GameLocation location) {
+		if(location == GameLocation.SPLASHING_BEAR) {
+			this.targetName = "Grizzly bear";
 		}
 	}
 	
@@ -403,7 +412,7 @@ public class MageTrainerModule extends ScriptModule{
 	}
 
 	
-	public enum alchemyItem {
+	public enum AlchemyItem {
 		DRAGOSTONE_BOLT_TIPS
 	}
 

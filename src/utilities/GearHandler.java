@@ -1,4 +1,7 @@
 package utilities;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Random;
@@ -19,6 +22,7 @@ public class GearHandler implements KillableHandler {
 	private ArrayList<String> melee = new ArrayList<String>();
 	private ArrayList<String> range = new ArrayList<String>();
 	private ArrayList<String> utility = new ArrayList<String>();
+	private ArrayList<String> other = new ArrayList<String>();
 	private ArrayList<String> gear = new ArrayList<String>();
 	private ThreadController controller;
 	private ArrayList<Boolean> found;
@@ -150,6 +154,10 @@ public class GearHandler implements KillableHandler {
 			case RANGE:
 				this.gear = this.range;
 				break;
+				
+			case OTHER:
+				this.gear = this.other;
+				break;
 		}
 		
 	}
@@ -220,7 +228,7 @@ public class GearHandler implements KillableHandler {
 		return true;
 	}
 	
-	public enum Gear {MELEE, RANGE, MAGIC, UTILITY}
+	public enum Gear {MELEE, RANGE, MAGIC, UTILITY, OTHER}
 
 	
 	private class GearSwapper implements KillableThread{
@@ -324,6 +332,44 @@ public class GearHandler implements KillableHandler {
 	@Override
 	public void killHandler() {
 		this.killHandler = true;
+		
+	}
+	
+	public void readGearLists() {
+		FileInputStream fi;
+		ObjectInputStream oi;
+		try {
+		fi = new FileInputStream(this.getClass().getProtectionDomain().getCodeSource().getLocation().getPath() + "/../DBMultiResources/range.gear");
+		oi = new ObjectInputStream(fi);
+		this.range = ((GearList)oi.readObject()).getList();
+		fi.close();
+		oi.close();
+		
+		fi = new FileInputStream(this.getClass().getProtectionDomain().getCodeSource().getLocation().getPath() + "/../DBMultiResources/magic.gear");
+		oi = new ObjectInputStream(fi);
+		this.magic = ((GearList)oi.readObject()).getList();
+		fi.close();
+		oi.close();
+		
+		fi = new FileInputStream(this.getClass().getProtectionDomain().getCodeSource().getLocation().getPath() + "/../DBMultiResources/melee.gear");
+		oi = new ObjectInputStream(fi);
+		this.melee = ((GearList)oi.readObject()).getList();
+		fi.close();
+		oi.close();
+		
+		fi = new FileInputStream(this.getClass().getProtectionDomain().getCodeSource().getLocation().getPath() + "/../DBMultiResources/utility.gear");
+		oi = new ObjectInputStream(fi);
+		this.utility = ((GearList)oi.readObject()).getList();
+		fi.close();
+		oi.close();
+		
+		fi = new FileInputStream(this.getClass().getProtectionDomain().getCodeSource().getLocation().getPath() + "/../DBMultiResources/other.gear");
+		oi = new ObjectInputStream(fi);
+		this.other = ((GearList)oi.readObject()).getList();
+		fi.close();
+		oi.close();
+		
+		}catch(Exception e) {}
 		
 	}
 

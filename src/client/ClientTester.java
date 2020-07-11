@@ -8,6 +8,7 @@ import antiban.RandomProvider;
 import movement.LocationFactory.GameLocation;
 import movement.LocationFactory;
 import scripts.ScriptModule;
+import utilities.GearHandler.Gear;
 import utilities.WorldHandler;
 
 public class ClientTester extends ScriptModule {
@@ -34,8 +35,17 @@ public class ClientTester extends ScriptModule {
 
 	@Override
 	public void run() {	
-		setup();
+		//setup();
 		while(!killThread) {
+			controller.getGearHandler().handleGearSwap(Gear.MAGIC);
+			RandomProvider.sleep(1000,1500);
+			controller.getGearHandler().handleGearSwap(Gear.MELEE);
+			RandomProvider.sleep(1000,1500);
+			controller.getGearHandler().handleGearSwap(Gear.RANGE);
+			RandomProvider.sleep(1000,1500);
+			controller.getGearHandler().handleGearSwap(Gear.OTHER);
+			RandomProvider.sleep(1000,1500);
+			controller.getGearHandler().handleGearSwap(Gear.UTILITY);
 			RandomProvider.sleep(1000,1500);
 		}
 

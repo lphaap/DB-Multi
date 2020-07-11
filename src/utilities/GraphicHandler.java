@@ -14,6 +14,7 @@ public class GraphicHandler {
 	private Font generalFont;
 	private boolean isOnPause;
 	private boolean useTester;
+	private boolean onManualPause;
 	private ThreadController controller;
 	
 	public GraphicHandler(ThreadController controller) {
@@ -28,6 +29,16 @@ public class GraphicHandler {
 	public void handleGraphics(Graphics g) {
 		if(useTester) {
 			g.setColor(Color.PINK);
+			g.setFont(generalFont);
+			g.drawString(this.info,5,334);
+			g.drawString(this.scriptTimer, 5, 314);
+			g.drawString(this.pauseTimer, 5, 294);
+		}
+		else if(onManualPause) {
+			this.scriptTimer = "MANUAL PAUSE";
+			this.pauseTimer  = "MANUAL PAUSE";
+			this.info = "MANUAL PAUSE";
+			g.setColor(Color.RED);
 			g.setFont(generalFont);
 			g.drawString(this.info,5,334);
 			g.drawString(this.scriptTimer, 5, 314);
@@ -80,6 +91,10 @@ public class GraphicHandler {
 	}
 	public void togglePause() {
 		this.isOnPause = !this.isOnPause;
+	}
+	
+	public void toggleManualPause() {
+		this.onManualPause = !this.onManualPause;
 	}
 	
 	public void toggleTester() {

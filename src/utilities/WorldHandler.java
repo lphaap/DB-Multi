@@ -131,9 +131,11 @@ public class WorldHandler implements KillableHandler {
 			
 			World w;
 			if(client.getClient().isMembers()) {
+				//controller.debug("Member");
 				w = client.getWorlds().getRandomWorld(f -> f != null && f.isMembers() && !f.isDeadmanMode() && !f.isPVP() && f.getMinimumLevel() == 0);
 			}
 			else {
+				//controller.debug("Free");
 				w = client.getWorlds().getRandomWorld(f -> f != null && !f.isMembers() && !f.isDeadmanMode() && !f.isPVP() && f.getMinimumLevel() == 0);
 			}
 			

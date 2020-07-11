@@ -10,6 +10,7 @@ import javax.security.auth.login.LoginException;
 
 import org.dreambot.api.methods.magic.Spell;
 import org.dreambot.api.methods.skills.Skill;
+import org.dreambot.api.randoms.RandomEvent;
 import org.telegram.telegrambots.ApiContextInitializer;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiRequestException;
@@ -39,6 +40,8 @@ public class ThreadController implements KillableThread{
 	private boolean keyboardInUse;
 	private boolean mouseInUse;
 	private boolean debug;
+	private boolean manualPause;
+	private boolean onPause;
 	
 	private ScriptModule currentModule;
 	private ArrayList<ScriptModule> modules = new ArrayList<ScriptModule>();
@@ -56,7 +59,9 @@ public class ThreadController implements KillableThread{
 	
 	private int scriptTimer;
 	private int pauseTimer;
-	private int onPause;
+
+	
+
 	
 	public ThreadController(ClientThread client) {
 		this.client = client; //Save bot-client for spreading to Scripts
@@ -66,7 +71,6 @@ public class ThreadController implements KillableThread{
 		debug("Controller Start");
 		
 		//---Setup Handlers---//
-		this.graphicHandler = new GraphicHandler(this);
 		this.inGameMsgHandler = new InGameMsgHandler(client, this);
 		//this.movementHandler = new MovementHandler(client, this);
 		this.movementHandler = new MovementHandler(client, this);
@@ -84,36 +88,10 @@ public class ThreadController implements KillableThread{
 		
 		//---Modules---//
 		modules.add(null); //DO NOT REMOVE - Needed for the start with nextModule();
-		//modules.add(new ClientTester(this, client));
-		//modules.add(new MageTrainerModule(this, client, 168, Curse.CURSE, false, MageTrainerModule.alchemyItem.DRAGOSTONE_BOLT_TIPS));
-		modules.add(new FishingModule(this, client, FishingModule.Fish.TROUT_SALMON, 22, false));
-		modules.add(new JewelleryModule(this, client, LocationFactory.GameLocation.SMELTER_EDGEVILLE,
-			JewelleryModule.JewelleryMaterial.GOLD, JewelleryModule.JewelleryType.NECKLACE, 21));
-		modules.add(new MinerModule(client, this, LocationFactory.GameLocation.MINER_EAST_VARROCK, MinerModule.Ore.IRON_ORE, false, 24));
-		modules.add(new JewelleryModule(this, client, LocationFactory.GameLocation.SMELTER_EDGEVILLE,
-				JewelleryModule.JewelleryMaterial.GOLD, JewelleryModule.JewelleryType.NECKLACE, 30));
-		//modules.add(new CombatModule(this, client, Monster.GIANT_FROG, Food.TROUT, 2, 43, 6, true, Training.RANGE));
-		//modules.add(new MageTrainerModule(this, client, 700, Curse.CURSE, false, MageTrainerModule.alchemyItem.DRAGOSTONE_BOLT_TIPS));
-		
-		//modules.add(new CombatModule(this, client, Monster.GIANT_FROG, Food.TROUT, 2, 30, true, Training.RANGE));
-		//modules.add(new CombatModule(this, client, Monster.GIANT_FROG, Food.TROUT, 2, 78, true, Training.STRENGTH));
-		//modules.add(new MinerModule(client, this, LocationFactory.GameLocation.MINER_EAST_VARROCK, MinerModule.Ore.COPPER_ORE, false, 18));
-		
-		//modules.add(new SmithingModule(this, client, SmithingModule.SmithingType.SCIMITAR, SmithingModule.SmithingMaterial.IRON, LocationFactory.GameLocation.SMITHING_WEST_VARROCK, 4));
-		
-		//modules.add(new CookerModule(this, client, LocationFactory.GameLocation.COOKING_AL_KHARID, Cook.SHRIMP, 8));
-		//modules.add(new FishingModule(this, client, FishingModule.Fish.HERRING, 2, false));
-		
-		
-		//modules.add( new SmelterModule(client, this, LocationFactory.GameLocation.SMELTER_AL_KHARID, 10, SmelterModule.Bars.BRONZE));
-		//modules.add(new CombatModule(this, client, Monster.GIANT_FROG, Food.TROUT, 2, 40, true, Training.STRENGTH));
+		modules.add(new ClientTester(this, client));
 		
 		//---Modules---//
 		
-		//---Active Handler StartUp---//
-		this.antibanHandler.startAllAntibanThreads();
-		this.worldHandler.start();
-		//---Active Handler StartUp---//
 		
 		debug("Controller Loaded");
 
@@ -121,9 +99,18 @@ public class ThreadController implements KillableThread{
 	
 	@Override
 	public void run() {
-		
+		debug("BOT STARTED");
+		debug("BOT STARTED");
+		debug("BOT STARTED");
+	
+	
+		//---Active Handler StartUp---//
+			this.graphicHandler = new GraphicHandler(this);
+			this.antibanHandler.startAllAntibanThreads();
+			this.worldHandler.start();
+		//---Active Handler StartUp---//
+				
 		Thread.currentThread().setPriority(Thread.NORM_PRIORITY + 1);
-		
 		
 		//---Manual Start of 1st Module---//
 		nextModule();
@@ -161,7 +148,7 @@ public class ThreadController implements KillableThread{
 			
 				
 			//--If Thread Dosen't release Mouse or Keyboard--//
-				if(!this.movementHandler.isInControl()) { //Check if movement handler has control (takes too long for debug)
+				if(!this.movementHandler.isInControl() && !this.manualPause) { //Check if movement handler has control (takes too long for debug)
 					if(this.keyboardInUse) {
 						keyboardInUseFor++;
 					}
@@ -343,7 +330,7 @@ public class ThreadController implements KillableThread{
 		Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
 		while(this.requestKeyboardAccess()) {RandomProvider.sleep(10);}
 		while(this.requestMouseAccess()) {RandomProvider.sleep(10);}
-		
+		this.onPause = true;
 		client.logOut();
 		
 		int sleep = seconds;
@@ -369,6 +356,8 @@ public class ThreadController implements KillableThread{
 		this.returnKeyboardAccess();
 		this.returnMouseAccess();
 		
+		this.onPause = false;
+		
 		this.graphicHandler.togglePause();
 		
 		Thread.currentThread().setPriority(Thread.NORM_PRIORITY);
@@ -383,6 +372,8 @@ public class ThreadController implements KillableThread{
 		Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
 		while(this.requestKeyboardAccess()) {RandomProvider.sleep(10);}
 		while(this.requestMouseAccess()) {RandomProvider.sleep(10);}
+		
+		this.onPause = true;
 		
 		client.logOut();
 		
@@ -410,12 +401,45 @@ public class ThreadController implements KillableThread{
 		
 		this.returnKeyboardAccess();
 		this.returnMouseAccess();
+		this.onPause = false;
 		
 		this.graphicHandler.togglePause();
 		
 		Thread.currentThread().setPriority(Thread.NORM_PRIORITY);
 		
 		
+	}
+	
+	public void manualPause() {
+		debug("Pausing Bot...");
+		debug("Pausing Bot...");
+		debug("Pausing Bot...");
+		
+		Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
+		while(this.requestKeyboardAccess()) {RandomProvider.sleep(10);}
+		while(this.requestMouseAccess()) {RandomProvider.sleep(10);}
+		
+		this.graphicHandler.toggleManualPause();
+		this.manualPause = true;
+				
+		client.logOut();
+		
+		debug("Manual Pause Complete.");
+	}
+	
+	public void manualResume() {
+		client.logIn();
+		
+		RandomProvider.sleep(4000, 6000);
+		
+		this.graphicHandler.toggleManualPause();
+		
+		this.returnKeyboardAccess();
+		this.returnMouseAccess();
+		
+		this.manualPause = false;
+		Thread.currentThread().setPriority(Thread.NORM_PRIORITY);
+		debug("Manual Resume Complete.");
 	}
 	
 	public void killBot() {
@@ -537,6 +561,18 @@ public class ThreadController implements KillableThread{
 	
 	public void addModule(ScriptModule module) {
 		this.modules.add(module);
+	}
+	
+	public boolean isPaused() {
+		return this.onPause;
+	}
+	
+	public void setPauseTimer(int min, int max) {
+		this.pauseTimer = RandomProvider.randomInt((min)*60, (max)*60);
+	}
+	
+	public void setScriptTimer(int min, int max) {
+		this.scriptTimer = RandomProvider.randomInt((min)*60, (max)*60);
 	}
 	
 	

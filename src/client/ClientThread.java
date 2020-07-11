@@ -48,6 +48,7 @@ import utilities.InGameMsgHandler;
 public class ClientThread extends AbstractScript implements AdvancedMessageListener{
 	
 	private ThreadController controller;
+	private ClientThread client = this;
 	
 	//--Called in the begining of the script--//
 	@Override
@@ -58,20 +59,20 @@ public class ClientThread extends AbstractScript implements AdvancedMessageListe
 		addCanifisFix();
 		
 		this.controller = new ThreadController(this);
-		Thread thread = new Thread(controller);
-		thread.start();
+		//Thread thread = new Thread(controller);
+		//hread.start();
 		
-		/*EventQueue.invokeLater(new Runnable() {
+		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					GUIMainWindow gui = new GUIMainWindow();
+					GUIMainWindow gui = new GUIMainWindow(controller, client);
 					gui.setVisible(true);
 				} catch (Exception e) {
 					log("FAILED TO INIT GUI");
 					log(e.getMessage());
 				}
 			}
-		});*/
+		});
 
 	}
 	//--Called in the begining of the script--//
@@ -97,10 +98,12 @@ public class ClientThread extends AbstractScript implements AdvancedMessageListe
 	
 	void logOut() {
 		getRandomManager().disableSolver(RandomEvent.LOGIN);
-		while(getPlayers().localPlayer().isInCombat()) {
-			sleep(RandomProvider.randomInt(500, 1000));
+		if(client.getPlayers().localPlayer().isInCombat()) {
+			while(client.getPlayers().localPlayer().isInCombat()) {
+				RandomProvider.sleep(500, 1000);
+			}
+			RandomProvider.sleep(12000, 14000);
 		}
-		sleep(RandomProvider.randomInt(12000, 14000));
 		getTabs().open(Tab.LOGOUT);
 		if(this.getWorldHopper().isWorldHopperOpen()) {
 			this.getWorldHopper().closeWorldHopper();
@@ -129,7 +132,9 @@ public class ClientThread extends AbstractScript implements AdvancedMessageListe
 	
 	//--Handles drawing graphics to client--//
 	public void onPaint(Graphics g) {	
-		controller.getGraphicHandler().handleGraphics(g);
+		if(controller.getGraphicHandler() != null) {
+			controller.getGraphicHandler().handleGraphics(g);
+		}
 	}
 	//--Handles drawing graphics to client--//
 	
@@ -139,19 +144,27 @@ public class ClientThread extends AbstractScript implements AdvancedMessageListe
 	}
 	@Override
 	public void onClanMessage(Message m) {
-		controller.getInGameMsgHandler().processMessage(InGameMsgHandler.MsgOrigin.CLAN, m);
+		if(controller.getInGameMsgHandler() != null) {
+			controller.getInGameMsgHandler().processMessage(InGameMsgHandler.MsgOrigin.CLAN, m);
+		}
 	}
 	@Override
 	public void onGameMessage(Message m) {	
-		controller.getInGameMsgHandler().processMessage(InGameMsgHandler.MsgOrigin.GAME, m);
+		if(controller.getInGameMsgHandler() != null) {
+			controller.getInGameMsgHandler().processMessage(InGameMsgHandler.MsgOrigin.GAME, m);
+		}
 	}
 	@Override
 	public void onPlayerMessage(Message m) {
-		controller.getInGameMsgHandler().processMessage(InGameMsgHandler.MsgOrigin.PLAYER, m);
+		if(controller.getInGameMsgHandler() != null) {
+			controller.getInGameMsgHandler().processMessage(InGameMsgHandler.MsgOrigin.PLAYER, m);
+		}
 	}
 	@Override
 	public void onPrivateInMessage(Message m) {
-		controller.getInGameMsgHandler().processMessage(InGameMsgHandler.MsgOrigin.FRIEND, m);
+		if(controller.getInGameMsgHandler() != null) {
+			controller.getInGameMsgHandler().processMessage(InGameMsgHandler.MsgOrigin.FRIEND, m);
+		}
 	}
 	@Override
 	public void onPrivateInfoMessage(Message m) {

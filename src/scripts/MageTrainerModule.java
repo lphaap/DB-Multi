@@ -188,14 +188,20 @@ public class MageTrainerModule extends ScriptModule{
 					}
 					
 					if(limit <= (this.actionsCompleted + 1)) {
+						controller.returnKeyboardAccess();
+						controller.returnMouseAccess();
+						
 						controller.getMovementHandler().moveToBank();
 						RandomProvider.sleep(800,1200);
 						this.killThread = true;
 					}
+					else {
+						controller.returnKeyboardAccess();
+						controller.returnMouseAccess();
+					}
 					this.actionsCompleted++;
 					
-					controller.returnKeyboardAccess();
-					controller.returnMouseAccess();
+					
 				}
 				else {
 					target = script.getNpcs().closest(f -> f != null && f.getName().equals(targetName)); //Target click

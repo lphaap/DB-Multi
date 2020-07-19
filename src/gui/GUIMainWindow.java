@@ -110,7 +110,7 @@ public class GUIMainWindow extends JFrame {
 		comboBoxScriptEditor = new JComboBox();
 		comboBoxScriptEditor.setBounds(10, 66, 161, 22);
 		comboBoxScriptEditor.setModel(new DefaultComboBoxModel(new String[] 
-									{"CombatModule", "MagicModule", "MiningModule", "SmithingModule",
+									{"ManualCombatModule", "CombatModule", "MagicModule", "MiningModule", "SmithingModule",
 									 "SmeltingModule", "JewelleryModule", "FishingModule", "CookingModule"}));
 		contentPane.add(comboBoxScriptEditor);
 		
@@ -320,6 +320,10 @@ public class GUIMainWindow extends JFrame {
 		}
 		else if(((String)this.comboBoxScriptEditor.getSelectedItem()).equals("CookingModule")) {
 			GUICookerModuleWindow window = new GUICookerModuleWindow(controller, client, this);
+			window.show();
+		}
+		else if(((String)this.comboBoxScriptEditor.getSelectedItem()).equals("ManualCombatModule")) {
+			GUIManualCModule window = new GUIManualCModule(controller, client, this);
 			window.show();
 		}
 	}

@@ -94,13 +94,13 @@ public class LocationFactory {
 				re.setTeleporter(new Teleporter(script, new Area(2832,3435, 2862,3424)));
 				re.setObstacles(reObs);
 			}
-			/*else if(l == GameLocation.COMBAT_EXPERIMENTS) {
-				re.setPhase2(new Tile(3588,3533).getArea(2));
-				re.setObstacle2(new Obstacle(script, "Memorial", "Ladder", "Push",  "Climb-up")); 
-				re.setPhase1(new Tile(3483,9938).getArea(15));
+			else if(l == GameLocation.COMBAT_EXPERIMENTS) {
+				reObs.add(new Obstacle(script, "Memorial", "Push", "Ladder", "Climb-up", 
+						  new Tile(3580, 3528).getArea(2), new Tile(3577, 9927).getArea(2)));
+				re.setTargetArea(new Tile(3483,9938).getArea(15));
 				re.setTeleporter(new Teleporter(script, new Tile(3588,3533).getArea(2)));
 				re.setObstacles(reObs);
-			}*/
+			}
 			else if(l == GameLocation.COOKING_CATHERBY) {
 				re.setTargetArea(new Tile(2817,3443).getArea(1));
 				re.setTeleporter(new Teleporter(script, new Tile(2817,3443).getArea(1)));

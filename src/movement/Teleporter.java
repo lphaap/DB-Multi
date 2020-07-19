@@ -26,7 +26,7 @@ public class Teleporter {
 		teleLocations = new ArrayList<TeleportItem>();
 		//MainLooper script, Tile location, String locationname, String action, String itemName
 		teleLocations.add(new TeleAmulet(script, new Tile(3407,3156), new Tile(3369, 3170), "Desert Eagle", "Necklace of passage(", 3)); 
-		teleLocations.add(new TeleAmulet(script, new Tile(3315,3236), new Tile(3382, 3268), "Dueal Arena", "Ring of dueling(", 1));
+		teleLocations.add(new TeleAmulet(script, new Tile(3315,3236), new Tile(3382, 3268), "Duel Arena", "Ring of dueling(", 1));
 		teleLocations.add(new TeleAmulet(script, new Tile(2438,3091), new Tile(2442, 3084), "Castle wars", "Ring of dueling(", 2));
 		teleLocations.add(new TeleAmulet(script, new Tile(2896,3555), new Tile(2809, 3440), "Burthope", "Games necklace(", 1));
 		teleLocations.add(new TeleAmulet(script, new Tile(2522,3571), new Tile(2536, 3573), "Barbarian Outpost", "Games necklace(", 2));

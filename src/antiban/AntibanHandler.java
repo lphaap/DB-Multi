@@ -21,6 +21,12 @@ public class AntibanHandler implements KillableHandler{
 	private CameraRotate cameraMove;
 	private RunEnergyListener runEnergyListener;
 	private ArrayList<KillableThread> threads = new ArrayList<KillableThread>();
+	private ArrayList<PauseableThread> paused = new ArrayList<PauseableThread>();
+	private ArrayList<PauseableThread> active = new ArrayList<PauseableThread>();
+	
+	private Pauser pauser;
+	private Resumer resumer;
+	private ListHandler listHandler;
 	
 	private boolean killHandler;
 	
@@ -43,6 +49,161 @@ public class AntibanHandler implements KillableHandler{
 		threads.add(mouseMove);
 		
 		Collections.shuffle(threads);
+	}
+		
+	private class ListHandler implements KillableThread {
+		private boolean killThread;
+
+		
+		@Override
+		public void run() {
+			while(!killThread) {
+				RandomProvider.sleep(1000, 1500);
+				for(PauseableThread t : active) {
+					if(t.isPaused()) {
+						paused.add(t);
+						active.remove(t);
+					}
+				}
+				for(PauseableThread t : paused) {
+					if(!t.isPaused()) {
+						active.add(t);
+						paused.remove(t);
+					}
+				}
+			}
+			
+		}
+
+		@Override
+		public void killThread() {
+			this.killThread  = true;
+		}
+		
+		@Override
+		public boolean isAlive() {
+			return !this.killThread;
+		}
+
+		
+	}
+	
+	private class Resumer implements KillableThread, PauseableThread {
+		private boolean killThread;
+		private boolean pauseThread;
+		
+		@Override
+		public void run() {
+			while(!killThread) {
+				RandomProvider.sleep(30000, 90000);
+				controller.debug("Paused AB: " + paused.size());
+				controller.debug("Active AB: " + active.size());
+				if(!this.pauseThread) {
+					if(paused.size() >= 5) {
+						Collections.shuffle(paused);
+						if(paused.get(0) != null) {
+							paused.get(0).resumeThread();
+						}
+						Collections.shuffle(paused);
+						if(paused.get(0) != null) {
+							paused.get(0).resumeThread();
+						}
+					}
+					else {
+						Collections.shuffle(paused);
+						if(paused.get(0) != null) {
+							paused.get(0).resumeThread();
+						}
+					}
+				}
+			}
+			
+		}
+
+		@Override
+		public void killThread() {
+			this.killThread  = true;
+		}
+		
+		@Override
+		public boolean isAlive() {
+			return !this.killThread;
+		}
+
+		@Override
+		public void pauseThread() {
+			this.pauseThread = true;
+		}
+
+		@Override
+		public void resumeThread() {
+			this.pauseThread = false;
+		}
+
+		@Override
+		public boolean isPaused() {
+			return this.pauseThread;
+		}
+		
+	}
+	
+	private class Pauser implements KillableThread, PauseableThread {
+		private boolean killThread;
+		private boolean pauseThread;
+		
+		@Override
+		public void run() {
+			while(!killThread) {
+				RandomProvider.sleep(30000, 90000);
+				controller.debug("Paused AB: " + paused.size());
+				controller.debug("Active AB: " + active.size());
+				if(!this.pauseThread) {
+					if(active.size() >= 5) {
+						Collections.shuffle(active);
+						if(active.get(0) != null) {
+							active.get(0).pauseThread();
+						}
+						Collections.shuffle(active);
+						if(active.get(0) != null) {
+							active.get(0).pauseThread();
+						}
+					}
+					else {
+						Collections.shuffle(active);
+						if(active.get(0) != null) {
+							active.get(0).pauseThread();
+						}
+					}
+				}
+			}
+			
+		}
+
+		@Override
+		public void killThread() {
+			this.killThread  = true;
+		}
+		
+		@Override
+		public boolean isAlive() {
+			return !this.killThread;
+		}
+
+		@Override
+		public void pauseThread() {
+			this.pauseThread = true;
+		}
+
+		@Override
+		public void resumeThread() {
+			this.pauseThread = false;
+		}
+
+		@Override
+		public boolean isPaused() {
+			return this.pauseThread;
+		}
+		
 	}
 	
 	public enum AntiBanThread {
@@ -119,7 +280,14 @@ public class AntibanHandler implements KillableHandler{
 				}
 				new Thread(thread).start();
 				controller.debug("Antiban " + threads.indexOf(thread) + " Started");
+				if(!thread.equals(this.runEnergyListener)) {
+					this.active.add((PauseableThread)thread);
+				}
 			}
+			new Thread( (pauser)).start();
+			new Thread( (resumer)).start();
+			new Thread( (listHandler)).start();
+			
 		}).start();
 	}
 	
@@ -131,6 +299,10 @@ public class AntibanHandler implements KillableHandler{
 			
 			thread.killThread();
 		}
+		
+		this.pauser.killThread();
+		this.resumer.killThread();
+		this.listHandler.killThread();
 	}
 
 }

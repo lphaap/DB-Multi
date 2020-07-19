@@ -124,7 +124,7 @@ public class Location {
 	public void teleportToLocation() {
 		this.teleportInProgress = true;
 		if(script.getClient().isMembers()) {
-			//TODO: teleporter.teleport();
+			teleporter.teleport();
 		}
 		this.teleportInProgress = false;
 		

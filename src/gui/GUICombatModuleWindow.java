@@ -16,6 +16,8 @@ import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import javax.swing.border.EmptyBorder;
 
+import org.dreambot.api.methods.skills.Skill;
+
 import client.ClientThread;
 import client.ThreadController;
 import scripts.CombatModule;
@@ -31,12 +33,16 @@ public class GUICombatModuleWindow extends JFrame {
 	private JSpinner limit;
 	private JSpinner timeLimit;
 	private JSpinner foodLimit;
+	private JSpinner potionLimit;
 	
 	private JComboBox comboBoxMonster;
 	private JComboBox comboBoxFood;
 	private JComboBox comboBoxTrain;
+	private JComboBox comboBoxPotion;
 	
 	private JCheckBox pickupCheck;
+	
+	private int maxFood =28;
 	/**
 	 * Launch the application.
 	 */
@@ -75,80 +81,93 @@ public class GUICombatModuleWindow extends JFrame {
 		
 		JLabel lblLimit = new JLabel("Action limit:");
 		lblLimit.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		lblLimit.setBounds(10, 59, 168, 22);
+		lblLimit.setBounds(48, 59, 83, 22);
 		contentPane.add(lblLimit);
 		
 		limit = new JSpinner();
-		limit.setBounds(10, 82, 71, 22);
+		limit.setBounds(48, 82, 71, 22);
 		limit.addChangeListener(e -> {
 			checkLimit(limit);
 		});
 		limit.setValue(1);
 		contentPane.add(limit);
-
-		JLabel lblFoodLimit = new JLabel("Food limit:");
-		lblFoodLimit.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		lblFoodLimit.setBounds(229, 59, 168, 22);
-		contentPane.add(lblFoodLimit);
 		
 		foodLimit = new JSpinner();
-		foodLimit.setBounds(229, 82, 71, 22);
+		foodLimit.setBounds(130, 172, 31, 22);
 		foodLimit.addChangeListener(e -> {
-			checkFoodTimerLimit(foodLimit);
+			checkFoodLimit();
 		});
 		contentPane.add(foodLimit);
 		
 		JLabel lblTimeLimit = new JLabel("Time limit:");
 		lblTimeLimit.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		lblTimeLimit.setBounds(120, 59, 168, 22);
+		lblTimeLimit.setBounds(205, 59, 99, 22);
 		contentPane.add(lblTimeLimit);
 		
 		timeLimit = new JSpinner();
-		timeLimit.setBounds(120, 82, 71, 22);
+		timeLimit.setBounds(205, 82, 71, 22);
 		timeLimit.addChangeListener(e -> {
-			checkFoodTimerLimit(timeLimit);
+			checkTimerLimit(timeLimit);
 		});
 		contentPane.add(timeLimit);
 		
 		
 		JLabel lblMonster = new JLabel("Monster:");
 		lblMonster.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		lblMonster.setBounds(40, 157, 168, 22);
+		lblMonster.setBounds(205, 148, 83, 22);
 		contentPane.add(lblMonster);
 		
 		comboBoxMonster = new JComboBox();
-		comboBoxMonster.setBounds(10, 178, 120, 22);
+		comboBoxMonster.setBounds(180, 172, 120, 22);
 		comboBoxMonster.setModel(new DefaultComboBoxModel(CombatModule.Monster.values()));
 		contentPane.add(comboBoxMonster);
 		
 		
 		JLabel lblFood = new JLabel("Food:");
 		lblFood.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		lblFood.setBounds(207, 157, 168, 22);
+		lblFood.setBounds(58, 148, 50, 22);
 		contentPane.add(lblFood);
 		
 		comboBoxFood = new JComboBox();
-		comboBoxFood.setBounds(170, 178, 120, 22);
+		comboBoxFood.setBounds(10, 172, 120, 22);
 		comboBoxFood.setModel(new DefaultComboBoxModel(CombatModule.Food.values()));
 		contentPane.add(comboBoxFood);
 		
+		JLabel lblPotion = new JLabel("Potions:");
+		lblPotion.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		lblPotion.setBounds(48, 237, 168, 22);
+		contentPane.add(lblPotion);
+		
+		comboBoxPotion = new JComboBox();
+		comboBoxPotion.setBounds(10, 259, 120, 22);
+		comboBoxPotion.setModel(new DefaultComboBoxModel(CombatModule.Potion.values()));
+		comboBoxPotion.addItemListener(l -> this.checkInventoryLimit());
+		contentPane.add(comboBoxPotion);
+		
+		potionLimit = new JSpinner();
+		potionLimit.setBounds(130, 259, 31, 22);
+		potionLimit.addChangeListener(e -> {
+			checkInventoryLimit();
+		});
+		contentPane.add(potionLimit);
+		
 		JLabel lblTraining = new JLabel("Training:");
 		lblTraining.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		lblTraining.setBounds(40, 233, 168, 22);
+		lblTraining.setBounds(205, 237, 168, 22);
 		contentPane.add(lblTraining);
 		
 		comboBoxTrain = new JComboBox();
-		comboBoxTrain.setBounds(10, 258, 120, 22);
+		comboBoxTrain.setBounds(180, 259, 120, 22);
 		comboBoxTrain.setModel(new DefaultComboBoxModel(CombatModule.Training.values()));
 		contentPane.add(comboBoxTrain);
 		
 		JLabel lblPickup = new JLabel("Collect Items:");
 		lblPickup.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		lblPickup.setBounds(170, 256, 94, 22);
+		lblPickup.setBounds(107, 317, 94, 22);
 		contentPane.add(lblPickup);
 		
 		pickupCheck = new JCheckBox();
-		pickupCheck.setBounds(270, 258, 35, 22);
+		pickupCheck.setBounds(194, 317, 35, 22);
 		pickupCheck.setSelected(true);
 		contentPane.add(pickupCheck);
 		
@@ -168,8 +187,8 @@ public class GUICombatModuleWindow extends JFrame {
 	
 	public void parseModule() {
 		controller.addModule(new CombatModule(controller, client, ((CombatModule.Monster)(this.comboBoxMonster.getSelectedItem())), 
-							((CombatModule.Food)(this.comboBoxFood.getSelectedItem())), 
-							((int)this.limit.getValue()), ((int)this.timeLimit.getValue()), ((int)this.foodLimit.getValue()), 
+							((CombatModule.Food)(this.comboBoxFood.getSelectedItem())), ((CombatModule.Potion)(this.comboBoxPotion.getSelectedItem())),
+							((int)this.limit.getValue()), ((int)this.timeLimit.getValue()), ((int)this.foodLimit.getValue()), ((int)this.potionLimit.getValue()),
 							this.pickupCheck.isSelected(), ((CombatModule.Training)this.comboBoxTrain.getSelectedItem())));
 	}
 	
@@ -182,8 +201,87 @@ public class GUICombatModuleWindow extends JFrame {
 		parseInfo();
 		this.dispose();
 	}
+	public void checkFoodLimit() {
+		int foodcount =(int)this.foodLimit.getValue();
+		if(foodcount < 0) {
+			this.foodLimit.setValue(0);
+		}
+		else if(foodcount > this.maxFood) {
+			this.foodLimit.setValue(maxFood);
+		}
+	}
 	
-	public void checkFoodTimerLimit(JSpinner spinner) {
+	public void checkInventoryLimit() {
+		
+		new Thread(() -> {
+			int foodcount =(int)this.foodLimit.getValue();
+			int potioncount =(int)this.potionLimit.getValue();
+			int times = 1;
+			
+			if(potioncount < 0) {
+				this.potionLimit.setValue(0);
+			}
+			switch((CombatModule.Potion)this.comboBoxPotion.getSelectedItem()) {
+				case NONE:
+					this.potionLimit.setValue(0);
+					break;
+				case STR:
+					times =1;
+					break;
+				case STR_ATT:
+					times =2;
+					break;
+				case STR_ATT_DEF:
+					times =3;
+					break;
+				case S_STR:
+					times =1;
+					break;
+				case S_STR_ATT:
+					times =2;
+					break;
+				case S_STR_ATT_DEF:
+					times =3;
+					break;
+				case S_COMBAT:
+					times =1;
+					break;
+				case RANGE:
+					times =1;
+					break;
+			}
+			
+			switch(times) {
+				case 1:
+					if(potioncount > 28) {
+						this.potionLimit.setValue(28);
+					}
+					this.maxFood = (28-(potioncount));
+					break;
+				case 2:
+					if(potioncount > 14) {
+						this.potionLimit.setValue(14);
+					}
+					this.maxFood = (28-(potioncount*times));
+					break;
+				case 3:
+					if(potioncount > 9) {
+						this.potionLimit.setValue(9);
+					}
+					this.maxFood = (28-(potioncount*times));
+					break;
+			}
+			
+			if(foodcount > this.maxFood) {
+				if(this.maxFood < 0) {
+					this.maxFood =0;
+				}
+				this.foodLimit.setValue(this.maxFood);
+			}
+		}).start();
+	}
+	
+	public void checkTimerLimit(JSpinner spinner) {
 		if((int)spinner.getValue() < 0) {
 			spinner.setValue(0);
 		}

@@ -1,5 +1,6 @@
 package scripts;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Random;
 
 import org.dreambot.api.methods.container.impl.equipment.EquipmentSlot;
@@ -16,46 +17,61 @@ import client.KillableThread;
 import client.ThreadController;
 import movement.Location;
 import movement.LocationFactory;
+import utilities.GroundItemHandler;
 import utilities.GearHandler.Gear;
 
 
 public class CombatModule extends ScriptModule {
-	private ThreadController controller;
-	private ClientThread script;
+	protected ThreadController controller;
+	protected ClientThread script;
 
-	private ArrayList<String> collect = new ArrayList<String>();
+	protected ArrayList<String> collect = new ArrayList<String>();
+	protected ArrayList<String> potions = new ArrayList<String>();
 	
-	private KillableThread healingHandler = new HealingHandler();
+	protected KillableThread healingHandler = new HealingHandler();
+	protected KillableThread antipoisonHandler = new AntiPoisonHandler();
+	protected KillableThread potionHandler = new PotionHandler(true);
+	protected KillableThread grounditemHandler;
 	
-	private String monsterName;
-	private String food;
+	protected String monsterName;
+	protected String food;
 	
-	private int heal;
-	private int realHp;
-	private int delay;
-	private int eatAt;
-	private int limit;
-	private int timeLimit;
-	private int actionsCompleted;
-	private int playerLimit;
-	private int foodLimit;
+	protected int heal;
+	protected int realHp;
+	protected int delay;
+	protected int eatAt;
+	protected int limit;
+	protected int timeLimit;
+	protected int actionsCompleted;
+	protected int playerLimit;
+	protected int foodLimit;
+	protected int potionCount;
+	protected int drinkAt;
 	
-	private Training skill;
-	private Monster monsterEnum;
-	private Food foodEnum;
-	private Skill skillToTrain;
-	private LocationFactory.GameLocation locationEnum;
+	protected double potionProcent;
+	protected double potionBoost;
+
+	protected final int unlimited = 3000;
 	
-	private boolean pickUp;
-	private boolean error;
-	private boolean killThread;
-	private boolean timeLimited;
+	protected Training skill;
+	protected Monster monsterEnum;
+	protected Food foodEnum;
+	protected Skill skillToTrain;
+	protected Skill potionSkill;
+	protected Potion potionEnum;
+	protected LocationFactory.GameLocation locationEnum;
 	
-	private boolean test;
+	protected boolean pickUp;
+	protected boolean error;
+	protected boolean killThread;
+	protected boolean timeLimited;
+	protected boolean usePotions;
+	
+	protected boolean test;
 	
 	//Leave timeLimitMins == 0, for unlimited time, 60mins timer ~ 70mins real time
-	public CombatModule(ThreadController controller, ClientThread client, CombatModule.Monster monster, CombatModule.Food food, 
-				 	 	int limit, int timeLimitMins, int foodLimit, Boolean pickUp, Training skill) {
+	public CombatModule(ThreadController controller, ClientThread client, CombatModule.Monster monster, CombatModule.Food food, CombatModule.Potion potion, 
+				 	 	int limit, int timeLimitMins, int foodLimit, int potionLimit, Boolean pickUp, Training skill) {
 		this.script = client;
 		eatAt = RandomProvider.randomInt(6) + 10;
 		this.limit = limit;
@@ -74,9 +90,18 @@ public class CombatModule extends ScriptModule {
 		this.skill = skill;
 		this.moduleName = "CombatModule: " + monster;
 		
+		if(potion != Potion.NONE) {
+			this.usePotions = true;
+			this.setPotions(potion, potionLimit);
+		}
+		
 		if(timeLimitMins > 0) {
 			this.timeLimited = true;
 		}
+		
+		ArrayList<String> drop = new ArrayList<String>();
+		drop.add(this.food);
+		this.grounditemHandler = new GroundItemHandler(controller, script, drop, this.pickUp);
 		
 		getSkillToHover();
 		
@@ -109,7 +134,7 @@ public class CombatModule extends ScriptModule {
 		
 			
 			if(!script.getLocalPlayer().isAnimating() && !script.getLocalPlayer().isInCombat()) {
-				if(!script.getInventory().isFull() && pickUp && controller.getMovementHandler().isPlayerInLocation()) {
+				/*if(!script.getInventory().isFull() && pickUp && controller.getMovementHandler().isPlayerInLocation()) {
 					for(String item : collect) {
 						GroundItem collectItem = script.getGroundItems().closest(f -> f != null && f.getName().equals(item));
 						if(collectItem != null) {
@@ -125,7 +150,7 @@ public class CombatModule extends ScriptModule {
 							continue threadloop;
 						}
 					}
-				}
+				}*/
 				
 				if(!script.getInventory().contains(f -> f != null && f.getName().equals(food))) {
 					
@@ -159,6 +184,18 @@ public class CombatModule extends ScriptModule {
 						else {
 							script.getBank().withdraw(f -> f != null && f.getName().equals(food), this.foodLimit);
 						}
+						
+						RandomProvider.sleep(400, 600);
+						
+						if(usePotions) {
+							for(String p : potions) {
+								if(script.getBank().contains((p+"4)"))) {
+									script.getBank().withdraw(f -> f != null && f.getName().equals((p+"4)")), this.potionCount);
+									RandomProvider.sleep(400, 600);
+								}
+							}
+						}
+						
 						sleep(RandomProvider.randomInt(750)+ 700);
 						script.getBank().close();
 						sleep(RandomProvider.randomInt(750)+ 400);
@@ -288,12 +325,23 @@ public class CombatModule extends ScriptModule {
 			}
 			
 			if(script.getBank().contains(food)) {
-				if(this.foodLimit <= 0) {
+				if(this.foodLimit <= 0 && !this.usePotions) {
 					script.getBank().withdrawAll(f -> f != null && f.getName().equals(food));
 				}
 				else {
 					script.getBank().withdraw(f -> f != null && f.getName().equals(food), this.foodLimit);
 				}
+				RandomProvider.sleep(400, 600);
+				
+				if(usePotions) {
+					for(String p : potions) {
+						if(script.getBank().contains((p+"4)"))) {
+							script.getBank().withdraw(f -> f != null && f.getName().equals((p+"4)")), this.potionCount);
+							RandomProvider.sleep(400, 600);
+						}
+					}
+				}
+				
 				sleep(RandomProvider.randomInt(750)+ 700);
 				script.getBank().close();
 				sleep(RandomProvider.randomInt(750)+ 400);
@@ -302,7 +350,13 @@ public class CombatModule extends ScriptModule {
 				controller.returnKeyboardAccess();
 				controller.returnMouseAccess();
 				
+				if(usePotions) {
+					new Thread(potionHandler).start();
+				}
+				
 				new Thread(healingHandler).start();
+				new Thread(antipoisonHandler).start();
+				new Thread(grounditemHandler).start();
 				return true;
 			}
 			else {
@@ -348,7 +402,11 @@ public class CombatModule extends ScriptModule {
 	}
 	
 	public enum Food {
-		TROUT, SALMON, TUNA
+		TROUT, SALMON, TUNA, LOBSTER, SWORD_FISH, MONK_FISH, SHARK, KARAMBWAN, MANTA_RAY, DARK_CRAB
+	}
+	
+	public enum Potion	{
+		NONE, STR, STR_ATT, STR_ATT_DEF, S_STR, S_STR_ATT, S_STR_ATT_DEF, RANGE, S_COMBAT
 	}
 	
 	public void setMonsterVariables(Monster monster) {
@@ -361,7 +419,7 @@ public class CombatModule extends ScriptModule {
 		else if(monster == Monster.BARBARIAN) {
 			this.monsterName = "Barbarian";
 			this.locationEnum = LocationFactory.GameLocation.COMBAT_BARBARIAN;
-			this.playerLimit = 3000;
+			this.playerLimit = this.unlimited;
 			
 		}
 		else if(monster == Monster.EXPERIMENT) {
@@ -372,23 +430,128 @@ public class CombatModule extends ScriptModule {
 	}
 	
 	public void setFood(Food food) {
-		if(food == Food.TROUT) {
-			this.food = "Trout";
-			this.heal = 7;
-		}
-		else if(food == Food.SALMON){
-			this.food = "Salmon";
-			this.heal = 9;
-		}
-		else if(food == Food.TUNA){
-			this.food = "Tuna";
-			this.heal = 10;
-		}
 		
+		switch(food) {
+			case TROUT:
+				this.food = "Trout";
+				this.heal = 7;
+				break;
+			case SALMON:
+				this.food = "Salmon";
+				this.heal = 9;
+				break;
+			case TUNA:
+				this.food = "Tuna";
+				this.heal = 10;
+				break;
+			case LOBSTER:
+				this.food = "Lobster";
+				this.heal = 12;
+				break;
+			case SWORD_FISH:
+				this.food = "Swordfish";
+				this.heal = 14;
+				break;
+			case MONK_FISH:
+				this.food = "Monkfish";
+				this.heal = 16;
+				break;
+			case SHARK:
+				this.food = "Shark";
+				this.heal = 20;
+				break;
+			case KARAMBWAN:
+				this.food = "Karambwan";
+				this.heal = 18;
+				break;
+			case MANTA_RAY:
+				this.food = "Manta ray";
+				this.heal = 22;
+				break;
+			case DARK_CRAB:
+				this.food = "Drak crab";
+				this.heal = 22;
+				break;
+		}
+			
 		int realHp = script.getSkills().getRealLevel(Skill.HITPOINTS);
 		eatAt = realHp - RandomProvider.randomInt((int)(realHp * 0.2323232323)) - (heal + 1);
+	
+	}
+	
+	public void setPotions(Potion potion, int count) {
+		this.potionCount = count;
+		this.potionEnum = potion;
+		this.potionSkill = Skill.STRENGTH;
 		
-
+		switch(potion) {
+			case NONE:
+				return;
+			case STR:
+				this.potions.add("Strength potion(");
+				this.potionBoost = 3;
+				this.potionProcent = 0.10;
+				countInventory((count));
+				break;
+			case STR_ATT:
+				this.potions.add("Strength potion(");
+				this.potions.add("Attack potion(");
+				this.potionBoost = 3;
+				this.potionProcent = 0.10;
+				countInventory((count*2));
+				break;
+			case STR_ATT_DEF:
+				this.potions.add("Strength potion(");
+				this.potions.add("Attack potion(");
+				this.potions.add("Defence potion(");
+				this.potionBoost = 3;
+				this.potionProcent = 0.10;
+				countInventory((count*3));
+				break;
+			case S_STR:
+				this.potions.add("Super strength(");
+				this.potionBoost = 5;
+				this.potionProcent = 0.15;
+				countInventory((count));
+				break;
+			case S_STR_ATT:
+				this.potions.add("Super strength(");
+				this.potions.add("Super attack(");
+				this.potionBoost = 5;
+				this.potionProcent = 0.15;
+				countInventory((count*2));
+				break;
+			case S_STR_ATT_DEF:
+				this.potions.add("Super strength(");
+				this.potions.add("Super attack(");
+				this.potions.add("Super defence(");
+				this.potionBoost = 5;
+				this.potionProcent = 0.15;
+				countInventory((count*3));
+				break;
+			case S_COMBAT:
+				this.potions.add("Super combat potion(");
+				countInventory((count));
+				this.potionBoost = 5;
+				this.potionProcent = 0.15;
+				break;
+			case RANGE:
+				this.potions.add("Ranging potion(");
+				countInventory((count));
+				this.potionBoost = 4;
+				this.potionProcent = 0.10;
+				this.potionSkill = Skill.RANGED;
+				break;
+		}
+		if(this.potions.size() > 1) {
+			Collections.shuffle(potions);
+		}
+	}
+	
+	protected void countInventory(int potions) {
+		if((this.foodLimit + potions) > 28) {
+			this.foodLimit = (28-potions);
+		}
 	}
 
 
@@ -396,6 +559,9 @@ public class CombatModule extends ScriptModule {
 	public void killThread() {
 		this.killThread = true;
 		this.healingHandler.killThread();
+		this.potionHandler.killThread();
+		this.antipoisonHandler.killThread();
+		this.grounditemHandler.killThread();
 	}
 
 	@Override
@@ -415,8 +581,8 @@ public class CombatModule extends ScriptModule {
 	
 	}
 	
-	private class HealingHandler implements KillableThread{
-		private boolean killThread;
+	protected class HealingHandler implements KillableThread{
+		protected boolean killThread;
 		
 		@Override
 		public void run() {
@@ -434,13 +600,118 @@ public class CombatModule extends ScriptModule {
 						if(!script.getTabs().isOpen(Tab.INVENTORY)) {
 							script.getTabs().open(Tab.INVENTORY);
 							RandomProvider.sleep(100, 150);
-						}
+						}	
 						
 						Item eat = script.getInventory().get(f -> f != null && f.getName().equals(food));
 						eat.interact();
 						script.getMouse().move();
 						int realHp = script.getSkills().getRealLevel(Skill.HITPOINTS);
 						eatAt = realHp - RandomProvider.randomInt((int)(realHp * 0.2323232323)) - (heal + 1);
+						controller.returnMouseAccess();
+						Thread.currentThread().setPriority(Thread.NORM_PRIORITY);
+								//random.nextInt(6) + 10;
+					}
+				}
+			}			
+			
+		}
+
+		@Override
+		public void killThread() {
+			this.killThread = true;
+		}
+
+		@Override
+		public boolean isAlive() {
+			return !this.killThread;
+		}
+		
+	}
+	
+	protected class PotionHandler implements KillableThread{
+		protected boolean killThread;
+		protected boolean useLocation;
+		
+		public PotionHandler(boolean useLocation) {
+			this.useLocation = useLocation;
+		}
+		
+		@Override
+		public void run() {
+			int boosted = ((int)((script.getSkills().getRealLevel(potionSkill)*potionProcent)+potionBoost));
+			drinkAt = RandomProvider.randomInt((script.getSkills().getRealLevel(potionSkill)+(int)(boosted*0.25)),
+											   (script.getSkills().getRealLevel(potionSkill)+(int)(boosted*0.50)));
+			while(!killThread) {
+				RandomProvider.sleep(1000, 1500);
+				if(script.getSkills().getBoostedLevels(potionSkill) <= drinkAt && (!useLocation || controller.getMovementHandler().isPlayerInLocation()) && usePotions) {
+					if(script.getInventory().contains(f -> f != null && f.getName().contains(potions.get(0)))) {
+						controller.getGraphicHandler().setInfo("Combat trainer: Drinking Potion");
+						while(controller.requestMouseAccess()) {RandomProvider.sleep(10);}
+						
+						controller.debug("Mouse control: Combat module using potions");
+
+						if(!script.getTabs().isOpen(Tab.INVENTORY)) {
+							script.getTabs().open(Tab.INVENTORY);
+							RandomProvider.sleep(100, 150);
+						}
+						
+						
+						for(String p : potions) {
+							if(script.getInventory().contains(f -> f != null && f.getName().contains(p))) {
+								script.getInventory().get(f -> f != null && f.getName().contains(p)).interact("Drink");
+								RandomProvider.sleep(3000, 3500);
+							}
+						}
+						
+						script.getMouse().move();
+						
+						drinkAt = RandomProvider.randomInt((script.getSkills().getRealLevel(potionSkill)+(int)(boosted*0.25)),
+															(script.getSkills().getRealLevel(potionSkill)+(int)(boosted*0.50)));
+						
+						controller.returnMouseAccess();
+					}
+				}
+			}			
+			
+		}
+
+		@Override
+		public void killThread() {
+			this.killThread = true;
+		}
+
+		@Override
+		public boolean isAlive() {
+			return !this.killThread;
+		}
+		
+	}
+	
+	protected class	AntiPoisonHandler implements KillableThread{
+		protected boolean killThread;
+		
+		@Override
+		public void run() {
+			
+			while(!killThread) {
+				RandomProvider.sleep(1000, 1500);
+				if(script.getCombat().isPoisoned()) {
+					controller.getGraphicHandler().setInfo("Combat trainer: Drinking Antipoison");
+					if(script.getInventory().contains(f -> f != null && f.getName().contains("Superantipoison("))) {
+						Thread.currentThread().setPriority(Thread.MAX_PRIORITY-1);
+						while(controller.requestMouseAccess()) {RandomProvider.sleep(10);}
+						
+						controller.debug("Mouse control: Combat module Antipoison");
+
+						if(!script.getTabs().isOpen(Tab.INVENTORY)) {
+							script.getTabs().open(Tab.INVENTORY);
+							RandomProvider.sleep(100, 150);
+						}	
+						
+						Item eat = script.getInventory().get(f -> f != null && f.getName().contains("Superantipoison("));
+						eat.interact();
+						script.getMouse().move();
+						
 						controller.returnMouseAccess();
 						Thread.currentThread().setPriority(Thread.NORM_PRIORITY);
 								//random.nextInt(6) + 10;

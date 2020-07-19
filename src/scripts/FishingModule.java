@@ -1,9 +1,12 @@
 package scripts;
+import java.util.Collections;
+import java.util.List;
 import java.util.Random;
 
 import org.dreambot.api.methods.skills.Skill;
 import org.dreambot.api.wrappers.interactive.GameObject;
 import org.dreambot.api.wrappers.interactive.NPC;
+import org.dreambot.api.wrappers.items.Item;
 
 import antiban.RandomProvider;
 import client.ClientThread;
@@ -92,8 +95,20 @@ public class FishingModule extends ScriptModule {
 								controller.debug("Keyboard control: FishingModule");
 								
 								controller.getGraphicHandler().setInfo("Fisher: Dropping Thrash Fish");
-								script.getInventory().dropAllExcept(f -> f != null && (f.getName().equals(payFish) || f.getName().equals(fishingGear) 
-										|| f.getName().equals(bait)));
+								//script.getInventory().dropAllExcept(f -> f != null && (f.getName().equals(payFish) || f.getName().equals(fishingGear) 
+								//		|| f.getName().equals(bait)));
+								
+								
+								List<Item> drop = script.getInventory().all(f -> f != null && 
+																			!(f.getName().equals(payFish) || 
+																			f.getName().equals(fishingGear) || 
+																			f.getName().equals(bait))
+																			);
+								Collections.shuffle(drop);
+								for(Item i : drop){
+									i.interact("Drop");
+									RandomProvider.sleep(150, 220);
+								}
 								
 								controller.returnKeyboardAccess();
 								controller.returnMouseAccess();
@@ -112,17 +127,31 @@ public class FishingModule extends ScriptModule {
 						
 						controller.getGraphicHandler().setInfo("Fisher: Dropping Inventory");
 
-						script.getInventory().dropAllExcept(f -> f != null && (f.getName().equals(this.bait) || f.getName().equals(this.fishingGear)));
+						//script.getInventory().dropAllExcept(f -> f != null && (f.getName().equals(this.bait) || f.getName().equals(this.fishingGear)));
+						
+						List<Item> drop = script.getInventory().all(f -> f != null && 
+																	!(f.getName().equals(fishingGear) || 
+																	  f.getName().equals(bait)));
+						Collections.shuffle(drop);
+						for(Item i : drop){
+							i.interact("Drop");
+							RandomProvider.sleep(150, 220);
+						}
 						
 						if(limit <= (this.actionsCompleted + 1)) {
+							controller.returnKeyboardAccess();
+							controller.returnMouseAccess();
 							controller.getMovementHandler().moveToBank();
 							RandomProvider.sleep(800,1200);
 							this.killThread = true;
 						}
+						else {
+							controller.returnKeyboardAccess();
+							controller.returnMouseAccess();
+						}
 						this.actionsCompleted++;
 						
-						controller.returnKeyboardAccess();
-						controller.returnMouseAccess();
+						
 					}
 				}
 				

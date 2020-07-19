@@ -1,6 +1,8 @@
 package scripts;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import org.dreambot.api.methods.container.impl.bank.Bank;
 import org.dreambot.api.methods.map.Area;
@@ -9,6 +11,7 @@ import org.dreambot.api.methods.skills.Skill;
 import org.dreambot.api.wrappers.interactive.Entity;
 import org.dreambot.api.wrappers.interactive.GameObject;
 import org.dreambot.api.wrappers.interactive.Player;
+import org.dreambot.api.wrappers.items.Item;
 
 import antiban.RandomProvider;
 import client.ClientThread;
@@ -98,17 +101,31 @@ public class MinerModule extends ScriptModule{
 						while(controller.requestKeyboardAccess()) {RandomProvider.sleep(10);}
 						while(controller.requestMouseAccess()) {RandomProvider.sleep(10);}
 						
-						script.getInventory().dropAllExcept(f -> f != null && f.getName().toLowerCase().contains("pickaxe"));
+						//script.getInventory().dropAllExcept(f -> f != null && f.getName().toLowerCase().contains("pickaxe"));
+						
+						List<Item> drop = script.getInventory().all(f -> f != null && 
+								!(f.getName().toLowerCase().contains("pickaxe")));
+						Collections.shuffle(drop);
+						for(Item i : drop){
+							i.interact("Drop");
+							RandomProvider.sleep(150, 220);
+						}
 						
 						if(limit <= (this.completedActions + 1)) {
+							controller.returnKeyboardAccess();
+							controller.returnMouseAccess();
+							
 							controller.getMovementHandler().moveToBank();
 							RandomProvider.sleep(800,1200);
 							this.killThread = true;
 						}
+						else {
+							controller.returnKeyboardAccess();
+							controller.returnMouseAccess();
+						}
 						this.completedActions++;
 						
-						controller.returnKeyboardAccess();
-						controller.returnMouseAccess();
+
 						
 					}
 				}

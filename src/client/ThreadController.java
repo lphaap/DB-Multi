@@ -88,7 +88,7 @@ public class ThreadController implements KillableThread{
 		
 		//---Modules---//
 		modules.add(null); //DO NOT REMOVE - Needed for the start with nextModule();
-		modules.add(new ClientTester(this, client));
+		//modules.add(new ClientTester(this, client));
 		
 		//---Modules---//
 		

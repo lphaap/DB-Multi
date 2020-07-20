@@ -20,13 +20,14 @@ public class AntibanHandler implements KillableHandler{
 	private MouseMovement mouseMove;
 	private CameraRotate cameraMove;
 	private RunEnergyListener runEnergyListener;
+	
 	private ArrayList<KillableThread> threads = new ArrayList<KillableThread>();
 	private ArrayList<PauseableThread> paused = new ArrayList<PauseableThread>();
 	private ArrayList<PauseableThread> active = new ArrayList<PauseableThread>();
 	
-	private Pauser pauser;
-	private Resumer resumer;
-	private ListHandler listHandler;
+	private Pauser pauser = new Pauser();
+	private Resumer resumer = new Resumer();
+	private ListHandler listHandler = new ListHandler();
 	
 	private boolean killHandler;
 	
@@ -253,6 +254,9 @@ public class AntibanHandler implements KillableHandler{
 	}
 	
 	public void pauseAllAntibanThreads() {
+			this.resumer.pauseThread();
+			this.pauser.pauseThread();
+			
 			this.hoverer.pauseThread();
 			this.mouseMove.pauseThread();
 			this.mouseOffMove.pauseThread();
@@ -262,6 +266,9 @@ public class AntibanHandler implements KillableHandler{
 	}
 	
 	public void resumeAllAntibanThreads() {
+			this.resumer.resumeThread();
+			this.pauser.resumeThread();
+		
 			this.hoverer.resumeThread();
 			this.mouseMove.resumeThread();
 			this.mouseOffMove.resumeThread();
@@ -274,9 +281,10 @@ public class AntibanHandler implements KillableHandler{
 		
 		new Thread(() -> { 
 			for(KillableThread thread : threads) {
-				RandomProvider.sleep(23000, 42000);
+				RandomProvider.sleep(23000, 32000);
 				if(this.killHandler) {
-					break;
+					controller.debug("Breaking AB starter");
+					return;
 				}
 				new Thread(thread).start();
 				controller.debug("Antiban " + threads.indexOf(thread) + " Started");
@@ -293,16 +301,20 @@ public class AntibanHandler implements KillableHandler{
 	
 	@Override
 	public void killHandler() {
+		controller.debug("Killing AB");
 		this.killHandler = true;
 		
-		for(KillableThread thread : threads) {
-			
-			thread.killThread();
-		}
+		this.cameraMove.killThread();
+		this.examiner.killThread();
+		this.mouseMove.killThread();
+		this.runEnergyListener.killThread();
+		this.mouseOffMove.killThread();
+		this.hoverer.killThread();
 		
 		this.pauser.killThread();
 		this.resumer.killThread();
 		this.listHandler.killThread();
+		controller.debug("AB KILLED");
 	}
 
 }

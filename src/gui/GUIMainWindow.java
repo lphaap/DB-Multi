@@ -353,9 +353,5 @@ public class GUIMainWindow extends JFrame {
 	}
 	
 	
-	public void onClose() {
-		
-	}
-	
 
 }

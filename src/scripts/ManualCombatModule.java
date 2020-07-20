@@ -35,12 +35,13 @@ public class ManualCombatModule extends CombatModule {
 	public void run() {
 		
 		threadloop: while(!killThread) {
-			
+			controller.debug("CModule looping");
 			sleep(delay);
 			delay = RandomProvider.randomInt(1000) + 2000;
 		
 			if(!script.getLocalPlayer().isAnimating() && !script.getLocalPlayer().isInCombat()) {
 				
+				RandomProvider.sleep(800, 1200);
 				if(!script.getInventory().contains(f -> f != null && f.getName().equals(food))) {
 					this.killThread = true;
 					break threadloop;
@@ -61,7 +62,7 @@ public class ManualCombatModule extends CombatModule {
 					
 					while(controller.requestMouseAccess()) {RandomProvider.sleep(10);}
 					
-					NPC monster = script.getNpcs().closest(f -> f.getName().equals(monsterName) && f != null && !f.isInCombat() && f.getLevel()!=51);
+					NPC monster = script.getNpcs().closest(f -> f.getName().equals(monsterName) && f != null && !f.isInCombat());
 					int randomizer = RandomProvider.randomInt(2);
 					
 					if(monster != null) {
@@ -106,10 +107,20 @@ public class ManualCombatModule extends CombatModule {
 	
 	@Override
 	public void killThread() {
+		controller.debug("Killing Cmodule");
 		this.killThread = true;
-		this.healingHandler.killThread();
-		this.potionHandler.killThread();
-		this.antipoisonHandler.killThread();
-		this.groundItemHandler.killThread();
+		if(healingHandler != null) {
+			this.healingHandler.killThread();
+		}
+		if(potionHandler != null) {
+			this.potionHandler.killThread();
+		}
+		if(this.antipoisonHandler != null) {
+			this.antipoisonHandler.killThread();
+		}
+		if(this.groundItemHandler != null) {
+			this.groundItemHandler.killThread();
+		}
+		controller.debug("CMODULE KILLED");
 	}
 }

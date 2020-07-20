@@ -447,8 +447,8 @@ public class ThreadController implements KillableThread{
 		debug("KILLING BOT");
 		debug("KILLING BOT");
 		
-		this.currentModule.killThread();
 		this.antibanHandler.killHandler();
+		this.currentModule.killThread();
 		this.gearHandler.killHandler();
 		this.movementHandler.killHandler();
 		this.worldHandler.killHandler();

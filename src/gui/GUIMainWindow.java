@@ -268,6 +268,7 @@ public class GUIMainWindow extends JFrame {
 		new Thread(() -> {
 			controller.setPauseTimer(((int)pauseSpinnerMin.getValue()), ((int)(pauseSpinnerMax.getValue())));
 			controller.setScriptTimer(((int)scriptSpinnerMin.getValue()), ((int)(scriptSpinnerMax.getValue())));
+			controller.setGUI(this);
 			new Thread(controller).start();
 		}).start();;
 		new Thread(() -> {

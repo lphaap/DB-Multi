@@ -37,6 +37,7 @@ import scripts.ManualCombatModule;
 		private JComboBox comboBoxPotion;
 		
 		private JCheckBox pickupCheck;
+		private JCheckBox slayerCheck;
 		
 		private int maxFood =28;
 		/**
@@ -136,13 +137,23 @@ import scripts.ManualCombatModule;
 			
 			JLabel lblPickup = new JLabel("Collect Items:");
 			lblPickup.setFont(new Font("Tahoma", Font.PLAIN, 14));
-			lblPickup.setBounds(107, 317, 94, 22);
+			lblPickup.setBounds(180, 317, 94, 22);
 			contentPane.add(lblPickup);
 			
 			pickupCheck = new JCheckBox();
-			pickupCheck.setBounds(192, 317, 35, 22);
+			pickupCheck.setBounds(262, 317, 35, 22);
 			pickupCheck.setSelected(true);
 			contentPane.add(pickupCheck);
+			
+			JLabel lblSlayer = new JLabel("Train Slayer:");
+			lblSlayer.setFont(new Font("Tahoma", Font.PLAIN, 14));
+			lblSlayer.setBounds(10, 317, 94, 22);
+			contentPane.add(lblSlayer);
+			
+			slayerCheck = new JCheckBox();
+			slayerCheck.setBounds(92, 317, 35, 22);
+			slayerCheck.setSelected(true);
+			contentPane.add(slayerCheck);
 			
 			JButton btnStart = new JButton("Ready");
 			btnStart.addActionListener(new ActionListener() {
@@ -171,7 +182,8 @@ import scripts.ManualCombatModule;
 			controller.addModule(new ManualCombatModule(controller, client, ((CombatModule.Food)(this.comboBoxFood.getSelectedItem())), 
 								((CombatModule.Potion)(this.comboBoxPotion.getSelectedItem())),
 								((int)this.limit.getValue()), ((int)this.hoplimit.getValue()), 
-								this.pickupCheck.isSelected(), ((CombatModule.Training)this.comboBoxTrain.getSelectedItem()),
+								this.pickupCheck.isSelected(), this.slayerCheck.isSelected(),
+								((CombatModule.Training)this.comboBoxTrain.getSelectedItem()),
 								this.comboBoxMonster.getText()));
 		}
 		

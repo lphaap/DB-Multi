@@ -66,6 +66,7 @@ public class CombatModule extends ScriptModule {
 	protected boolean killThread;
 	protected boolean timeLimited;
 	protected boolean usePotions;
+	protected boolean trainSlayer;
 	
 	protected boolean test;
 	
@@ -78,6 +79,8 @@ public class CombatModule extends ScriptModule {
 		this.timeLimit = (timeLimitMins*60*1000);
 		
 		this.foodLimit = foodLimit;
+		
+		this.trainSlayer = trainSlayer;
 		
 		controller.debug(""+timeLimit);
 		this.controller = controller;
@@ -267,9 +270,25 @@ public class CombatModule extends ScriptModule {
 					while(controller.requestMouseAccess()) {RandomProvider.sleep(10);}
 					
 					NPC monster = script.getNpcs().closest(f -> f.getName().equals(monsterName) && f != null && !f.isInCombat() && f.getLevel()!=51);
+					org.dreambot.api.wrappers.interactive.Character existingEnemy = script.getLocalPlayer().getInteractingCharacter();
+					
 					int randomizer = RandomProvider.randomInt(2);
 					
-					if(monster != null) {
+					if(existingEnemy != null && existingEnemy.getName().equals(monsterName)) {
+						if(RandomProvider.fiftyfifty()) {
+							script.getCamera().rotateToEntity(existingEnemy);
+						}
+						if(randomizer == 0) {
+							existingEnemy.interact();
+						}
+						else {
+							existingEnemy.interact("Attack");
+						}
+						if(!this.trainSlayer) {
+							this.actionsCompleted++;
+						}
+					}
+					else if(monster != null) {
 						if(RandomProvider.fiftyfifty()) {
 							script.getCamera().rotateToEntity(monster);
 						}
@@ -291,10 +310,7 @@ public class CombatModule extends ScriptModule {
 			  
 			}
 	}
-	
-	public enum Training {
-		RANGE, ATTACK, STRENGTH
-	}
+
 
 	@Override
 	public boolean setupModule() {
@@ -372,6 +388,23 @@ public class CombatModule extends ScriptModule {
 		}
 	}
 
+	
+	public enum Monster {
+		GIANT_FROG, BARBARIAN, EXPERIMENT
+	}
+	
+	public enum Food {
+		TROUT, SALMON, TUNA, LOBSTER, SWORD_FISH, MONK_FISH, SHARK, KARAMBWAN, MANTA_RAY, DARK_CRAB
+	}
+	
+	public enum Potion	{
+		NONE, STR, STR_ATT, STR_ATT_DEF, S_STR, S_STR_ATT, S_STR_ATT_DEF, RANGE, S_COMBAT
+	}
+	
+	public enum Training {
+		RANGE, ATTACK, STRENGTH, DEFENCE
+	}
+	
 	@Override
 	public Skill getSkillToHover() {
 		if(this.skill == Training.RANGE) {
@@ -381,6 +414,9 @@ public class CombatModule extends ScriptModule {
 			return Skill.ATTACK;
 		}
 		else if(this.skill == Training.STRENGTH){
+			return Skill.STRENGTH;
+		}
+		else if(this.skill == Training.DEFENCE){
 			return Skill.STRENGTH;
 		}
 		else {
@@ -395,18 +431,6 @@ public class CombatModule extends ScriptModule {
 		else {
 			return Gear.MELEE;
 		}
-	}
-	
-	public enum Monster {
-		GIANT_FROG, BARBARIAN, EXPERIMENT
-	}
-	
-	public enum Food {
-		TROUT, SALMON, TUNA, LOBSTER, SWORD_FISH, MONK_FISH, SHARK, KARAMBWAN, MANTA_RAY, DARK_CRAB
-	}
-	
-	public enum Potion	{
-		NONE, STR, STR_ATT, STR_ATT_DEF, S_STR, S_STR_ATT, S_STR_ATT_DEF, RANGE, S_COMBAT
 	}
 	
 	public void setMonsterVariables(Monster monster) {

@@ -18,6 +18,7 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiRequestException;
 import antiban.AntibanHandler;
 import antiban.AntibanHandler.AntiBanThread;
 import antiban.RandomProvider;
+import gui.GUIMainWindow;
 import utilities.InGameMsgHandler;
 import utilities.WorldHandler;
 import movement.LocationFactory;
@@ -34,6 +35,7 @@ import utilities.GraphicHandler;
 
 public class ThreadController implements KillableThread{
 	private ClientThread client; //-> Will be passed to other classes since it's used so reqularly
+	private GUIMainWindow gui;
 	
 	private boolean killThread;
 	
@@ -276,10 +278,6 @@ public class ThreadController implements KillableThread{
 	public GraphicHandler getGraphicHandler() {
 		return this.graphicHandler;
 	}
-	/*
-	public TelegramHandler getTelegramHandler() {
-		return this.telegramHandler;
-	}*/
 	
 	public InGameMsgHandler getInGameMsgHandler() {
 		return this.inGameMsgHandler;
@@ -291,36 +289,6 @@ public class ThreadController implements KillableThread{
 		} catch (InterruptedException e) {e.printStackTrace();}
 	}
 	
-	/*public static void main( String[] args ) {
-		JDABuilder builder = new JDABuilder(AccountType.BOT);
-        String token = "NjY0NTQ1NTcwMTUyNTEzNTQ3.XlmjOQ.t5pUs5Xh9zKJIeiwo6mbzQYG3J8";
-      
-        //Discord discord = new Discord(null, null); 
-        
-        builder.setToken(token);
-        builder.addEventListeners(new Discord(null, null));
-        try {
-			builder.build();
-		} catch (LoginException e) {e.printStackTrace();}
-        //this.discord = discord;
-	}
-	
-	private void connectTelegramThread() {
-		debug("Phase 1");
-		ApiContextInitializer.init();
-		debug("Phase 2");
-        TelegramBotsApi botsApi = new TelegramBotsApi();
-        debug("Phase 3");
-        try {
-			botsApi.registerBot(new TelegramHandler(this, client));
-		} catch (TelegramApiRequestException e1) {debug("Telegram failed to load");} 
-        
-        debug("Telegram loaded");
-	}
-	
-	public void connectTelegramToController(TelegramHandler telegram) {
-		this.telegramHandler = telegram;
-	}*/
 	
 	private void pauseBot(int seconds) {
 		debug("Pausing Bot...");
@@ -453,6 +421,9 @@ public class ThreadController implements KillableThread{
 		this.movementHandler.killHandler();
 		this.worldHandler.killHandler();
 		this.killThread();
+		if(this.gui != null) {
+			this.gui.dispose();
+		}
 		
 		client.getMouse().moveMouseOutsideScreen();
 		
@@ -573,6 +544,10 @@ public class ThreadController implements KillableThread{
 	
 	public void setScriptTimer(int min, int max) {
 		this.scriptTimer = RandomProvider.randomInt((min)*60, (max)*60);
+	}
+	
+	public void setGUI(GUIMainWindow gui) {
+		this.gui = gui;
 	}
 	
 	

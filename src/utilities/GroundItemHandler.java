@@ -36,7 +36,7 @@ public class GroundItemHandler implements KillableThread{
 	public void run() {
 		while(!killThread) {
 			RandomProvider.sleep(400, 600);
-			
+		//	controller.debug("Looping GIH");
 			//controller.debug("Major Start");
 			major: for(String name : major) {
 				GroundItem item = client.getGroundItems().closest(f -> f != null && f.getName().contains(name));
@@ -65,8 +65,8 @@ public class GroundItemHandler implements KillableThread{
 					if(item.exists()) {
 						item.interact("Take");
 						client.getMouse().move();
-						controller.returnMouseAccess();
 					}
+					controller.returnMouseAccess();
 				}
 			}
 			//controller.debug("Major Stop");
@@ -101,8 +101,8 @@ public class GroundItemHandler implements KillableThread{
 						if(item.exists()) {
 							item.interact("Take");
 							client.getMouse().move();
-							controller.returnMouseAccess();
 						}
+						controller.returnMouseAccess();
 					}
 				}
 			}
@@ -112,9 +112,11 @@ public class GroundItemHandler implements KillableThread{
 
 	@Override
 	public void killThread() {
+		
 		this.killThread = true;
 		this.major.clear();
 		this.minor.clear();
+		//controller.debug("GIH Killed");
 	}
 
 	@Override

@@ -20,6 +20,7 @@ public class AntibanHandler implements KillableHandler{
 	private MouseMovement mouseMove;
 	private CameraRotate cameraMove;
 	private RunEnergyListener runEnergyListener;
+	//private AFKMouseHandler afkMouse;
 	
 	private ArrayList<KillableThread> threads = new ArrayList<KillableThread>();
 	private ArrayList<PauseableThread> paused = new ArrayList<PauseableThread>();
@@ -41,8 +42,10 @@ public class AntibanHandler implements KillableHandler{
 		this.hoverer = new StatsHovering(client, controller);
 		this.mouseMove = new MouseMovement(client, controller);
 		this.runEnergyListener = new RunEnergyListener(controller,client);
+		//this.afkMouse = new AFKMouseHandler(controller,client);
 		
-		threads.add(runEnergyListener);
+		//threads.add(runEnergyListener);
+		
 		threads.add(cameraMove);
 		threads.add(mouseOffMove);
 		threads.add(examiner);
@@ -208,7 +211,7 @@ public class AntibanHandler implements KillableHandler{
 	}
 	
 	public enum AntiBanThread {
-		STATS_HOVERING, MOUSE_MOVEMENT, MOUSE_MOVEMENT_OFF_SCREEN, ENTITY_EXAMINER, CAMERA_MOVEMENT, ENERGY_LISTENER
+		STATS_HOVERING, MOUSE_MOVEMENT, MOUSE_MOVEMENT_OFF_SCREEN, ENTITY_EXAMINER, CAMERA_MOVEMENT, ENERGY_LISTENER, AFK_MOUSE_HANDLER
 	}
 	
 	public void pauseAntibanThread(AntiBanThread thread) {
@@ -230,6 +233,9 @@ public class AntibanHandler implements KillableHandler{
 		else if(thread == AntiBanThread.ENERGY_LISTENER) {
 			this.runEnergyListener.pauseThread();
 		}
+		/*else if(thread == AntiBanThread.AFK_MOUSE_HANDLER) {
+			this.afkMouse.pauseThread();
+		}*/
 	}
 	
 	public void resumeAntibanThread(AntiBanThread thread) {
@@ -251,6 +257,9 @@ public class AntibanHandler implements KillableHandler{
 		else if(thread == AntiBanThread.ENERGY_LISTENER) {
 			this.runEnergyListener.resumeThread();
 		}
+		/*else if(thread == AntiBanThread.AFK_MOUSE_HANDLER) {
+			this.afkMouse.resumeThread();
+		}*/
 	}
 	
 	public void pauseAllAntibanThreads() {
@@ -263,6 +272,7 @@ public class AntibanHandler implements KillableHandler{
 			this.cameraMove.pauseThread();
 			this.examiner.pauseThread();
 			this.runEnergyListener.pauseThread();
+			//this.afkMouse.pauseThread();
 	}
 	
 	public void resumeAllAntibanThreads() {
@@ -275,11 +285,14 @@ public class AntibanHandler implements KillableHandler{
 			this.cameraMove.resumeThread();
 			this.examiner.resumeThread();
 			this.runEnergyListener.resumeThread();
+			//this.afkMouse.resumeThread();
 	}
 	
 	public void startAllAntibanThreads() {
 		
 		new Thread(() -> { 
+			new Thread(this.runEnergyListener).start();
+			//new Thread(() -> this.afkMouse.start()).start();
 			for(KillableThread thread : threads) {
 				RandomProvider.sleep(23000, 32000);
 				if(this.killHandler) {
@@ -301,7 +314,7 @@ public class AntibanHandler implements KillableHandler{
 	
 	@Override
 	public void killHandler() {
-		controller.debug("Killing AB");
+		//controller.debug("Killing AB");
 		this.killHandler = true;
 		
 		this.cameraMove.killThread();
@@ -310,11 +323,12 @@ public class AntibanHandler implements KillableHandler{
 		this.runEnergyListener.killThread();
 		this.mouseOffMove.killThread();
 		this.hoverer.killThread();
+		//this.afkMouse.killHandler();
 		
 		this.pauser.killThread();
 		this.resumer.killThread();
 		this.listHandler.killThread();
-		controller.debug("AB KILLED");
+		//controller.debug("AB KILLED");
 	}
 
 }

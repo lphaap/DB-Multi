@@ -17,16 +17,19 @@ public class ManualCombatModule extends CombatModule {
 	
 	private int hopLimit;
 	
-	private GroundItemHandler groundItemHandler;
+	private int slayerXP;
+
 	
 	public ManualCombatModule(ThreadController controller, ClientThread client, Food food,
-						   	Potion potion, int limit, int hoplimit, Boolean pickUp,Training skill,
+						   	Potion potion, int limit, int hoplimit, Boolean pickUp, Boolean trainSlayer,Training skill,
 							String monsterName) {
 		
 		super(controller, client, Monster.BARBARIAN, food, potion, limit, 0, 0, 0, pickUp, skill);
 		this.monsterName = monsterName;
 		this.hopLimit = hoplimit;
 
+		this.trainSlayer = trainSlayer;
+		
 		this.potionHandler = new PotionHandler(false);
 		
 	}
@@ -35,10 +38,16 @@ public class ManualCombatModule extends CombatModule {
 	public void run() {
 		
 		threadloop: while(!killThread) {
-			controller.debug("CModule looping");
+			//controller.debug("CModule looping");
 			sleep(delay);
 			delay = RandomProvider.randomInt(1000) + 2000;
 		
+			if(script.getSkills().getExperience(Skill.SLAYER) > this.slayerXP && this.trainSlayer) {
+				this.actionsCompleted++;
+				this.slayerXP = script.getSkills().getExperience(Skill.SLAYER);
+				controller.debug("Kill achieved");
+			}
+			
 			if(!script.getLocalPlayer().isAnimating() && !script.getLocalPlayer().isInCombat()) {
 				
 				RandomProvider.sleep(800, 1200);
@@ -46,7 +55,6 @@ public class ManualCombatModule extends CombatModule {
 					this.killThread = true;
 					break threadloop;
 				}
-				
 				else if(this.actionsCompleted > this.limit) {
 					this.killThread = true;
 					break threadloop;
@@ -63,9 +71,25 @@ public class ManualCombatModule extends CombatModule {
 					while(controller.requestMouseAccess()) {RandomProvider.sleep(10);}
 					
 					NPC monster = script.getNpcs().closest(f -> f.getName().equals(monsterName) && f != null && !f.isInCombat());
+					org.dreambot.api.wrappers.interactive.Character existingEnemy = script.getLocalPlayer().getInteractingCharacter();
+					
 					int randomizer = RandomProvider.randomInt(2);
 					
-					if(monster != null) {
+					if(existingEnemy != null && existingEnemy.getName().equals(monsterName)) {
+						if(RandomProvider.fiftyfifty()) {
+							script.getCamera().rotateToEntity(existingEnemy);
+						}
+						if(randomizer == 0) {
+							existingEnemy.interact();
+						}
+						else {
+							existingEnemy.interact("Attack");
+						}
+						if(!this.trainSlayer) {
+							this.actionsCompleted++;
+						}
+					}
+					else if(monster != null) {
 						if(RandomProvider.fiftyfifty()) {
 							script.getCamera().rotateToEntity(monster);
 						}
@@ -75,8 +99,9 @@ public class ManualCombatModule extends CombatModule {
 						else {
 							monster.interact("Attack");
 						}
-						
-						this.actionsCompleted++;
+						if(!this.trainSlayer) {
+							this.actionsCompleted++;
+						}
 					}
 					script.getMouse().move();
 					
@@ -102,12 +127,14 @@ public class ManualCombatModule extends CombatModule {
 		this.controller.getWorldHandler().setPlayerLimit(hopLimit);
 		this.controller.getWorldHandler().setToActive();
 		this.controller.getWorldHandler().setToUnBanking();
+		
+		this.slayerXP = script.getSkills().getExperience(Skill.SLAYER);
 		return true;
 	}
 	
 	@Override
 	public void killThread() {
-		controller.debug("Killing Cmodule");
+		//controller.debug("Killing Cmodule");
 		this.killThread = true;
 		if(healingHandler != null) {
 			this.healingHandler.killThread();
@@ -118,9 +145,10 @@ public class ManualCombatModule extends CombatModule {
 		if(this.antipoisonHandler != null) {
 			this.antipoisonHandler.killThread();
 		}
-		if(this.groundItemHandler != null) {
-			this.groundItemHandler.killThread();
+		if(this.grounditemHandler != null) {
+			//controller.debug("Killing GIH");
+			this.grounditemHandler.killThread();
 		}
-		controller.debug("CMODULE KILLED");
+		//controller.debug("CMODULE KILLED");
 	}
 }

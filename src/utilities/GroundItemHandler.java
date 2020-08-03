@@ -3,6 +3,7 @@ package utilities;
 import java.util.ArrayList;
 
 import org.dreambot.api.wrappers.items.GroundItem;
+import org.dreambot.api.wrappers.items.Item;
 
 import antiban.RandomProvider;
 import client.ClientThread;
@@ -16,6 +17,7 @@ public class GroundItemHandler implements KillableThread{
 	private boolean killThread;
 	private boolean dropForMinor;
 	
+	private ArrayList<String> unique = new ArrayList<String>(); // > ~100k
 	private ArrayList<String> major = new ArrayList<String>(); // > Sara brew
 	private ArrayList<String> minor = new ArrayList<String>(); // < Sara brew 
 	private ArrayList<String> drop = new ArrayList<String>(); // items to drop
@@ -26,8 +28,9 @@ public class GroundItemHandler implements KillableThread{
 		this.client = client;
 		this.dropForMinor = dropForMinor;
 		drop = dropItems;
-		drop.add("Vial");
+		drop.add(0, "Vial");
 		
+		createUnique();
 		createMajor();
 		createMinor();
 	}
@@ -38,7 +41,75 @@ public class GroundItemHandler implements KillableThread{
 			RandomProvider.sleep(400, 600);
 		//	controller.debug("Looping GIH");
 			//controller.debug("Major Start");
-			major: for(String name : major) {
+			
+			unique: for(String name : unique) { //Unique items
+				GroundItem item = client.getGroundItems().closest(f -> f != null && f.getName().contains(name));
+				if(item != null) {
+					
+					if(!client.getLocalPlayer().getTile().getArea(10).contains(item)) {
+						continue unique;
+					}
+					while(controller.requestMouseAccess()) {RandomProvider.sleep(10);}
+					controller.debug("Mouse control: GroundItemHandler");
+					controller.getGraphicHandler().setInfo("GroundItemHandler: Trying to pick item");
+					
+					if(client.getInventory().isFull()) {
+						boolean dropped = false;
+						
+						dropLoop: for(String i : drop) {
+							if(client.getInventory().contains(f -> f != null && f.getName().contains(i))) {
+								Item inv = client.getInventory().get(f -> f != null && f.getName().contains(i));
+								if(inv.hasAction("Eat")) {
+									inv.interact("Eat");
+								}
+								else {
+									inv.interact("Drop");
+								}
+								RandomProvider.sleep(150, 200);
+								dropped = true;
+								break dropLoop;
+							}
+						}
+						
+						minorLoop: if(!dropped) {
+							for(String i : minor) {
+								if(client.getInventory().contains(f -> f != null && f.getName().contains(i))) {
+									client.getInventory().get(f -> f != null && f.getName().contains(i)).interact("Drop");
+									RandomProvider.sleep(150, 200);
+									dropped = true;
+									break minorLoop;
+								}
+							}
+						}
+						
+						majorLoop: if(!dropped) {
+							for(String i : major) {
+								if(client.getInventory().contains(f -> f != null && f.getName().contains(i))) {
+									client.getInventory().get(f -> f != null && f.getName().contains(i)).interact("Drop");
+									RandomProvider.sleep(150, 200);
+									dropped = true;
+									break majorLoop;
+								}
+							}
+						}
+						
+						if(client.getInventory().isFull()) {
+							controller.returnMouseAccess();
+							continue unique;
+						}
+					}
+					
+					if(item.exists()) {
+						item.interact("Take");
+						client.getMouse().move();
+					}
+					controller.returnMouseAccess();
+				}
+			}
+			//controller.debug("Major Stop");
+			RandomProvider.sleep(400, 600);
+			
+			major: for(String name : major) { //Major items
 				GroundItem item = client.getGroundItems().closest(f -> f != null && f.getName().contains(name));
 				if(item != null) {
 					
@@ -50,12 +121,34 @@ public class GroundItemHandler implements KillableThread{
 					controller.getGraphicHandler().setInfo("GroundItemHandler: Trying to pick item");
 					
 					if(client.getInventory().isFull()) {
-						for(String i : drop) {
+						boolean dropped = false;
+						
+						dropLoop: for(String i : drop) {
 							if(client.getInventory().contains(f -> f != null && f.getName().contains(i))) {
-								client.getInventory().get(f -> f != null && f.getName().contains(i)).interact("Drop");
+								Item inv = client.getInventory().get(f -> f != null && f.getName().contains(i));
+								if(inv.hasAction("Eat")) {
+									inv.interact("Eat");
+								}
+								else {
+									inv.interact("Drop");
+								}
 								RandomProvider.sleep(150, 200);
+								dropped = true;
+								break dropLoop;
 							}
 						}
+						
+						minorLoop: if(!dropped) {
+							for(String i : minor) {
+								if(client.getInventory().contains(f -> f != null && f.getName().contains(i))) {
+									client.getInventory().get(f -> f != null && f.getName().contains(i)).interact("Drop");
+									RandomProvider.sleep(150, 200);
+									dropped = true;
+									break minorLoop;
+								}
+							}
+						}
+						
 						if(client.getInventory().isFull()) {
 							controller.returnMouseAccess();
 							continue major;
@@ -74,7 +167,7 @@ public class GroundItemHandler implements KillableThread{
 			
 			//controller.debug("Minor Start");
 			if(this.dropForMinor || !client.getInventory().isFull()) {
-				minor: for(String name : minor) {
+				minor: for(String name : minor) {//Minor items
 					GroundItem item = client.getGroundItems().closest(f -> f != null && f.getName().contains(name));
 					if(item != null) {
 						
@@ -86,10 +179,17 @@ public class GroundItemHandler implements KillableThread{
 						controller.getGraphicHandler().setInfo("GroundItemHandler: Trying to pick item");
 						
 						if(client.getInventory().isFull()) {
-							for(String i : drop) {
+							dropLoop: for(String i : drop) {
 								if(client.getInventory().contains(f -> f != null && f.getName().contains(i))) {
-									client.getInventory().get(f -> f != null && f.getName().contains(i)).interact("Drop");
+									Item inv = client.getInventory().get(f -> f != null && f.getName().contains(i));
+									if(inv.hasAction("Eat")) {
+										inv.interact("Eat");
+									}
+									else {
+										inv.interact("Drop");
+									}
 									RandomProvider.sleep(150, 200);
+									break dropLoop;
 								}
 							}
 							if(client.getInventory().isFull()) {
@@ -116,6 +216,7 @@ public class GroundItemHandler implements KillableThread{
 		this.killThread = true;
 		this.major.clear();
 		this.minor.clear();
+		this.unique.clear();
 		//controller.debug("GIH Killed");
 	}
 
@@ -125,21 +226,32 @@ public class GroundItemHandler implements KillableThread{
 	}
 	
 	//https://www.reddit.com/r/2007scape/comments/hrmb1h/complete_loot_tab_from_7599_slayer/
-	//Monsters added: 
+	//Monsters added: Hellhound, Greater demon, Banshee, Twisted Banshee
 	
+	
+	private void createUnique() {
+		unique.add("Uncut onyx");
+		unique.add("Uncut zenyte");
+		unique.add("Shield right half");
+		unique.add("Dragonfruit tree seed");
+		unique.add("Smouldering stone");
+		unique.add("Clue scroll");
+		unique.add("champion scroll");
+		unique.add("Brimstone key");
+		unique.add("defender");
+		unique.add("Mossy key");
+		unique.add("Dragon platelegs");
+		unique.add("Dragon plateskirt");
+	}
 	
 	private void createMajor() {
-		major.add("Uncut onyx");
-		major.add("Uncut zenyte");
-		major.add("Shield right half");
-		major.add("Dragonfruit tree seed");
+		major.add("Long bone");
+		major.add("Curved bone");
 		major.add("Snapdragon seed");
 		major.add("Palm tree seed");
 		major.add("Magic seed");
 		major.add("Maple seed");
 		minor.add("Yew seed");
-		major.add("Dragon platelegs");
-		major.add("Dragon plateskirt");
 		major.add("Dragon halberd");
 		major.add("Dragon battleaxe");
 		major.add("Shield left half");
@@ -175,7 +287,14 @@ public class GroundItemHandler implements KillableThread{
 		major.add("Runite bar");
 		major.add("Runite limbs");
 		major.add("battlestaff");
+		major.add("Battlestaff");
 		major.add("Black d'hide body");
+		major.add("Ensouled demon head");
+		major.add("Ensouled abyssal head");
+		major.add("Ensouled aviansie head");
+		major.add("Ensouled bloodveld head");
+		major.add("Ensouled dragon head");
+		major.add("Ensouled tzhaar head");
 		major.add("Crystal key");
 		major.add("Loop half of key");
 		major.add("Tooth half of key");
@@ -191,6 +310,9 @@ public class GroundItemHandler implements KillableThread{
 		major.add("Rune dart");
 		major.add("Leaf-bladed sword");
 		major.add("Leaf-bladed battleaxe");
+		major.add("Dark totem base");
+		major.add("Dark totem top");
+		major.add("Ancient shard");
 	}
 	
 	private void createMinor() {
@@ -215,6 +337,8 @@ public class GroundItemHandler implements KillableThread{
 		minor.add("Diamond");
 		minor.add("Uncut ruby");
 		minor.add("Ruby");
+		minor.add("Adamant med helm");
+		minor.add("Nature talisman");
 		minor.add("Adamantite ore");
 		minor.add("Avantoe seed");
 		minor.add("Cadantine seed");
@@ -223,13 +347,28 @@ public class GroundItemHandler implements KillableThread{
 		minor.add("Grimy kwuarm");
 		minor.add("Grimy toadflax");
 		minor.add("Grimy lantadyme");
+		minor.add("Ensouled giant head");
+		minor.add("Ensouled kalphite head");
+		minor.add("Ensouled ogre head");
+		minor.add("Ensouled scorpion head");
+		minor.add("Ensouled troll head");
+		minor.add("Ensouled unicorn head");
+		minor.add("Ensouled elf head");
+		minor.add("Ensouled dagannoth head");
+		minor.add("Ensouled elf head");
+		minor.add("Ensouled bear head");
+		minor.add("Ensouled dog head");
+		minor.add("Ensouled horror head");
 		minor.add("Blood rune");
 		minor.add("Death rune");
 		minor.add("Nature rune");
 		minor.add("Law rune");
 		minor.add("Soul rune");
+		minor.add("Black robe");
 		minor.add("Mud rune");
 		minor.add("Mist rune");
+		minor.add("Chaos rune");
+		minor.add("Cosmic rune");
 		minor.add("Wrath rune");
 		minor.add("Smoke rune");
 		minor.add("Rune arrow");
@@ -245,8 +384,17 @@ public class GroundItemHandler implements KillableThread{
 		minor.add("Dragon thrownaxe");
 		minor.add("Rune knife");
 		minor.add("Adamant knife");
-		minor.add("Adamant dart");
+		minor.add("Adamant kiteshield");
 		minor.add("Rune javelin");
+		minor.add("Limpwurt root");
+		minor.add("Adamant med helm");
+		minor.add("Adamant 2h sword");
+		minor.add("Adamant sq shield");
+		minor.add("Mithril kiteshield");
+		minor.add("Mithril platelegs");
+		major.add("Mithril full helm");
+		minor.add("Mithril platebody");
+		minor.add("Adamant warhammer");
 	}
 	
 

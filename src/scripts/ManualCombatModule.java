@@ -119,8 +119,9 @@ public class ManualCombatModule extends CombatModule {
 			new Thread(potionHandler).start();
 		}
 		new Thread(healingHandler).start();
-		new Thread(antipoisonHandler).start();
+		new Thread(antiPotionHandler).start();
 		new Thread(grounditemHandler).start();
+		new Thread(this.specHandler).start();
 		
 		this.moduleName = "CombatModule: " + monsterName;
 		
@@ -142,12 +143,15 @@ public class ManualCombatModule extends CombatModule {
 		if(potionHandler != null) {
 			this.potionHandler.killThread();
 		}
-		if(this.antipoisonHandler != null) {
-			this.antipoisonHandler.killThread();
+		if(this.antiPotionHandler != null) {
+			this.antiPotionHandler.killThread();
 		}
 		if(this.grounditemHandler != null) {
 			//controller.debug("Killing GIH");
 			this.grounditemHandler.killThread();
+		}
+		if(specHandler != null) {
+			this.specHandler.killThread();
 		}
 		//controller.debug("CMODULE KILLED");
 	}

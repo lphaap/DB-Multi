@@ -97,7 +97,7 @@ public class WorldHandler implements KillableHandler {
 		controller.getGraphicHandler().setInfo("Hopping Worlds..");
 		
 		World w;
-		if(client.getClient().isMembers()) {
+		if(controller.isPlayerMember()) {
 			w = client.getWorlds().getRandomWorld(f -> f != null && f.isMembers() && !f.isDeadmanMode() && !f.isPVP() && f.getMinimumLevel() == 0);
 		}
 		else {
@@ -130,7 +130,7 @@ public class WorldHandler implements KillableHandler {
 		controller.getGraphicHandler().setInfo("Hopping Worlds..");
 			
 			World w;
-			if(client.getClient().isMembers()) {
+			if(controller.isPlayerMember()) {
 				//controller.debug("Member");
 				w = client.getWorlds().getRandomWorld(f -> f != null && f.isMembers() && !f.isDeadmanMode() && !f.isPVP() && f.getMinimumLevel() == 0);
 			}

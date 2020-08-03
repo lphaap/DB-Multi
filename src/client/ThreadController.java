@@ -44,6 +44,7 @@ public class ThreadController implements KillableThread{
 	private boolean debug;
 	private boolean manualPause;
 	private boolean onPause;
+	private boolean isMember;
 	
 	private ScriptModule currentModule;
 	private ArrayList<ScriptModule> modules = new ArrayList<ScriptModule>();
@@ -550,5 +551,16 @@ public class ThreadController implements KillableThread{
 		this.gui = gui;
 	}
 	
+	public GUIMainWindow getGUI() {
+		return this.gui;
+	}
+	
+	public boolean isPlayerMember() {
+		return this.isMember;
+	}
+	
+	public void setMemberStatus(boolean status) {
+		this.isMember = status;
+	}
 	
 }

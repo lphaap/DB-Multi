@@ -37,7 +37,7 @@ public class ClientTester extends ScriptModule {
 	public void run() {	
 		setup();
 		while(!killThread) {
-
+			
 		}
 
 	}

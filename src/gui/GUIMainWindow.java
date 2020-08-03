@@ -17,6 +17,8 @@ import javax.swing.JComboBox;
 import javax.swing.JFormattedTextField;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
+
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentListener;
 import java.awt.event.KeyAdapter;
@@ -57,11 +59,14 @@ public class GUIMainWindow extends JFrame {
 	private JLabel	lblPausetimer;
 	private JLabel lblScripttimer;
 	private JLabel lblTimers;
+	private JLabel lblMember;
 	
 	private JButton startBtn;
 	private JButton pauseBtn;
 	private JButton hopBtn;
 	private JButton btnGearEditor;
+	
+	private JCheckBox memberBox;
 	
 	/**
 	 * Launch the application.
@@ -129,11 +134,17 @@ public class GUIMainWindow extends JFrame {
 		contentPane.add(lblScriptManager);
 		
 		
-		/*this.pauseLabel = new JLabel("Script Manager");
-		this.pauseLabel.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		this.pauseLabel.setBounds(10, 33, 144, 22);
-		contentPane.add(this.pauseLabel );
+		lblMember = new JLabel("Member");
+		lblMember.setFont(new Font("Tahoma", Font.BOLD, 14));
+		lblMember.setBounds(262, 598, 74, 22);
+		contentPane.add(lblMember);
 		
+		this.memberBox = new JCheckBox();
+		memberBox.setBounds(325,595,30,30);
+		memberBox.setSelected(true);
+		contentPane.add(memberBox);
+		
+		/*
 		this.scriptLabel = new JLabel("Script Manager");
 		this.scriptLabel.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		this.scriptLabel.setBounds(10, 33, 144, 22);
@@ -203,7 +214,7 @@ public class GUIMainWindow extends JFrame {
 				startBot();
 			}
 		});
-		startBtn.setBounds(268, 614, 90, 22);
+		startBtn.setBounds(262, 632, 90, 22);
 		contentPane.add(startBtn);
 		
 		pauseBtn = new JButton("Pause");
@@ -268,6 +279,7 @@ public class GUIMainWindow extends JFrame {
 		new Thread(() -> {
 			controller.setPauseTimer(((int)pauseSpinnerMin.getValue()), ((int)(pauseSpinnerMax.getValue())));
 			controller.setScriptTimer(((int)scriptSpinnerMin.getValue()), ((int)(scriptSpinnerMax.getValue())));
+			controller.setMemberStatus(memberBox.isSelected());
 			controller.setGUI(this);
 			new Thread(controller).start();
 		}).start();;
@@ -280,6 +292,9 @@ public class GUIMainWindow extends JFrame {
 			this.scriptSpinnerMax.setVisible(false);
 			this.scriptSpinnerMin.setVisible(false);
 			this.btnGearEditor.setEnabled(false);
+			this.memberBox.setVisible(false);
+			this.lblMember.setVisible(false);
+			
 			
 			this.lblTimers.setText("Type:");
 			lblTimers.setBounds(10, 580, 144, 22);

@@ -1,6 +1,8 @@
 package scripts;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 
 import org.dreambot.api.methods.container.impl.equipment.EquipmentSlot;
@@ -29,8 +31,9 @@ public class CombatModule extends ScriptModule {
 	protected ArrayList<String> potions = new ArrayList<String>();
 	
 	protected KillableThread healingHandler = new HealingHandler();
-	protected KillableThread antipoisonHandler = new AntiPoisonHandler();
+	protected KillableThread antiPotionHandler = new AntiPotionHandler();
 	protected KillableThread potionHandler = new PotionHandler(true);
+	protected KillableThread specHandler = new SpecialAttackHandler();
 	protected KillableThread grounditemHandler;
 	
 	protected String monsterName;
@@ -67,8 +70,8 @@ public class CombatModule extends ScriptModule {
 	protected boolean timeLimited;
 	protected boolean usePotions;
 	protected boolean trainSlayer;
-	
 	protected boolean test;
+	
 	
 	//Leave timeLimitMins == 0, for unlimited time, 60mins timer ~ 70mins real time
 	public CombatModule(ThreadController controller, ClientThread client, CombatModule.Monster monster, CombatModule.Food food, CombatModule.Potion potion, 
@@ -371,8 +374,9 @@ public class CombatModule extends ScriptModule {
 				}
 				
 				new Thread(healingHandler).start();
-				new Thread(antipoisonHandler).start();
+				new Thread(antiPotionHandler).start();
 				new Thread(grounditemHandler).start();
+				new Thread(specHandler).start();
 				return true;
 			}
 			else {
@@ -394,7 +398,7 @@ public class CombatModule extends ScriptModule {
 	}
 	
 	public enum Food {
-		TROUT, SALMON, TUNA, LOBSTER, SWORD_FISH, MONK_FISH, SHARK, KARAMBWAN, MANTA_RAY, DARK_CRAB
+		TROUT, SALMON, TUNA, LOBSTER, SWORD_FISH, BASS, MONK_FISH, SHARK, KARAMBWAN, MANTA_RAY, DARK_CRAB
 	}
 	
 	public enum Potion	{
@@ -471,6 +475,10 @@ public class CombatModule extends ScriptModule {
 			case LOBSTER:
 				this.food = "Lobster";
 				this.heal = 12;
+				break;
+			case BASS:
+				this.food = "Bass";
+				this.heal = 13;
 				break;
 			case SWORD_FISH:
 				this.food = "Swordfish";
@@ -584,8 +592,9 @@ public class CombatModule extends ScriptModule {
 		this.killThread = true;
 		this.healingHandler.killThread();
 		this.potionHandler.killThread();
-		this.antipoisonHandler.killThread();
+		this.antiPotionHandler.killThread();
 		this.grounditemHandler.killThread();
+		this.specHandler.killThread();
 	}
 
 	@Override
@@ -711,12 +720,28 @@ public class CombatModule extends ScriptModule {
 		
 	}
 	
-	protected class	AntiPoisonHandler implements KillableThread{
+	protected class	AntiPotionHandler implements KillableThread{
 		protected boolean killThread;
+		
+		protected int aFireTimer = 0;
 		
 		@Override
 		public void run() {
-			
+			new Thread(() -> {handleAntiPoison();}).start();
+			new Thread(() -> {handleAntiFire();}).start();
+		}
+
+		@Override
+		public void killThread() {
+			this.killThread = true;
+		}
+
+		@Override
+		public boolean isAlive() {
+			return !this.killThread;
+		}
+		
+		public void handleAntiPoison() {
 			while(!killThread) {
 				RandomProvider.sleep(1000, 1500);
 				if(script.getCombat().isPoisoned()) {
@@ -734,6 +759,9 @@ public class CombatModule extends ScriptModule {
 						
 						Item eat = script.getInventory().get(f -> f != null && f.getName().contains("Superantipoison("));
 						eat.interact();
+						
+						RandomProvider.sleep(2000, 2500);
+						
 						script.getMouse().move();
 						
 						controller.returnMouseAccess();
@@ -742,12 +770,237 @@ public class CombatModule extends ScriptModule {
 					}
 				}
 			}			
-			
+		}
+		
+		public void handleAntiFire() {
+			while(!killThread) {
+				int sleep = RandomProvider.randomInt(1000, 1500);
+				controller.sleep(sleep);
+				this.aFireTimer = this.aFireTimer - sleep;
+				controller.debug("Timer: " + aFireTimer);
+				if(this.aFireTimer < 0) {
+					if(script.getLocalPlayer().isHealthBarVisible()) {
+						if(script.getInventory().contains(f -> f != null && f.getName().contains("Antifire potion"))) {
+							controller.getGraphicHandler().setInfo("Combat trainer: Drinking Antifire");
+							if(script.getInventory().contains(f -> f != null && f.getName().contains("Antifire potion"))) {
+								Thread.currentThread().setPriority(Thread.MAX_PRIORITY-1);
+								while(controller.requestMouseAccess()) {RandomProvider.sleep(10);}
+								
+								controller.debug("Mouse control: Combat module Antifire");
+		
+								if(!script.getTabs().isOpen(Tab.INVENTORY)) {
+									script.getTabs().open(Tab.INVENTORY);
+									RandomProvider.sleep(100, 150);
+								}	
+								
+								Item eat = script.getInventory().get(f -> f != null && f.getName().contains("Antifire potion"));
+								eat.interact();
+								
+								RandomProvider.sleep(2000, 2500);
+								script.getMouse().move();
+								
+								controller.returnMouseAccess();
+								Thread.currentThread().setPriority(Thread.NORM_PRIORITY);
+								this.aFireTimer = RandomProvider.randomInt((300*1000),(330*1000));
+							}
+						}
+						else if(script.getInventory().contains(f -> f != null && f.getName().contains("Extended antifire"))) {
+							controller.getGraphicHandler().setInfo("Combat trainer: Drinking Antifire");
+							if(script.getInventory().contains(f -> f != null && f.getName().contains("Extended antifire"))) {
+								Thread.currentThread().setPriority(Thread.MAX_PRIORITY-1);
+								while(controller.requestMouseAccess()) {RandomProvider.sleep(10);}
+								
+								controller.debug("Mouse control: Combat module Antifire");
+		
+								if(!script.getTabs().isOpen(Tab.INVENTORY)) {
+									script.getTabs().open(Tab.INVENTORY);
+									RandomProvider.sleep(100, 150);
+								}	
+								
+								Item eat = script.getInventory().get(f -> f != null && f.getName().contains("Extended antifire"));
+								eat.interact();
+								
+								RandomProvider.sleep(2000, 2500);
+								script.getMouse().move();
+								
+								controller.returnMouseAccess();
+								Thread.currentThread().setPriority(Thread.NORM_PRIORITY);
+								this.aFireTimer = RandomProvider.randomInt((660*1000),(690*1000));
+							}
+						}
+						else if(script.getInventory().contains(f -> f != null && f.getName().contains("Super antifire potion"))) {
+							controller.getGraphicHandler().setInfo("Combat trainer: Drinking Antifire");
+							if(script.getInventory().contains(f -> f != null && f.getName().contains("Super antifire potion"))) {
+								Thread.currentThread().setPriority(Thread.MAX_PRIORITY-1);
+								while(controller.requestMouseAccess()) {RandomProvider.sleep(10);}
+								
+								controller.debug("Mouse control: Combat module Antifire");
+		
+								if(!script.getTabs().isOpen(Tab.INVENTORY)) {
+									script.getTabs().open(Tab.INVENTORY);
+									RandomProvider.sleep(100, 150);
+								}	
+								
+								Item eat = script.getInventory().get(f -> f != null && f.getName().contains("Super antifire potion"));
+								eat.interact();
+								
+								RandomProvider.sleep(2000, 2500);
+								script.getMouse().move();
+								
+								controller.returnMouseAccess();
+								Thread.currentThread().setPriority(Thread.NORM_PRIORITY);
+								this.aFireTimer = RandomProvider.randomInt((120*1000),(150*1000));
+							}
+						else if(script.getInventory().contains(f -> f != null && f.getName().contains("Extended super antifire"))) {
+							controller.getGraphicHandler().setInfo("Combat trainer: Drinking Antifire");
+							if(script.getInventory().contains(f -> f != null && f.getName().contains("Extended super antifire"))) {
+								Thread.currentThread().setPriority(Thread.MAX_PRIORITY-1);
+								while(controller.requestMouseAccess()) {RandomProvider.sleep(10);}
+								
+								controller.debug("Mouse control: Combat module Antifire");
+		
+								if(!script.getTabs().isOpen(Tab.INVENTORY)) {
+									script.getTabs().open(Tab.INVENTORY);
+									RandomProvider.sleep(100, 150);
+								}	
+								
+								Item eat = script.getInventory().get(f -> f != null && f.getName().contains("Extended super antifire"));
+								eat.interact();
+								
+								RandomProvider.sleep(2000, 2500);
+								script.getMouse().move();
+								
+								controller.returnMouseAccess();
+								Thread.currentThread().setPriority(Thread.NORM_PRIORITY);
+								this.aFireTimer = RandomProvider.randomInt((300*1000),(330*1000));
+							}
+						}
+					}
+				}
+			}
+		}	
+	}
+		
+	}
+
+	
+	protected class SpecialAttackHandler implements KillableThread{
+		protected boolean killThread;
+		protected boolean specSet;
+		protected Map<String, Integer> map = new HashMap<>();
+		protected int specAt;
+		
+		
+		public SpecialAttackHandler() {
+			map.put("Dragon dagger", 25);
+			map.put("Dragon dagger(p)", 25);
+			map.put("Dragon dagger(p+)", 25);
+			map.put("Dragon dagger(p++)", 25);
+			map.put("Dragon 2h sword", 60);
+			map.put("Dragon battleaxe", 100);
+			map.put("Dragon claws", 50);
+			map.put("Dragon halberd", 30);
+			map.put("Dragon hasta", 25);
+			map.put("Dragon hasta(p)", 25);
+			map.put("Dragon hasta(p+)", 25);
+			map.put("Dragon hasta(p++)", 25);
+			map.put("Dragon hasta(kp)", 25);
+			map.put("Dragon longsword", 25);
+			map.put("Dragon mace", 25);
+			map.put("Dragon scimitar", 55);
+			map.put("Dragon sword", 40);
+			map.put("Dragon warhammer", 50);
+			map.put("Armadyl godsword", 50);
+			map.put("Bandos godsword", 50);
+			map.put("Saradomin godsword", 50);
+			map.put("Saradomin sword", 100);
+			map.put("Saradomin's blessed sword", 100);
+			map.put("Zamorak godsword", 50);
+			map.put("Granite hammer", 60);
+			map.put("Barrelchest anchor", 50);
+			map.put("Crystal halberd", 30);
+			map.put("Dorgeshuun crossbow", 75);
+			map.put("Dragon crossbow", 60);
+			map.put("Armadyl crossbow", 40);
+			map.put("Dark bow", 55);
+			map.put("Magic comp bow", 35);
+			map.put("Magic longbow", 35);
+			map.put("Magic shortbow (i)", 55);
+			map.put("Magic shortbow", 55);
+			map.put("Eldritch nightmare staff", 75);
+			map.put("Staff of balance", 100);
+			map.put("Staff of the dead", 100);
+			map.put("Toxic staff of the dead", 100);
+			map.put("Staff of light", 100);
+			map.put("Volatile nightmare staff", 55);
+			map.put("Arclight", 50);
+			map.put("Darklight", 50);
+			map.put("Abyssal bludgeon", 50);
+			map.put("Abyssal dagger", 50);
+			map.put("Abyssal dagger(p)", 50);
+			map.put("Abyssal dagger(p+)", 50);
+			map.put("Abyssal dagger(p++)", 50);
+			map.put("Abyssal tentacle", 50);
+			map.put("Abyssal whip", 50);
+			map.put("Statius's warhammer", 35);
+			map.put("Vesta's blighted longsword", 25);
+			map.put("Vesta's longsword", 25);
+			map.put("Vesta's spear", 50);
+		}
+		
+		@Override
+		public void run() {
+			while(!killThread) {
+				Item i = script.getEquipment().getItemInSlot(EquipmentSlot.WEAPON.getSlot());
+				if(i != null && map.containsKey(i.getName()) && script.getLocalPlayer().isInCombat()) {
+					if(!specSet && i != null) {
+						int req = map.get(i.getName());
+						if(req >= 100) {
+							this.specAt = 100;
+							this.specSet = true;
+						}
+						else {
+							this.specAt = RandomProvider.randomInt(req,100);
+							if(specAt >= 100) {
+								this.specAt = 100;
+							}
+							this.specSet = true;
+						}
+						controller.debug("At: " + specAt);
+					}
+					if(script.getCombat().getSpecialPercentage() >= specAt && !script.getCombat().isSpecialActive()) {
+							controller.debug("1");
+							this.specSet = false;
+							while(controller.requestMouseAccess()) {RandomProvider.sleep(10);}
+							
+							controller.debug("Mouse control: Combat module SpecialHandler");
+							
+							script.getCombat().toggleSpecialAttack(true);
+							RandomProvider.sleep(10, 20);
+							script.getMouse().move();
+							
+							if(!script.getTabs().isOpen(Tab.INVENTORY)) {
+								RandomProvider.sleep(2500, 3700);
+								script.getTabs().open(Tab.INVENTORY);
+								RandomProvider.sleep(100, 150);
+							}	
+							controller.returnMouseAccess();
+							
+					}
+					controller.debug("%" + script.getCombat().getSpecialPercentage());
+					RandomProvider.sleep(900, 1100);
+					
+				}
+				else {
+					RandomProvider.sleep(900, 1100);
+				}
+			}
 		}
 
 		@Override
 		public void killThread() {
 			this.killThread = true;
+			this.map.clear();
 		}
 
 		@Override
@@ -756,7 +1009,6 @@ public class CombatModule extends ScriptModule {
 		}
 		
 	}
-
 
 
 }

@@ -371,8 +371,6 @@ public class GroundItemHandler implements KillableThread{
 		minor.add("Cosmic rune");
 		minor.add("Wrath rune");
 		minor.add("Smoke rune");
-		minor.add("Rune arrow");
-		minor.add("Adamant arrow");
 		minor.add("Dragonstone bolt tips");
 		minor.add("Dragonstone bolts");
 		minor.add("Raw sharks");
@@ -382,8 +380,6 @@ public class GroundItemHandler implements KillableThread{
 		minor.add("Teak plank");
 		minor.add("Dragon arrowtips");
 		minor.add("Dragon thrownaxe");
-		minor.add("Rune knife");
-		minor.add("Adamant knife");
 		minor.add("Adamant kiteshield");
 		minor.add("Rune javelin");
 		minor.add("Limpwurt root");

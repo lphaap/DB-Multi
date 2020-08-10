@@ -7,8 +7,8 @@ import client.ThreadController;
 public class SlayerModule extends CombatModule {
 
 	public SlayerModule(ThreadController controller, ClientThread client, Monster monster, Food food, Potion potion,
-			int limit, int timeLimitMins, int foodLimit, int potionLimit, Boolean pickUp, Training skill) {
-		super(controller, client, monster, food, potion, limit, timeLimitMins, foodLimit, potionLimit, pickUp, skill);
+			int limit, int timeLimitMins, int foodLimit, int potionLimit, Boolean pickUp, boolean prayer, Training skill) {
+		super(controller, client, monster, food, potion, limit, timeLimitMins, foodLimit, potionLimit, pickUp, prayer, skill);
 		// TODO Auto-generated constructor stub
 	}
 

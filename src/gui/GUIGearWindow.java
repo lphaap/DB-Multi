@@ -14,6 +14,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.ArrayList;
 
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
@@ -463,5 +464,6 @@ public class GUIGearWindow extends JFrame {
 		this.mShieldBox.setEditable(true);
 		this.mWepBox.setEditable(true);
 	}
+	
 
 }

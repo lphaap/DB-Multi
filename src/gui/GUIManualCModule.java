@@ -4,6 +4,7 @@ import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
@@ -38,6 +39,9 @@ import scripts.ManualCombatModule;
 		
 		private JCheckBox pickupCheck;
 		private JCheckBox slayerCheck;
+		private JCheckBox prayerCheck;
+		
+		private ArrayList<Integer> prayers = new ArrayList<Integer>();
 		
 		private int maxFood =28;
 		/**
@@ -155,6 +159,22 @@ import scripts.ManualCombatModule;
 			slayerCheck.setSelected(true);
 			contentPane.add(slayerCheck);
 			
+			JLabel lblPrayer = new JLabel("Use Prayer:");
+			lblPrayer.setFont(new Font("Tahoma", Font.PLAIN, 14));
+			lblPrayer.setBounds(103, 292, 94, 22);
+			contentPane.add(lblPrayer);
+			
+			prayerCheck = new JCheckBox();
+			prayerCheck.setBounds(180, 292, 35, 22);
+			prayerCheck.addActionListener(l -> {
+				System.out.println("T");
+				if(prayerCheck.isSelected()) {
+					new GUIPrayerWindow(null, this).show();
+				}
+			});
+			contentPane.add(prayerCheck);
+			
+			
 			JButton btnStart = new JButton("Ready");
 			btnStart.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
@@ -179,12 +199,16 @@ import scripts.ManualCombatModule;
 		
 		
 		public void parseModule() {
-			controller.addModule(new ManualCombatModule(controller, client, ((CombatModule.Food)(this.comboBoxFood.getSelectedItem())), 
+			ManualCombatModule cm = (new ManualCombatModule(controller, client, ((CombatModule.Food)(this.comboBoxFood.getSelectedItem())), 
 								((CombatModule.Potion)(this.comboBoxPotion.getSelectedItem())),
 								((int)this.limit.getValue()), ((int)this.hoplimit.getValue()), 
-								this.pickupCheck.isSelected(), this.slayerCheck.isSelected(),
+								this.pickupCheck.isSelected(), this.slayerCheck.isSelected(), this.prayerCheck.isSelected(),
 								((CombatModule.Training)this.comboBoxTrain.getSelectedItem()),
 								this.comboBoxMonster.getText()));
+			
+
+			cm.setPrayerValues(this.prayers);
+			controller.addModule(cm);
 		}
 		
 		public void parseInfo() {
@@ -197,6 +221,9 @@ import scripts.ManualCombatModule;
 			this.dispose();
 		}
 
+		public void setPrayers(ArrayList<Integer> list){
+			this.prayers = list;
+		}
 
 		public void checkLimit(JSpinner spinner) {
 			if((int)spinner.getValue() < 1) {

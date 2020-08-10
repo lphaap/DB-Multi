@@ -21,10 +21,10 @@ public class ManualCombatModule extends CombatModule {
 
 	
 	public ManualCombatModule(ThreadController controller, ClientThread client, Food food,
-						   	Potion potion, int limit, int hoplimit, Boolean pickUp, Boolean trainSlayer,Training skill,
+						   	Potion potion, int limit, int hoplimit, Boolean pickUp, Boolean trainSlayer, boolean usePrayer ,Training skill,
 							String monsterName) {
 		
-		super(controller, client, Monster.BARBARIAN, food, potion, limit, 0, 0, 0, pickUp, skill);
+		super(controller, client, Monster.BARBARIAN, food, potion, limit, 0, 0, 0, pickUp, usePrayer, skill);
 		this.monsterName = monsterName;
 		this.hopLimit = hoplimit;
 
@@ -118,6 +118,9 @@ public class ManualCombatModule extends CombatModule {
 		if(usePotions) {
 			new Thread(potionHandler).start();
 		}
+		if(usePrayer) {
+			new Thread(prayerHandler).start();
+		}
 		new Thread(healingHandler).start();
 		new Thread(antiPotionHandler).start();
 		new Thread(grounditemHandler).start();
@@ -152,6 +155,9 @@ public class ManualCombatModule extends CombatModule {
 		}
 		if(specHandler != null) {
 			this.specHandler.killThread();
+		}
+		if(this.prayerHandler != null) {
+			this.prayerHandler.killThread();
 		}
 		//controller.debug("CMODULE KILLED");
 	}

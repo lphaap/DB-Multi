@@ -5,6 +5,7 @@ import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
@@ -41,6 +42,9 @@ public class GUICombatModuleWindow extends JFrame {
 	private JComboBox comboBoxPotion;
 	
 	private JCheckBox pickupCheck;
+	private JCheckBox prayerCheck;
+	
+	private ArrayList<Integer> prayers = new ArrayList<Integer>();
 	
 	private int maxFood =28;
 	/**
@@ -163,13 +167,28 @@ public class GUICombatModuleWindow extends JFrame {
 		
 		JLabel lblPickup = new JLabel("Collect Items:");
 		lblPickup.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		lblPickup.setBounds(107, 317, 94, 22);
+		lblPickup.setBounds(106, 321, 94, 22);
 		contentPane.add(lblPickup);
 		
 		pickupCheck = new JCheckBox();
-		pickupCheck.setBounds(194, 317, 35, 22);
+		pickupCheck.setBounds(193, 321, 35, 22);
 		pickupCheck.setSelected(true);
 		contentPane.add(pickupCheck);
+		
+		JLabel lblPrayer = new JLabel("Use Prayer:");
+		lblPrayer.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		lblPrayer.setBounds(106, 296, 94, 22);
+		contentPane.add(lblPrayer);
+		
+		prayerCheck = new JCheckBox();
+		prayerCheck.setBounds(193, 296, 35, 22);
+		prayerCheck.addActionListener(l -> {
+			System.out.println("T");
+			if(prayerCheck.isSelected()) {
+				new GUIPrayerWindow(this, null).show();
+			}
+		});
+		contentPane.add(prayerCheck);
 		
 		JButton btnStart = new JButton("Ready");
 		btnStart.addActionListener(new ActionListener() {
@@ -186,10 +205,12 @@ public class GUICombatModuleWindow extends JFrame {
 	}
 	
 	public void parseModule() {
-		controller.addModule(new CombatModule(controller, client, ((CombatModule.Monster)(this.comboBoxMonster.getSelectedItem())), 
-							((CombatModule.Food)(this.comboBoxFood.getSelectedItem())), ((CombatModule.Potion)(this.comboBoxPotion.getSelectedItem())),
-							((int)this.limit.getValue()), ((int)this.timeLimit.getValue()), ((int)this.foodLimit.getValue()), ((int)this.potionLimit.getValue()),
-							this.pickupCheck.isSelected(), ((CombatModule.Training)this.comboBoxTrain.getSelectedItem())));
+		CombatModule cm = new CombatModule(controller, client, ((CombatModule.Monster)(this.comboBoxMonster.getSelectedItem())), 
+				((CombatModule.Food)(this.comboBoxFood.getSelectedItem())), ((CombatModule.Potion)(this.comboBoxPotion.getSelectedItem())),
+				((int)this.limit.getValue()), ((int)this.timeLimit.getValue()), ((int)this.foodLimit.getValue()), ((int)this.potionLimit.getValue()),
+				this.pickupCheck.isSelected(), this.prayerCheck.isSelected(), ((CombatModule.Training)this.comboBoxTrain.getSelectedItem()));
+		cm.setPrayerValues(this.prayers);
+		controller.addModule(cm);
 	}
 	
 	public void parseInfo() {
@@ -290,6 +311,10 @@ public class GUICombatModuleWindow extends JFrame {
 		if((int)spinner.getValue() < 1) {
 			spinner.setValue(1);
 		}
+	}
+	
+	public void setPrayers(ArrayList<Integer> list){
+		this.prayers = list;
 	}
 
 }

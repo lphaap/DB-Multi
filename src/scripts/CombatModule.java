@@ -7,6 +7,7 @@ import java.util.Random;
 
 import org.dreambot.api.methods.container.impl.equipment.EquipmentSlot;
 import org.dreambot.api.methods.map.Area;
+import org.dreambot.api.methods.prayer.Prayer;
 import org.dreambot.api.methods.skills.Skill;
 import org.dreambot.api.methods.tabs.Tab;
 import org.dreambot.api.wrappers.interactive.NPC;
@@ -30,10 +31,14 @@ public class CombatModule extends ScriptModule {
 	protected ArrayList<String> collect = new ArrayList<String>();
 	protected ArrayList<String> potions = new ArrayList<String>();
 	
+	protected final int unlimited = 3000;
+	protected PrayerHandler prayerHandlerRef = new PrayerHandler();
+	
 	protected KillableThread healingHandler = new HealingHandler();
 	protected KillableThread antiPotionHandler = new AntiPotionHandler();
 	protected KillableThread potionHandler = new PotionHandler(true);
 	protected KillableThread specHandler = new SpecialAttackHandler();
+	protected KillableThread prayerHandler = prayerHandlerRef;
 	protected KillableThread grounditemHandler;
 	
 	protected String monsterName;
@@ -53,8 +58,6 @@ public class CombatModule extends ScriptModule {
 	
 	protected double potionProcent;
 	protected double potionBoost;
-
-	protected final int unlimited = 3000;
 	
 	protected Training skill;
 	protected Monster monsterEnum;
@@ -69,20 +72,21 @@ public class CombatModule extends ScriptModule {
 	protected boolean killThread;
 	protected boolean timeLimited;
 	protected boolean usePotions;
+	protected boolean usePrayer;
 	protected boolean trainSlayer;
 	protected boolean test;
 	
 	
 	//Leave timeLimitMins == 0, for unlimited time, 60mins timer ~ 70mins real time
 	public CombatModule(ThreadController controller, ClientThread client, CombatModule.Monster monster, CombatModule.Food food, CombatModule.Potion potion, 
-				 	 	int limit, int timeLimitMins, int foodLimit, int potionLimit, Boolean pickUp, Training skill) {
+				 	 	int limit, int timeLimitMins, int foodLimit, int potionLimit, Boolean pickUp, boolean usePrayer, Training skill) {
 		this.script = client;
 		eatAt = RandomProvider.randomInt(6) + 10;
 		this.limit = limit;
 		this.timeLimit = (timeLimitMins*60*1000);
 		
 		this.foodLimit = foodLimit;
-		
+		this.usePrayer = usePrayer;
 		this.trainSlayer = trainSlayer;
 		
 		controller.debug(""+timeLimit);
@@ -372,7 +376,9 @@ public class CombatModule extends ScriptModule {
 				if(usePotions) {
 					new Thread(potionHandler).start();
 				}
-				
+				if(usePrayer) {
+					new Thread(prayerHandler).start();
+				}
 				new Thread(healingHandler).start();
 				new Thread(antiPotionHandler).start();
 				new Thread(grounditemHandler).start();
@@ -595,6 +601,7 @@ public class CombatModule extends ScriptModule {
 		this.antiPotionHandler.killThread();
 		this.grounditemHandler.killThread();
 		this.specHandler.killThread();
+		this.prayerHandler.killThread();
 	}
 
 	@Override
@@ -619,6 +626,7 @@ public class CombatModule extends ScriptModule {
 		
 		@Override
 		public void run() {
+			
 			
 			while(!killThread) {
 				RandomProvider.sleep(1000, 1500);
@@ -777,7 +785,7 @@ public class CombatModule extends ScriptModule {
 				int sleep = RandomProvider.randomInt(1000, 1500);
 				controller.sleep(sleep);
 				this.aFireTimer = this.aFireTimer - sleep;
-				controller.debug("Timer: " + aFireTimer);
+				//controller.debug("Timer: " + aFireTimer);
 				if(this.aFireTimer < 0) {
 					if(script.getLocalPlayer().isHealthBarVisible()) {
 						if(script.getInventory().contains(f -> f != null && f.getName().contains("Antifire potion"))) {
@@ -880,6 +888,149 @@ public class CombatModule extends ScriptModule {
 			}
 		}	
 	}
+		
+	}
+	
+	public void setPrayerValues(ArrayList<Integer> values) {
+		this.prayerHandlerRef.setPrayerValues(values);
+	}
+	
+	protected class PrayerHandler implements KillableThread{
+		protected boolean killThread;
+		protected Map<Integer,Integer> toggleToTexture = new HashMap<Integer,Integer>(); //Widgets: 77/4/x
+		protected ArrayList<Integer> prayerToggles = new ArrayList<Integer>();
+		
+		public PrayerHandler() {
+			this.createMap();
+		}
+		
+		
+		@Override
+		public void run() {
+			
+			setupQuickPrayers();
+			
+			/*while(!killThread) {
+				if(script.getLocalPlayer().isInCombat() && script.getSkills().getBoostedLevels(Skill.PRAYER) > 0) {
+					controller.getAntiBanHandler().pauseAllAntibanThreads();
+					
+					controller.getGraphicHandler().setInfo("Combat trainer: Prayer flick");
+					
+					if(script.getInventory().contains(f -> f != null && f.getName().equals(food))) {
+						Thread.currentThread().setPriority(Thread.MAX_PRIORITY-1);
+						while(controller.requestMouseAccess()) {RandomProvider.sleep(10);}
+						
+						controller.debug("Mouse control: Combat module healing");
+
+						if(!script.getTabs().isOpen(Tab.INVENTORY)) {
+							script.getTabs().open(Tab.INVENTORY);
+							RandomProvider.sleep(100, 150);
+						}	
+						
+						Item eat = script.getInventory().get(f -> f != null && f.getName().equals(food));
+						eat.interact();
+						script.getMouse().move();
+						int realHp = script.getSkills().getRealLevel(Skill.HITPOINTS);
+						eatAt = realHp - RandomProvider.randomInt((int)(realHp * 0.2323232323)) - (heal + 1);
+						controller.returnMouseAccess();
+						Thread.currentThread().setPriority(Thread.NORM_PRIORITY);
+								//random.nextInt(6) + 10;
+					}
+				}
+				else {
+					controller.getAntiBanHandler().resumeAllAntibanThreads();
+				}
+			}*/	
+			
+		}
+
+		@Override
+		public void killThread() {
+			this.killThread = true;
+		}
+
+		@Override
+		public boolean isAlive() {
+			return !this.killThread;
+		}
+		
+		public void setPrayerValues(ArrayList<Integer> values) {
+			this.prayerToggles = values;
+		}
+		
+		private void createMap() {
+			toggleToTexture.put(0, 30);
+			toggleToTexture.put(1, 32);
+			toggleToTexture.put(2, 34);
+			toggleToTexture.put(18, 36);
+			toggleToTexture.put(19, 38);
+			
+			toggleToTexture.put(3, 40);
+			toggleToTexture.put(4, 42);
+			toggleToTexture.put(5, 44);
+			toggleToTexture.put(6, 46);
+			toggleToTexture.put(7, 48);
+			
+			toggleToTexture.put(8, 50);
+			toggleToTexture.put(20, 52);
+			toggleToTexture.put(21, 54);
+			toggleToTexture.put(9, 56);
+			toggleToTexture.put(10, 58);
+			
+			toggleToTexture.put(11, 60);
+			toggleToTexture.put(12, 62);
+			toggleToTexture.put(13, 64);
+			toggleToTexture.put(14, 66);
+			toggleToTexture.put(22, 68);
+			
+			toggleToTexture.put(23, 70);
+			toggleToTexture.put(15, 72);
+			toggleToTexture.put(16, 74);
+			toggleToTexture.put(17, 76);
+			toggleToTexture.put(28, 78);
+			
+			toggleToTexture.put(25, 80);
+			toggleToTexture.put(26, 82);
+			toggleToTexture.put(24, 84);
+			toggleToTexture.put(27, 86);
+			
+		}
+		
+		private void setupQuickPrayers() {
+			while(controller.requestMouseAccess()) {RandomProvider.sleep(10);}
+			
+			controller.debug("Mouse access: Prayer Handler");
+			controller.debug("Mouse access: Prayer Handler");
+			controller.debug("Mouse access: Prayer Handler");
+			controller.debug("List size: " + this.prayerToggles.size());
+			script.getWidget(160, 14).interact("Setup");
+			RandomProvider.sleep(1000, 1500);
+			for(Integer toggle : prayerToggles) {
+				
+				if(script.getWidget(77, 4).getChild(this.toggleToTexture.get(toggle)) != null 
+				   && script.getWidget(77, 4).getChild(this.toggleToTexture.get(toggle)).getTextureId() == 180) {
+					script.getWidget(77, 4).getChild(toggle).interact("Toggle");
+					RandomProvider.sleep(400, 550);
+				}
+			}
+			for(Integer key : this.toggleToTexture.keySet()) {
+				if(script.getWidget(77, 4).getChild(this.toggleToTexture.get(key)) != null 
+						  && script.getWidget(77, 4).getChild(this.toggleToTexture.get(key)).getTextureId() == 181) {
+					if(!this.prayerToggles.contains(key)) {
+						script.getWidget(77, 4).getChild(key).interact("Toggle");
+						RandomProvider.sleep(400, 550);
+					}
+				}
+			}
+			
+			script.getWidget(77, 5).interact("Done");
+			RandomProvider.sleep(700, 800);
+			
+			script.getTabs().open(Tab.INVENTORY);
+			RandomProvider.sleep(500, 700);
+			
+			controller.returnMouseAccess();
+		}
 		
 	}
 

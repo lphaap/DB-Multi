@@ -206,7 +206,7 @@ public class GroundItemHandler implements KillableThread{
 					}
 				}
 			}
-			//controller.debug("Minor Stop");
+			
 		}
 	}
 

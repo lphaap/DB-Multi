@@ -44,7 +44,7 @@ import scripts.SmelterModule.Bars;
 import utilities.InGameMsgHandler;
 
 
-@ScriptManifest(author = "Molang", name = "Multi Bot", version = 1.3, description = "Multi Bot", category = Category.MISC)
+@ScriptManifest(author = "Molang", name = "Multi Bot", version = 1.6, description = "Multi Bot", category = Category.MISC)
 public class ClientThread extends AbstractScript implements AdvancedMessageListener{
 	
 	private ThreadController controller;

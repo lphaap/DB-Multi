@@ -43,8 +43,15 @@ public class WorldHandler implements KillableHandler {
 						controller.getMovementHandler().getMainLocation().contains(f)).size()) > playerLimit) && this.hopCounter >= 0) {//IF2
 						
 						RandomProvider.sleep(4000,5000);
+						
+						client.sleepWhile(() -> client.getLocalPlayer().isHealthBarVisible() , 8000);
+						
+						RandomProvider.sleep(500,1500);
+						
 						if(!(((client.getPlayers().all(f -> f != null && ! f.equals(client.getLocalPlayer()) && //To check if player limit passed just for a player tavelling through
 								controller.getMovementHandler().getMainLocation().contains(f)).size()) > playerLimit) && this.hopCounter >= 0)) {continue mainLoop;}
+						
+						if(client.getLocalPlayer().isHealthBarVisible()) {continue mainLoop;}
 						
 						while(controller.requestKeyboardAccess()) {RandomProvider.sleep(10);}
 						while(controller.requestMouseAccess()) {RandomProvider.sleep(10);}

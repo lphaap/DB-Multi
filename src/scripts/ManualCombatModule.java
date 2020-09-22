@@ -26,7 +26,13 @@ public class ManualCombatModule extends CombatModule {
 		
 		super(controller, client, Monster.BARBARIAN, food, potion, limit, 0, 0, 0, pickUp, usePrayer, skill);
 		this.monsterName = monsterName;
-		this.hopLimit = hoplimit;
+		
+		if(this.hopLimit > 0) {
+			this.hopLimit = hoplimit;
+		}
+		else {
+			this.hopLimit = this.unlimited;
+		}
 
 		this.trainSlayer = trainSlayer;
 		
@@ -71,9 +77,10 @@ public class ManualCombatModule extends CombatModule {
 					while(controller.requestMouseAccess()) {RandomProvider.sleep(10);}
 					
 					NPC monster = script.getNpcs().closest(f -> f.getName().equals(monsterName) && f != null && !f.isInCombat());
-					org.dreambot.api.wrappers.interactive.Character existingEnemy = script.getLocalPlayer().getInteractingCharacter();
+					org.dreambot.api.wrappers.interactive.Character existingEnemy = script.getLocalPlayer().getCharacterInteractingWithMe();
 					
 					int randomizer = RandomProvider.randomInt(2);
+					
 					
 					if(existingEnemy != null && existingEnemy.getName().equals(monsterName)) {
 						if(RandomProvider.fiftyfifty()) {
@@ -159,6 +166,7 @@ public class ManualCombatModule extends CombatModule {
 		if(this.prayerHandler != null) {
 			this.prayerHandler.killThread();
 		}
+		controller.getWorldHandler().setToUnActive();
 		//controller.debug("CMODULE KILLED");
 	}
 }

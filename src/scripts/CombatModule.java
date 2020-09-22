@@ -1,4 +1,5 @@
 package scripts;
+import java.awt.Point;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -10,9 +11,11 @@ import org.dreambot.api.methods.map.Area;
 import org.dreambot.api.methods.prayer.Prayer;
 import org.dreambot.api.methods.skills.Skill;
 import org.dreambot.api.methods.tabs.Tab;
+import org.dreambot.api.methods.widget.Widget;
 import org.dreambot.api.wrappers.interactive.NPC;
 import org.dreambot.api.wrappers.items.GroundItem;
 import org.dreambot.api.wrappers.items.Item;
+import org.dreambot.api.wrappers.widgets.WidgetChild;
 
 import antiban.RandomProvider;
 import client.ClientThread;
@@ -277,7 +280,7 @@ public class CombatModule extends ScriptModule {
 					while(controller.requestMouseAccess()) {RandomProvider.sleep(10);}
 					
 					NPC monster = script.getNpcs().closest(f -> f.getName().equals(monsterName) && f != null && !f.isInCombat() && f.getLevel()!=51);
-					org.dreambot.api.wrappers.interactive.Character existingEnemy = script.getLocalPlayer().getInteractingCharacter();
+					org.dreambot.api.wrappers.interactive.Character existingEnemy = script.getLocalPlayer().getCharacterInteractingWithMe();
 					
 					int randomizer = RandomProvider.randomInt(2);
 					
@@ -404,7 +407,7 @@ public class CombatModule extends ScriptModule {
 	}
 	
 	public enum Food {
-		TROUT, SALMON, TUNA, LOBSTER, SWORD_FISH, BASS, MONK_FISH, SHARK, KARAMBWAN, MANTA_RAY, DARK_CRAB
+		TROUT, SALMON, TUNA, LOBSTER, SWORD_FISH, BASS, CHEESE_POTATO, MONK_FISH, SHARK, KARAMBWAN, MANTA_RAY, DARK_CRAB
 	}
 	
 	public enum Potion	{
@@ -412,7 +415,7 @@ public class CombatModule extends ScriptModule {
 	}
 	
 	public enum Training {
-		RANGE, ATTACK, STRENGTH, DEFENCE
+		STRENGTH, ATTACK, DEFENCE, RANGE
 	}
 	
 	@Override
@@ -489,6 +492,10 @@ public class CombatModule extends ScriptModule {
 			case SWORD_FISH:
 				this.food = "Swordfish";
 				this.heal = 14;
+				break;
+			case CHEESE_POTATO:
+				this.food = "Potato with cheese";
+				this.heal = 16;
 				break;
 			case MONK_FISH:
 				this.food = "Monkfish";
@@ -900,6 +907,13 @@ public class CombatModule extends ScriptModule {
 		protected Map<Integer,Integer> toggleToTexture = new HashMap<Integer,Integer>(); //Widgets: 77/4/x
 		protected ArrayList<Integer> prayerToggles = new ArrayList<Integer>();
 		
+		protected int lastPoint;
+		protected int gameTick;
+		protected int threadTime;
+		protected int prayTime;
+		
+		protected boolean reset;
+		
 		public PrayerHandler() {
 			this.createMap();
 		}
@@ -910,37 +924,86 @@ public class CombatModule extends ScriptModule {
 			
 			setupQuickPrayers();
 			
-			/*while(!killThread) {
+			while(!killThread && usePrayer) {
 				if(script.getLocalPlayer().isInCombat() && script.getSkills().getBoostedLevels(Skill.PRAYER) > 0) {
 					controller.getAntiBanHandler().pauseAllAntibanThreads();
 					
 					controller.getGraphicHandler().setInfo("Combat trainer: Prayer flick");
+					while(controller.requestMouseAccess()) {RandomProvider.sleep(10);}
+					controller.debug("Mouse control: Combat module praying");
 					
-					if(script.getInventory().contains(f -> f != null && f.getName().equals(food))) {
-						Thread.currentThread().setPriority(Thread.MAX_PRIORITY-1);
-						while(controller.requestMouseAccess()) {RandomProvider.sleep(10);}
-						
-						controller.debug("Mouse control: Combat module healing");
+					//for(int i = 0; i < 10; i++) {
+					WidgetChild qp = script.getWidget(160, 14);
+					
+					qp.interact("Activate");
+					RandomProvider.sleep(1000, 1100);
+					this.lastPoint = script.getSkills().getBoostedLevels(Skill.PRAYER);
+					while(this.lastPoint == script.getSkills().getBoostedLevels(Skill.PRAYER)) {controller.sleep(10);}
+					this.lastPoint = script.getSkills().getBoostedLevels(Skill.PRAYER);
+					new Thread(() -> {
+						while(!killThread) {
+							for(int i = 0; i < 61; i++) {	
+								if(this.lastPoint != script.getSkills().getBoostedLevels(Skill.PRAYER) && !this.reset) {
+									i = 0;
+									this.reset = true;
+								}
+								controller.sleep(10);
+							}
+							
+							this.reset = false;
+							
+							if(this.threadTime == 0) {
+								this.threadTime = 1;
+							}
+							else {
+								this.threadTime = 0;
+							}
+						}
+					}).start();
 
-						if(!script.getTabs().isOpen(Tab.INVENTORY)) {
-							script.getTabs().open(Tab.INVENTORY);
-							RandomProvider.sleep(100, 150);
-						}	
+					flickLoop: while(!killThread && script.getLocalPlayer().isInCombat()) {	
+					
+					
 						
-						Item eat = script.getInventory().get(f -> f != null && f.getName().equals(food));
-						eat.interact();
-						script.getMouse().move();
-						int realHp = script.getSkills().getRealLevel(Skill.HITPOINTS);
-						eatAt = realHp - RandomProvider.randomInt((int)(realHp * 0.2323232323)) - (heal + 1);
-						controller.returnMouseAccess();
-						Thread.currentThread().setPriority(Thread.NORM_PRIORITY);
-								//random.nextInt(6) + 10;
+						int sleep1 = RandomProvider.randomInt(35, 55); 
+						int sleep2 = RandomProvider.randomInt(25, 55); 
+						int sleep3 = RandomProvider.randomInt(35, 55); 
+						
+						while(prayTime == threadTime) {RandomProvider.sleep(10);}
+						
+						this.prayTime = threadTime;
+						
+						controller.sleep(sleep1);
+						if(!qp.hasAction("Deactivate")) {
+							qp.interact("Activate");
+							//script.getMouse().move(new Point(RandomProvider.randomInt(525, 560),
+								//					RandomProvider.randomInt(85, 100)));
+							controller.debug("Fixing");
+							continue flickLoop;
+						}
+						
+						qp.interact("Deactivate");
+						controller.sleep(sleep2);
+						qp.interact("Activate");
+						
+						controller.sleep(sleep3);
+						
+						
 					}
+					
+					if(qp.hasAction("Deactivate")) {
+						qp.interact("Deactivate");
+						script.getMouse().move(new Point(RandomProvider.randomInt(525, 560),
+												RandomProvider.randomInt(85, 100)));
+					}
+					
+					controller.returnMouseAccess();
+					
 				}
 				else {
 					controller.getAntiBanHandler().resumeAllAntibanThreads();
 				}
-			}*/	
+			}
 			
 		}
 
@@ -1117,7 +1180,7 @@ public class CombatModule extends ScriptModule {
 							}
 							this.specSet = true;
 						}
-						controller.debug("At: " + specAt);
+						//controller.debug("At: " + specAt);
 					}
 					if(script.getCombat().getSpecialPercentage() >= specAt && !script.getCombat().isSpecialActive()) {
 							controller.debug("1");
@@ -1138,7 +1201,7 @@ public class CombatModule extends ScriptModule {
 							controller.returnMouseAccess();
 							
 					}
-					controller.debug("%" + script.getCombat().getSpecialPercentage());
+					//controller.debug("%" + script.getCombat().getSpecialPercentage());
 					RandomProvider.sleep(900, 1100);
 					
 				}

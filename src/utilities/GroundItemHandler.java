@@ -46,7 +46,7 @@ public class GroundItemHandler implements KillableThread{
 				GroundItem item = client.getGroundItems().closest(f -> f != null && f.getName().contains(name));
 				if(item != null) {
 					
-					if(!client.getLocalPlayer().getTile().getArea(10).contains(item)) {
+					if(!client.getLocalPlayer().getTile().getArea(8).contains(item)) {
 						continue unique;
 					}
 					while(controller.requestMouseAccess()) {RandomProvider.sleep(10);}
@@ -116,7 +116,7 @@ public class GroundItemHandler implements KillableThread{
 					if(!client.getLocalPlayer().getTile().getArea(10).contains(item)) {
 						continue major;
 					}
-					while(controller.requestMouseAccess()) {RandomProvider.sleep(10);}
+					while(controller.requestMouseAccess()) {RandomProvider.sleep(8);}
 					controller.debug("Mouse control: GroundItemHandler");
 					controller.getGraphicHandler().setInfo("GroundItemHandler: Trying to pick item");
 					
@@ -171,7 +171,7 @@ public class GroundItemHandler implements KillableThread{
 					GroundItem item = client.getGroundItems().closest(f -> f != null && f.getName().contains(name));
 					if(item != null) {
 						
-						if(!client.getLocalPlayer().getTile().getArea(10).contains(item)) {
+						if(!client.getLocalPlayer().getTile().getArea(8).contains(item)) {
 							continue minor;
 						}
 						while(controller.requestMouseAccess()) {RandomProvider.sleep(10);}
@@ -226,7 +226,7 @@ public class GroundItemHandler implements KillableThread{
 	}
 	
 	//https://www.reddit.com/r/2007scape/comments/hrmb1h/complete_loot_tab_from_7599_slayer/
-	//Monsters added: Hellhound, Greater demon, Banshee, Twisted Banshee
+	//Monsters added: Hellhound, Greater demon, Banshee, Twisted Banshee, Wyrm, Kurask
 	
 	
 	private void createUnique() {
@@ -241,10 +241,17 @@ public class GroundItemHandler implements KillableThread{
 		unique.add("defender");
 		unique.add("Mossy key");
 		unique.add("Dragon platelegs");
+		unique.add("Dragon harpoon");
+		unique.add("Dragon knife");
 		unique.add("Dragon plateskirt");
+		unique.add("Obsidian cape");
+		unique.add("Toktz-xil-ak");
+		unique.add("Ecumenical key");
 	}
 	
 	private void createMajor() {
+		major.add("Toktz-xil-ul");
+		major.add("Toktz-xil-ek");
 		major.add("Long bone");
 		major.add("Curved bone");
 		major.add("Snapdragon seed");
@@ -262,6 +269,7 @@ public class GroundItemHandler implements KillableThread{
 		major.add("Dragon longsword");
 		major.add("Dragon dagger");
 		major.add("Dragon med helm");
+		major.add("Dragon thrownaxe");
 		major.add("Mystic robe");
 		major.add("Mystic hat");
 		major.add("Ranarr seed");
@@ -284,10 +292,12 @@ public class GroundItemHandler implements KillableThread{
 		major.add("Rune dagger");
 		major.add("Rune spear");
 		major.add("Rune mace");
+		major.add("Rune axe");
 		major.add("Runite bar");
 		major.add("Runite limbs");
 		major.add("battlestaff");
 		major.add("Battlestaff");
+		minor.add("Runite bar");
 		major.add("Black d'hide body");
 		major.add("Ensouled demon head");
 		major.add("Ensouled abyssal head");
@@ -312,14 +322,26 @@ public class GroundItemHandler implements KillableThread{
 		major.add("Leaf-bladed battleaxe");
 		major.add("Dark totem base");
 		major.add("Dark totem top");
+		minor.add("Dragonstone");
+		minor.add("Uncut dragonstone");
 		major.add("Ancient shard");
+		major.add("Coconut");
+		major.add("Papaya fruit");
+		major.add("Leaf-bladed");
+		
+		//Kurask farming
+	//	major.add("Coins");
+		//major.add("Big bones");
+		
 	}
 	
 	private void createMinor() {
+		major.add("White berries");
 		minor.add("Dragon bones");
 		minor.add("Black d'hide");
 		minor.add("Red d'hide");
 		minor.add("Blue d'hide");
+		minor.add("Magic shortbow");
 		minor.add("White lily seed");
 		minor.add("Willow seed");
 		minor.add("Green d'hide");
@@ -331,6 +353,7 @@ public class GroundItemHandler implements KillableThread{
 		minor.add("Green dragonhide");
 		minor.add("Blue dragonhide");
 		minor.add("Lantadyme seed");
+		minor.add("Wyrm bones");
 		minor.add("Staff of");
 		minor.add("Adamantite bar");
 		minor.add("Uncut diamond");
@@ -379,10 +402,18 @@ public class GroundItemHandler implements KillableThread{
 		minor.add("Magic logs");
 		minor.add("Teak plank");
 		minor.add("Dragon arrowtips");
+		minor.add("Rune arrowtips");
 		minor.add("Dragon thrownaxe");
 		minor.add("Adamant kiteshield");
 		minor.add("Rune javelin");
 		minor.add("Limpwurt root");
+		major.add("Adamant plateskirt");
+		major.add("Adamant battleaxe");
+		major.add("Adamant platebody");
+		major.add("Adamant platelegs");
+		major.add("Adamant chainbody");
+		major.add("Adamant full helm");
+		major.add("Adamant scimitar");
 		minor.add("Adamant med helm");
 		minor.add("Adamant 2h sword");
 		minor.add("Adamant sq shield");
@@ -390,6 +421,7 @@ public class GroundItemHandler implements KillableThread{
 		minor.add("Mithril platelegs");
 		major.add("Mithril full helm");
 		minor.add("Mithril platebody");
+		minor.add("Mithril plateskirt");
 		minor.add("Adamant warhammer");
 	}
 	
